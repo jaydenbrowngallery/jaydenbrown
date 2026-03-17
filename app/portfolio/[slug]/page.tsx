@@ -101,8 +101,9 @@ export default async function PortfolioDetailPage({
       </section>
 
       {/* 하단 고정: 갤러리 첫 화면 리스트 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/88 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl gap-4 overflow-x-auto px-4 py-4 md:px-6">
+      {/* 하단 고정: 갤러리 첫 화면 리스트 */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/92 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl gap-3 overflow-x-auto px-3 py-3 md:px-6">
           {allPosts?.map((item) => {
             const isActive = item.slug === post.slug;
 
@@ -110,8 +111,8 @@ export default async function PortfolioDetailPage({
               <Link
                 key={item.id}
                 href={`/portfolio/${item.slug}`}
-                className={`min-w-[140px] flex-shrink-0 transition ${
-                  isActive ? "opacity-100" : "opacity-60 hover:opacity-100"
+                className={`min-w-[110px] flex-shrink-0 transition ${
+                  isActive ? "opacity-100" : "opacity-55 hover:opacity-100"
                 }`}
               >
                 <div
@@ -123,14 +124,27 @@ export default async function PortfolioDetailPage({
                     <img
                       src={item.cover_image}
                       alt={item.title}
-                      className="h-24 w-full object-cover"
+                      className="h-16 w-full object-cover md:h-20"
                     />
                   ) : (
-                    <div className="flex h-24 w-full items-center justify-center text-xs text-white/35">
+                    <div className="flex h-16 w-full items-center justify-center text-[10px] text-white/35 md:h-20">
                       No Image
                     </div>
                   )}
                 </div>
+
+                <p
+                  className={`mt-1 truncate text-[11px] ${
+                    isActive ? "text-white" : "text-white/45"
+                  }`}
+                >
+                  {item.title}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
                 <p
                   className={`mt-2 text-xs ${
