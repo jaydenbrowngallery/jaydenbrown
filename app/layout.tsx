@@ -27,7 +27,8 @@ export default function RootLayout({
                 Home
               </a>
               <a href="/portfolio" className="transition hover:text-black">
-                Portfolio
+  Gallery
+</a>
               </a>
               <a href="/about" className="transition hover:text-black">
                 About

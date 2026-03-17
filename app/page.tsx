@@ -1,32 +1,6 @@
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#f7f5f2] text-[#111111]">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-black/5 bg-[#f7f5f2]/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-10">
-          <a href="/" className="text-sm font-semibold tracking-[0.28em] uppercase">
-            Jayden Brown
-          </a>
-
-          <nav className="hidden items-center gap-8 text-sm text-black/60 md:flex">
-            <a href="/portfolio" className="transition hover:text-black">
-              Portfolio
-            </a>
-            <a href="/about" className="transition hover:text-black">
-              About
-            </a>
-            <a href="/guide" className="transition hover:text-black">
-              Guide
-            </a>
-            <a href="/booking" className="transition hover:text-black">
-              Booking
-            </a>
-            <a href="/contact" className="transition hover:text-black">
-              Contact
-            </a>
-          </nav>
-        </div>
-      </header>
+    <main className="min-h-screen">
 
       {/* Hero */}
       <section className="mx-auto flex min-h-[88vh] max-w-7xl items-center px-6 py-20 md:px-10">
@@ -133,7 +107,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Guide Preview */}
+      {/* Guide + Contact */}
       <section className="border-t border-black/5">
         <div className="mx-auto max-w-7xl px-6 py-24 md:px-10">
           <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
@@ -147,8 +121,7 @@ export default function Home() {
                 편안하게 함께 보내는 시간이었으면 합니다.
               </h3>
               <p className="mt-6 text-base leading-8 text-black/60">
-                촬영 전 어떤 준비를 해야 하는지, 어떤 흐름으로 진행되는지,
-                편안한 촬영을 위해 어떤 점을 안내드리는지 정리해두었습니다.
+                촬영 방식과 진행 과정을 안내드립니다.
               </p>
               <a
                 href="/guide"
@@ -168,20 +141,19 @@ export default function Home() {
                 편하게 남겨주세요.
               </h3>
               <p className="mt-6 text-base leading-8 text-white/70">
-                촬영 종류와 희망 날짜를 함께 보내주시면 조금 더 빠르게
-                안내드릴 수 있습니다.
+                촬영 종류와 날짜를 함께 보내주시면 빠르게 안내드립니다.
               </p>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <a
                   href="sms:01012345678?body=안녕하세요. 촬영 문의드립니다."
-                  className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm text-black transition hover:opacity-90"
+                  className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm text-black"
                 >
                   문자 문의하기
                 </a>
                 <a
                   href="/booking"
-                  className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm text-white transition hover:bg-white hover:text-black"
+                  className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm"
                 >
                   예약 신청서 작성
                 </a>
@@ -191,13 +163,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-black/5">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-sm text-black/45 md:px-10 md:flex-row md:items-center md:justify-between">
-          <p>© Jayden Brown Studio</p>
-          <p>Quiet moments, warm memories.</p>
-        </div>
-      </footer>
     </main>
   );
 }
