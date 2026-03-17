@@ -1,30 +1,70 @@
+"use client";
+
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
-import { unstable_noStore as noStore } from "next/cache";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { isAdmin } from "@/lib/isAdmin";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+type GalleryPost = {
+  id: string;
+  title: string;
+  slug: string;
+  cover_image: string | null;
+  created_at: string;
+};
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export default function PortfolioPage() {
+  const [posts, setPosts] = useState<GalleryPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [admin, setAdmin] = useState(false);
 
-export default async function PortfolioPage() {
-  noStore();
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
 
-  const { data: posts, error } = await supabase
-    .from("gallery_posts")
-    .select("id, title, slug, cover_image, created_at")
-    .order("created_at", { ascending: false });
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-  if (error) {
+      setAdmin(isAdmin(user?.email));
+
+      const { data, error } = await supabase
+        .from("gallery_posts")
+        .select("id, title, slug, cover_image, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setErrorMessage(error.message);
+        setPosts([]);
+      } else {
+        setErrorMessage("");
+        setPosts(data ?? []);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
+        <section className="mx-auto max-w-6xl">
+          <p className="text-sm text-black/50">불러오는 중...</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (errorMessage) {
     return (
       <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
         <div className="mx-auto max-w-6xl">
           <p className="text-sm text-red-500">갤러리 불러오기 실패</p>
-          <pre className="mt-4 text-xs text-black/60 whitespace-pre-wrap">
-            {error.message}
+          <pre className="mt-4 whitespace-pre-wrap text-xs text-black/60">
+            {errorMessage}
           </pre>
         </div>
       </main>
@@ -44,7 +84,18 @@ export default async function PortfolioPage() {
           편안한 흐름 안에서 남긴 장면들을 모아두었습니다.
         </p>
 
-        {!posts || posts.length === 0 ? (
+        {admin && (
+          <div className="mt-6">
+            <Link
+              href="/admin/gallery"
+              className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm text-white"
+            >
+              이미지 업로드
+            </Link>
+          </div>
+        )}
+
+        {posts.length === 0 ? (
           <div className="mt-14 rounded-[2rem] bg-white p-10 shadow-sm">
             <p className="text-black/50">등록된 갤러리가 아직 없습니다.</p>
           </div>
