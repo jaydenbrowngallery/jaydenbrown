@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { isAdmin } from "@/lib/isAdmin";
 import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [admin, setAdmin] = useState(false);
   const pathname = usePathname();
 
   const menus = [
@@ -17,34 +20,23 @@ export default function Header() {
     { href: "/contact", label: "Contact" },
   ];
 
-  // 모바일 메뉴 열리면 배경 스크롤 막기
+  // 로그인 상태 확인
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
-  // ESC 키로 닫기
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(false);
-      }
+      setAdmin(isAdmin(user?.email));
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    checkUser();
   }, []);
 
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
+  // 로그아웃
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    location.reload();
   };
 
   return (
@@ -65,7 +57,7 @@ export default function Header() {
                 key={menu.href}
                 href={menu.href}
                 className={`transition ${
-                  isActive(menu.href)
+                  pathname === menu.href
                     ? "text-black"
                     : "text-black/60 hover:text-black"
                 }`}
@@ -73,98 +65,71 @@ export default function Header() {
                 {menu.label}
               </Link>
             ))}
+
+            {/* 로그인 상태 */}
+            {!admin ? (
+              <Link href="/login" className="text-black">
+                Login
+              </Link>
+            ) : (
+              <>
+                <Link href="/admin/gallery" className="text-black">
+                  Admin
+                </Link>
+                <button onClick={handleLogout} className="text-black">
+                  Logout
+                </button>
+              </>
+            )}
           </nav>
 
-          {/* mobile open button */}
+          {/* 모바일 버튼 */}
           <button
-            type="button"
             onClick={() => setOpen(true)}
-            className="flex h-10 w-10 items-center justify-center md:hidden"
-            aria-label="메뉴 열기"
-            aria-expanded={open}
+            className="md:hidden"
           >
-            <div className="flex flex-col gap-1.5">
-              <span className="block h-[1.5px] w-5 bg-black" />
-              <span className="block h-[1.5px] w-5 bg-black" />
-              <span className="block h-[1.5px] w-5 bg-black" />
-            </div>
+            ☰
           </button>
         </div>
       </header>
 
-      {/* overlay */}
+      {/* 모바일 메뉴 */}
       <div
-        className={`fixed inset-0 z-[60] bg-black/55 transition duration-300 md:hidden ${
-          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        className={`fixed inset-0 bg-black/60 z-50 transition ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setOpen(false)}
       />
 
-      {/* slide panel */}
-      <aside
-        className={`fixed right-0 top-0 z-[70] flex h-full w-[84%] max-w-[380px] flex-col bg-[#111111] text-white shadow-2xl transition-transform duration-300 md:hidden ${
+      <div
+        className={`fixed right-0 top-0 h-full w-[80%] bg-[#111] text-white z-50 transform transition ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
-        aria-hidden={!open}
       >
-        {/* top */}
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-          <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-white/40">
-              Menu
-            </p>
-            <p className="mt-2 text-sm font-medium text-white/90">
-              Jayden Brown Studio
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white/80 transition hover:bg-white/10 hover:text-white"
-            aria-label="메뉴 닫기"
-          >
-            <span className="text-2xl leading-none">×</span>
-          </button>
-        </div>
-
-        {/* navigation */}
-        <nav className="flex flex-1 flex-col px-6 py-6">
+        <div className="p-6 space-y-6">
           {menus.map((menu) => (
             <Link
               key={menu.href}
               href={menu.href}
               onClick={() => setOpen(false)}
-              className={`group flex items-center justify-between border-b border-white/10 py-4 text-base transition ${
-                isActive(menu.href)
-                  ? "text-white"
-                  : "text-white/70 hover:text-white"
-              }`}
+              className="block"
             >
-              <span>{menu.label}</span>
-              <span
-                className={`text-xs transition ${
-                  isActive(menu.href)
-                    ? "text-white/70"
-                    : "text-white/25 group-hover:text-white/50"
-                }`}
-              >
-                →
-              </span>
+              {menu.label}
             </Link>
           ))}
-        </nav>
 
-        {/* bottom */}
-        <div className="border-t border-white/10 px-6 py-6">
-          <p className="text-xs uppercase tracking-[0.3em] text-white/30">
-            Quiet moments
-          </p>
-          <p className="mt-3 text-sm leading-6 text-white/60">
-            편안한 분위기 속에서 오래 남을 순간을 담습니다.
-          </p>
+          <hr className="border-white/20" />
+
+          {!admin ? (
+            <Link href="/login">Login</Link>
+          ) : (
+            <>
+              <Link href="/admin/gallery">Admin</Link>
+              <button onClick={handleLogout}>Logout</button>
+            </>
+          )}
         </div>
-      </aside>
+      </div>
     </>
   );
 }
