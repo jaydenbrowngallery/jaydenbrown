@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { unstable_noStore as noStore } from "next/cache";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,6 +11,8 @@ const supabase = createClient(
 );
 
 export default async function PortfolioPage() {
+  noStore();
+
   const { data: posts, error } = await supabase
     .from("gallery_posts")
     .select("id, title, slug, cover_image, created_at")
@@ -17,7 +23,9 @@ export default async function PortfolioPage() {
       <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
         <div className="mx-auto max-w-6xl">
           <p className="text-sm text-red-500">갤러리 불러오기 실패</p>
-          <pre className="mt-4 text-xs text-black/60">{error.message}</pre>
+          <pre className="mt-4 text-xs text-black/60 whitespace-pre-wrap">
+            {error.message}
+          </pre>
         </div>
       </main>
     );

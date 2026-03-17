@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { unstable_noStore as noStore } from "next/cache";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +15,8 @@ export default async function PortfolioDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  noStore();
+
   const { slug } = await params;
 
   const { data: post, error: postError } = await supabase
@@ -46,7 +52,9 @@ export default async function PortfolioDetailPage({
       <main className="min-h-screen bg-[#f7f5f2] px-6 py-24 md:px-10">
         <section className="mx-auto max-w-5xl">
           <p className="text-sm text-red-500">이미지 불러오기 실패</p>
-          <pre className="mt-4 text-xs text-black/60">{imageError.message}</pre>
+          <pre className="mt-4 text-xs text-black/60 whitespace-pre-wrap">
+            {imageError.message}
+          </pre>
         </section>
       </main>
     );
