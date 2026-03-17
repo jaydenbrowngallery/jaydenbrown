@@ -27,12 +27,12 @@ export default async function PortfolioDetailPage({
 
   if (postError || !post) {
     return (
-      <main className="min-h-screen bg-[#f7f5f2] px-6 py-24 md:px-10">
+      <main className="min-h-screen bg-[#111111] px-6 py-24 text-white md:px-10">
         <section className="mx-auto max-w-5xl">
-          <p className="text-sm text-black/50">존재하지 않는 갤러리입니다.</p>
+          <p className="text-sm text-white/60">존재하지 않는 갤러리입니다.</p>
           <Link
             href="/portfolio"
-            className="mt-6 inline-flex rounded-full border border-black px-6 py-3 text-sm"
+            className="mt-6 inline-flex rounded-full border border-white/30 px-6 py-3 text-sm text-white"
           >
             갤러리로 돌아가기
           </Link>
@@ -49,10 +49,10 @@ export default async function PortfolioDetailPage({
 
   if (imageError) {
     return (
-      <main className="min-h-screen bg-[#f7f5f2] px-6 py-24 md:px-10">
+      <main className="min-h-screen bg-[#111111] px-6 py-24 text-white md:px-10">
         <section className="mx-auto max-w-5xl">
-          <p className="text-sm text-red-500">이미지 불러오기 실패</p>
-          <pre className="mt-4 text-xs text-black/60 whitespace-pre-wrap">
+          <p className="text-sm text-red-400">이미지 불러오기 실패</p>
+          <pre className="mt-4 whitespace-pre-wrap text-xs text-white/60">
             {imageError.message}
           </pre>
         </section>
@@ -61,42 +61,63 @@ export default async function PortfolioDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-      <section className="mx-auto max-w-6xl">
+    <main className="min-h-screen bg-[#111111] text-white">
+      <section className="mx-auto max-w-6xl px-6 py-16 md:px-10">
         <Link
           href="/portfolio"
-          className="text-sm text-black/45 transition hover:text-black"
+          className="text-sm text-white/50 transition hover:text-white"
         >
           ← 갤러리로 돌아가기
         </Link>
 
-        <p className="mt-8 text-xs uppercase tracking-[0.35em] text-black/45">
+        <p className="mt-8 text-xs uppercase tracking-[0.35em] text-white/35">
           Gallery Detail
         </p>
 
         <h1 className="mt-4 text-4xl font-semibold md:text-6xl">{post.title}</h1>
 
         {!images || images.length === 0 ? (
-          <div className="mt-14 rounded-[2rem] bg-white p-10 shadow-sm">
-            <p className="text-black/50">등록된 이미지가 없습니다.</p>
+          <div className="mt-14 bg-[#1a1a1a] p-10">
+            <p className="text-white/50">등록된 이미지가 없습니다.</p>
           </div>
         ) : (
-          <div className="mt-14 space-y-6">
-            {images.map((image, index) => (
-              <div
-                key={image.id}
-                className="overflow-hidden rounded-[2rem] bg-white p-4 shadow-sm md:p-6"
-              >
-                <div className="overflow-hidden rounded-[1.5rem] bg-[#e9e4de]">
+          <>
+            <div className="mt-14 space-y-10 pb-32">
+              {images.map((image, index) => (
+                <div key={image.id} className="bg-[#181818] p-0">
                   <img
                     src={image.image_url}
                     alt={`${post.title} ${index + 1}`}
-                    className="w-full object-cover"
+                    className="block w-full object-cover"
                   />
                 </div>
+              ))}
+            </div>
+
+            {/* 하단 고정 썸네일 리스트 */}
+            <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/85 backdrop-blur">
+              <div className="mx-auto flex max-w-6xl gap-3 overflow-x-auto px-4 py-4 md:px-6">
+                {images.map((image, index) => (
+                  <a
+                    key={image.id}
+                    href={`#image-${index + 1}`}
+                    className="block min-w-[72px] flex-shrink-0"
+                  >
+                    <div className="overflow-hidden border border-white/10 bg-[#1a1a1a]">
+                      <img
+                        src={image.image_url}
+                        alt={`${post.title} thumbnail ${index + 1}`}
+                        className="h-20 w-16 object-cover"
+                      />
+                    </div>
+                    <p className="mt-2 text-center text-[10px] text-white/45">
+                      {index + 1}
+                    </p>
+                  </a>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          </>
         )}
       </section>
     </main>
