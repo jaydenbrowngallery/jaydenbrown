@@ -1,145 +1,106 @@
-export default function Home() {
+import Link from "next/link";
+import { Camera, MessageCircle, BookOpen, CalendarDays } from "lucide-react";
+
+export default function HomePage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-[#f7f5f2] text-[#111111]">
+      <section className="mx-auto flex max-w-6xl flex-col px-6 pb-10 pt-8 md:px-10 md:pt-12">
+        {/* 로고 영역 */}
+        <div className="mb-8 flex justify-center md:mb-10 md:justify-start">
+          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-black">
+            Jayden Brown
+          </p>
+        </div>
 
-      {/* Hero */}
-      <section className="mx-auto flex min-h-[88vh] max-w-7xl items-center px-6 py-20 md:px-10">
-        <div className="grid w-full items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
-          <div>
-            <p className="mb-5 text-xs tracking-[0.35em] text-black/45 uppercase">
-              Wedding & Portrait Photography
-            </p>
-
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[1.08] tracking-tight md:text-7xl">
-              행복한 사진은,
+        {/* 메인 비주얼 */}
+        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
+          <div className="order-2 md:order-1">
+            <h1 className="text-center text-4xl font-semibold leading-[1.08] tracking-[-0.05em] md:text-left md:text-7xl">
+              촬영하는 시간이
               <br />
-              즐거운 시간에서
+              행복해야
               <br />
-              시작됩니다.
+              기억도 오래 남습니다.
             </h1>
 
-            <p className="mt-8 max-w-2xl text-base leading-8 text-black/60 md:text-lg">
-              예쁘게 남는 결과만큼, 촬영하는 시간이 편안하고 좋은 기억으로
-              남는 것을 더 중요하게 생각합니다. 과한 연출보다 자연스러운
-              분위기 속에서 오래 남을 순간을 담습니다.
+            <p className="mx-auto mt-6 max-w-xl text-center text-base leading-7 text-black/50 md:mx-0 md:text-left md:text-lg">
+              사진보다 먼저 기억에 남는 것은 그날의 시간이라고 생각합니다.
+              편안하고 자연스러운 흐름 안에서, 오래 남는 사진을 기록합니다.
             </p>
-
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <a
-                href="/portfolio"
-                className="inline-flex items-center justify-center rounded-full bg-black px-7 py-3 text-sm text-white"
-              >
-                갤러리 보기
-              </a>
-              <a
-                href="/booking"
-                className="inline-flex items-center justify-center rounded-full border border-black px-7 py-3 text-sm"
-              >
-                예약 신청하기
-              </a>
-            </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="aspect-[4/5] rounded-[2rem] bg-[#d9d4cf]" />
-            <div className="mt-10 aspect-[4/5] rounded-[2rem] bg-[#e7e2dc]" />
-            <div className="aspect-[4/5] rounded-[2rem] bg-[#ece8e3]" />
-            <div className="mt-10 aspect-[4/5] rounded-[2rem] bg-[#d6d1cb]" />
+          <div className="order-1 overflow-hidden rounded-[28px] bg-[#e9e5df] md:order-2">
+            <div
+              className="aspect-[4/5] w-full bg-cover bg-center"
+              style={{ backgroundImage: "url('/img/001.jpg')" }}
+            />
           </div>
+        </div>
+
+        {/* 하단 아이콘 메뉴 */}
+        <div className="mt-10 grid grid-cols-4 gap-3 md:mt-14 md:max-w-xl">
+          <QuickLink
+            href="/portfolio"
+            icon={<Camera className="h-5 w-5" />}
+            label="갤러리"
+          />
+          <QuickLink
+            href="/contact"
+            icon={<MessageCircle className="h-5 w-5" />}
+            label="문의"
+          />
+          <QuickLink
+            href="/guide"
+            icon={<BookOpen className="h-5 w-5" />}
+            label="가이드"
+          />
+          <QuickLink
+            href="/about"
+            icon={<CalendarDays className="h-5 w-5" />}
+            label="소개"
+          />
         </div>
       </section>
 
-      {/* Philosophy */}
+      {/* 하단 짧은 소개 */}
       <section className="border-t border-black/5">
-        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-24 md:px-10 lg:grid-cols-[0.9fr_1.1fr]">
-          <div>
-            <p className="text-xs tracking-[0.35em] text-black/45 uppercase">
-              Philosophy
+        <div className="mx-auto max-w-6xl px-6 py-12 md:px-10 md:py-16">
+          <div className="max-w-3xl">
+            <p className="text-sm uppercase tracking-[0.24em] text-black/30">
+              About
             </p>
-            <h2 className="mt-5 text-3xl font-semibold leading-tight md:text-5xl">
-              사진보다 먼저,
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">
+              좋은 사진은
               <br />
-              시간이 좋은 기억이었으면 합니다.
+              좋은 시간에서 시작된다고 믿습니다.
             </h2>
-          </div>
-
-          <div className="space-y-6 text-base leading-8 text-black/65 md:text-lg">
-            <p>
-              저는 사진을 찍는 시간은 결과만큼 중요하다고 생각합니다.
-              아무리 예쁜 사진이라도, 그 과정이 힘들고 지치기만 했다면
-              오래 행복한 기억으로 남기 어렵다고 믿습니다.
-            </p>
-            <p>
-              그래서 과한 연출보다 자연스러운 흐름을,
-              어색한 포즈보다 편안한 분위기를 더 중요하게 생각합니다.
+            <p className="mt-6 text-base leading-8 text-black/50 md:text-lg">
+              과한 연출보다는 자연스러운 흐름을 따라가며, 그날의 공기와 표정,
+              관계의 온도를 담는 촬영을 지향합니다.
             </p>
           </div>
         </div>
       </section>
-
-      {/* Gallery Preview */}
-      <section className="border-t border-black/5">
-        <div className="mx-auto max-w-7xl px-6 py-24 md:px-10">
-          <div>
-            <p className="text-xs tracking-[0.35em] text-black/45 uppercase">
-              Gallery
-            </p>
-            <h2 className="mt-4 text-3xl font-semibold md:text-5xl">
-              조용하고 따뜻한 순간들
-            </h2>
-          </div>
-
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            <div className="aspect-[4/5] rounded-[2rem] bg-[#dfdbd6]" />
-            <div className="aspect-[4/5] rounded-[2rem] bg-[#d4d0ca]" />
-            <div className="aspect-[4/5] rounded-[2rem] bg-[#e8e4de]" />
-          </div>
-        </div>
-      </section>
-
-      {/* Guide + Contact */}
-      <section className="border-t border-black/5">
-        <div className="mx-auto max-w-7xl px-6 py-24 md:px-10">
-          <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
-            <div className="rounded-[2rem] bg-white px-8 py-10 shadow-sm">
-              <h3 className="text-2xl font-semibold md:text-3xl">
-                촬영은 잘 해내야 하는 시간이 아니라,
-                <br />
-                편안하게 함께 보내는 시간이었으면 합니다.
-              </h3>
-
-              <a
-                href="/guide"
-                className="mt-8 inline-flex rounded-full border border-black px-6 py-3 text-sm"
-              >
-                촬영 안내 보기
-              </a>
-            </div>
-
-            <div className="rounded-[2rem] bg-black px-8 py-10 text-white">
-              <h3 className="text-2xl font-semibold md:text-3xl">
-                문의는 문자로 남겨주세요.
-              </h3>
-
-              <div className="mt-8 flex flex-col gap-4">
-                <a
-                  href="sms:01012345678?body=안녕하세요. 촬영 문의드립니다."
-                  className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm text-black"
-                >
-                  문자 문의하기
-                </a>
-                <a
-                  href="/booking"
-                  className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm"
-                >
-                  예약 신청서 작성
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
     </main>
+  );
+}
+
+function QuickLink({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col items-center justify-center rounded-[22px] border border-black/8 bg-white px-3 py-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:bg-black/5"
+    >
+      <div className="mb-2 text-black">{icon}</div>
+      <span className="text-sm font-medium text-black/70">{label}</span>
+    </Link>
   );
 }
