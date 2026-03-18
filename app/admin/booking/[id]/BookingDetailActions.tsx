@@ -39,6 +39,12 @@ export default function BookingDetailActions({ item }: Props) {
     `문의 내용: ${item.message || "-"}`,
   ].join("\n");
 
+  const smsMessage = `안녕하세요^^ 제이든브라운 입니다.
+신청서 접수 되었습니다.
+다음 계좌번호로 예약금 5만원 입금해주시면 됩니다.
+입금 후 따로 연락은 주지 않으셔도 됩니다.^^
+계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(copyText);
@@ -67,7 +73,7 @@ export default function BookingDetailActions({ item }: Props) {
     const startDate = formatDate(start);
     const endDate = formatDate(end);
 
-    // 제목: 시간 / 이름 / 장소
+    // 제목: 시간 / 촬영자명 / 장소
     const calendarTitle = [item.time, item.name, item.location]
       .filter(Boolean)
       .join(" / ");
@@ -106,16 +112,13 @@ export default function BookingDetailActions({ item }: Props) {
   const buildSmsUrl = () => {
     if (!item.phone) return null;
 
-    const message = `안녕하세요^^ 제이든브라운 입니다.
-신청서 접수 되었습니다.
-다음 계좌번호로 예약금 5만원 입금해주시면 됩니다.
-입금 후 따로 연락은 주지 않으셔도 됩니다.^^
-계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
+    // 하이픈/공백 제거
+    const normalizedPhone = item.phone.replace(/[^0-9]/g, "");
 
-    return `sms:${item.phone}?body=${encodeURIComponent(message)}`;
+    return `sms:${normalizedPhone}&body=${encodeURIComponent(smsMessage)}`;
   };
 
-  const handleCalendarAndSMS = () => {
+  const handleCalendarAndSMS = async () => {
     const calendarUrl = buildGoogleCalendarUrl();
     const smsUrl = buildSmsUrl();
 
@@ -124,16 +127,25 @@ export default function BookingDetailActions({ item }: Props) {
       return;
     }
 
-    if (!smsUrl) {
-      alert("전화번호가 없어 문자를 열 수 없습니다.");
+    // 1) 캘린더 새 탭 열기
+    window.open(calendarUrl, "_blank", "noopener,noreferrer");
+
+    // 2) 문자 URL이 있으면 문자 앱 호출 시도
+    if (smsUrl) {
+      // 일부 환경 fallback용으로 문자 본문도 미리 복사
+      try {
+        await navigator.clipboard.writeText(smsMessage);
+      } catch {}
+
+      // 약간 딜레이 후 문자 앱 호출
+      setTimeout(() => {
+        window.location.href = smsUrl;
+      }, 300);
+
       return;
     }
 
-    // 1) 캘린더는 새 탭으로
-    window.open(calendarUrl, "_blank", "noopener,noreferrer");
-
-    // 2) 현재 탭은 문자 앱으로 이동
-    window.location.href = smsUrl;
+    alert("전화번호가 없어 문자 앱을 열 수 없습니다.");
   };
 
   return (
