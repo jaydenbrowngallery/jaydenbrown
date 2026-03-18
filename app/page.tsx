@@ -19,17 +19,19 @@ export default function HomePage() {
               고스란히 남습니다.
             </h1>
 
-            <div className="mt-7 max-w-2xl space-y-4 text-[15px] leading-7 text-black/48 md:text-[18px] md:leading-8">
-              <p>
-                훗날 사진을 꺼내 보며 웃음 지을 수 있으려면,
-                촬영하는 지금 이 순간이 온전히 행복해야 합니다.
-              </p>
+            <div className="mt-7 max-w-2xl space-y-4 text-[15px] leading-7 text-black/45 md:text-[18px] md:leading-8">
+  <p>
+    훗날 사진을 꺼내 보며 웃음 지을 수 있으려면,
+    <br />
+    촬영하는 지금 이 순간이 온전히 행복해야 합니다.
+  </p>
 
-              <p>
-                당신의 가장 자연스러운 미소를 끌어내는
-                편안한 시간을 선물합니다.
-              </p>
-            </div>
+  <p>
+    당신의 가장 자연스러운 미소를 끌어내는
+    <br />
+    편안한 시간을 선물합니다.
+  </p>
+</div>
 
             {/* 하단 링크: 모바일/PC 공통 표시 */}
             <div className="mt-10 grid grid-cols-4 gap-3 md:mt-12 md:max-w-xl">
