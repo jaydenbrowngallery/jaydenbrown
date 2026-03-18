@@ -17,18 +17,13 @@ const STATUS_OPTIONS: { value: BookingStatus; label: string }[] = [
   { value: "cancelled", label: "취소" },
 ];
 
-export default function BookingStatusSelect({
-  id,
-  currentStatus,
-}: Props) {
+export default function BookingStatusSelect({ id, currentStatus }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const nextStatus = e.target.value as BookingStatus;
-
     const formData = new FormData();
     formData.append("id", id);
-    formData.append("status", nextStatus);
+    formData.append("status", e.target.value);
 
     startTransition(async () => {
       try {

@@ -36,7 +36,6 @@ export default async function AdminBookingPage() {
               <th className="px-4 py-3 text-left font-semibold">신청일</th>
               <th className="px-4 py-3 text-left font-semibold">이름</th>
               <th className="px-4 py-3 text-left font-semibold">연락처</th>
-              <th className="px-4 py-3 text-left font-semibold">제목</th>
               <th className="px-4 py-3 text-left font-semibold">날짜</th>
               <th className="px-4 py-3 text-left font-semibold">시간</th>
               <th className="px-4 py-3 text-left font-semibold">장소</th>
@@ -54,7 +53,6 @@ export default async function AdminBookingPage() {
                 </td>
                 <td className="px-4 py-3">{item.name ?? "-"}</td>
                 <td className="px-4 py-3">{item.phone ?? "-"}</td>
-                <td className="px-4 py-3">{item.title ?? "-"}</td>
                 <td className="px-4 py-3">{item.date ?? "-"}</td>
                 <td className="px-4 py-3">{item.time ?? "-"}</td>
                 <td className="px-4 py-3">{item.location ?? "-"}</td>
@@ -71,7 +69,7 @@ export default async function AdminBookingPage() {
 
             {!requests?.length && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={7} className="px-4 py-10 text-center text-gray-500">
                   신청서가 없습니다.
                 </td>
               </tr>

@@ -1,91 +1,145 @@
-import Link from 'next/link'
-import { requireAdmin } from '@/lib/supabase/admin'
-import BookingStatusBadge from '@/components/admin/BookingStatusBadge'
-import BookingStatusSelect from '@/components/admin/BookingStatusSelect'
+"use client";
 
-export const dynamic = 'force-dynamic'
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { isAdmin } from "@/lib/isAdmin";
+import { usePathname } from "next/navigation";
 
-export default async function AdminBookingPage() {
-  const { supabase } = await requireAdmin()
+export default function Header() {
+  const [open, setOpen] = useState(false);
+  const [admin, setAdmin] = useState(false);
+  const pathname = usePathname();
 
-  const { data: requests, error } = await supabase
-    .from('booking_requests')
-    .select('*')
-    .order('created_at', { ascending: false })
+  const menus = [
+    { href: "/", label: "Home" },
+    { href: "/portfolio", label: "Gallery" },
+    { href: "/about", label: "About" },
+    { href: "/guide", label: "Guide" },
+    { href: "/admin/booking", label: "Booking" },
+    { href: "/contact", label: "Contact" },
+  ];
 
-  if (error) {
-    return (
-      <main className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="mb-6 text-2xl font-bold">예약 신청서 관리</h1>
-        <p className="text-red-500">
-          데이터를 불러오지 못했습니다: {error.message}
-        </p>
-      </main>
-    )
-  }
+  useEffect(() => {
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setAdmin(isAdmin(user?.email));
+    };
+
+    checkUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAdmin(isAdmin(session?.user?.email));
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    location.reload();
+  };
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">예약 신청서 관리</h1>
-        <p className="text-sm text-gray-500">총 {requests?.length ?? 0}건</p>
-      </div>
+    <>
+      <header className="sticky top-0 z-50 border-b border-black/5 bg-[#f7f5f2]/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-10">
+          <Link
+            href="/"
+            className="text-sm font-semibold uppercase tracking-[0.28em]"
+          >
+            Jayden Brown
+          </Link>
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
-        <table className="min-w-full text-sm">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left font-semibold">신청일</th>
-              <th className="px-4 py-3 text-left font-semibold">이름</th>
-              <th className="px-4 py-3 text-left font-semibold">연락처</th>
-              <th className="px-4 py-3 text-left font-semibold">희망일</th>
-              <th className="px-4 py-3 text-left font-semibold">현재 상태</th>
-              <th className="px-4 py-3 text-left font-semibold">상태 변경</th>
-              <th className="px-4 py-3 text-left font-semibold">상세</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {requests?.map((item) => (
-              <tr key={item.id} className="border-b last:border-b-0">
-                <td className="px-4 py-3">
-                  {item.created_at
-                    ? new Date(item.created_at).toLocaleString('ko-KR')
-                    : '-'}
-                </td>
-                <td className="px-4 py-3">{item.name}</td>
-                <td className="px-4 py-3">{item.phone}</td>
-                <td className="px-4 py-3">{item.desired_date ?? '-'}</td>
-                <td className="px-4 py-3">
-                  <BookingStatusBadge status={item.status} />
-                </td>
-                <td className="px-4 py-3">
-                  <BookingStatusSelect
-                    id={item.id}
-                    currentStatus={item.status}
-                  />
-                </td>
-                <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/booking/${item.id}`}
-                    className="inline-flex rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
-                  >
-                    보기
-                  </Link>
-                </td>
-              </tr>
+          <nav className="hidden items-center gap-8 text-sm text-black/60 md:flex">
+            {menus.map((menu) => (
+              <Link
+                key={menu.href}
+                href={menu.href}
+                className={`transition ${
+                  isActive(menu.href)
+                    ? "text-black"
+                    : "text-black/60 hover:text-black"
+                }`}
+              >
+                {menu.label}
+              </Link>
             ))}
 
-            {!requests?.length && (
-              <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-gray-500">
-                  신청서가 없습니다.
-                </td>
-              </tr>
+            {!admin ? (
+              <Link href="/login" className="text-black">
+                Login
+              </Link>
+            ) : (
+              <>
+                <Link href="/admin/gallery" className="text-black">
+                  Admin
+                </Link>
+                <button onClick={handleLogout} className="text-black">
+                  Logout
+                </button>
+              </>
             )}
-          </tbody>
-        </table>
+          </nav>
+
+          <button onClick={() => setOpen(true)} className="md:hidden">
+            ☰
+          </button>
+        </div>
+      </header>
+
+      <div
+        className={`fixed inset-0 z-50 bg-black/60 transition ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={() => setOpen(false)}
+      />
+
+      <div
+        className={`fixed right-0 top-0 z-50 h-full w-[80%] transform bg-[#111] text-white transition ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="space-y-6 p-6">
+          {menus.map((menu) => (
+            <Link
+              key={menu.href}
+              href={menu.href}
+              onClick={() => setOpen(false)}
+              className="block"
+            >
+              {menu.label}
+            </Link>
+          ))}
+
+          <hr className="border-white/20" />
+
+          {!admin ? (
+            <Link href="/login" onClick={() => setOpen(false)}>
+              Login
+            </Link>
+          ) : (
+            <>
+              <Link href="/admin/gallery" onClick={() => setOpen(false)}>
+                Admin
+              </Link>
+              <button onClick={handleLogout}>Logout</button>
+            </>
+          )}
+        </div>
       </div>
-    </main>
-  )
+    </>
+  );
 }

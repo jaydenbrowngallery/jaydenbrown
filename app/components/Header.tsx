@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { isAdmin } from "@/lib/isAdmin";
 import { usePathname } from "next/navigation";
@@ -11,23 +11,14 @@ export default function Header() {
   const [admin, setAdmin] = useState(false);
   const pathname = usePathname();
 
-  const baseMenus = [
+  const menus = [
     { href: "/", label: "Home" },
     { href: "/portfolio", label: "Gallery" },
     { href: "/about", label: "About" },
     { href: "/guide", label: "Guide" },
+    { href: "/admin/booking", label: "Booking" },
     { href: "/contact", label: "Contact" },
   ];
-
-  const menus = useMemo(() => {
-    return admin
-      ? [
-          ...baseMenus.slice(0, 4),
-          { href: "/admin/booking", label: "Booking" },
-          ...baseMenus.slice(4),
-        ]
-      : baseMenus;
-  }, [admin]);
 
   useEffect(() => {
     const checkUser = async () => {
