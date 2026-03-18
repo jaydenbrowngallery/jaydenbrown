@@ -47,6 +47,8 @@ export default function PortfolioDetailPage({
 
     const fetchData = async () => {
       setLoading(true);
+      setErrorMessage("");
+      setNotFound(false);
 
       const {
         data: { user },
@@ -86,10 +88,16 @@ export default function PortfolioDetailPage({
         return;
       }
 
-      const { data: listData } = await supabase
+      const { data: listData, error: listError } = await supabase
         .from("gallery_posts")
         .select("id, title, slug, cover_image, created_at")
         .order("created_at", { ascending: false });
+
+      if (listError) {
+        setErrorMessage(listError.message);
+        setLoading(false);
+        return;
+      }
 
       setImages(imageData ?? []);
       setAllPosts(listData ?? []);
@@ -98,6 +106,85 @@ export default function PortfolioDetailPage({
 
     fetchData();
   }, [slug]);
+
+  const handleDelete = async () => {
+    if (!post) return;
+
+    const ok = confirm("정말 삭제하시겠습니까?");
+    if (!ok) return;
+
+    try {
+      // 1) 연결된 이미지 목록 조회
+      const { data: imageRows, error: fetchImagesError } = await supabase
+        .from("gallery_images")
+        .select("id, image_url")
+        .eq("post_id", post.id);
+
+      if (fetchImagesError) {
+        alert(`이미지 조회 실패: ${fetchImagesError.message}`);
+        return;
+      }
+
+      // 2) storage 경로 추출
+      const filePaths =
+        imageRows
+          ?.map((img) => {
+            try {
+              const marker = "/storage/v1/object/public/gallery/";
+              const idx = img.image_url.indexOf(marker);
+              if (idx === -1) return null;
+              return decodeURIComponent(
+                img.image_url.substring(idx + marker.length)
+              );
+            } catch {
+              return null;
+            }
+          })
+          .filter((v): v is string => Boolean(v)) ?? [];
+
+      // 3) storage 파일 삭제
+      if (filePaths.length > 0) {
+        const { error: storageDeleteError } = await supabase.storage
+          .from("gallery")
+          .remove(filePaths);
+
+        if (storageDeleteError) {
+          alert(`스토리지 삭제 실패: ${storageDeleteError.message}`);
+          return;
+        }
+      }
+
+      // 4) gallery_images 삭제
+      const { error: deleteImagesError } = await supabase
+        .from("gallery_images")
+        .delete()
+        .eq("post_id", post.id);
+
+      if (deleteImagesError) {
+        alert(`이미지 DB 삭제 실패: ${deleteImagesError.message}`);
+        return;
+      }
+
+      // 5) gallery_posts 삭제
+      const { error: deletePostError } = await supabase
+        .from("gallery_posts")
+        .delete()
+        .eq("id", post.id);
+
+      if (deletePostError) {
+        alert(`갤러리 글 삭제 실패: ${deletePostError.message}`);
+        return;
+      }
+
+      alert("삭제 완료");
+      window.location.href = "/portfolio";
+    } catch (error) {
+      alert(
+        "삭제 중 오류가 발생했습니다.\n\n" +
+          (error instanceof Error ? error.message : String(error))
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -166,6 +253,7 @@ export default function PortfolioDetailPage({
 
               <button
                 type="button"
+                onClick={handleDelete}
                 className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm text-black transition hover:bg-white/85"
               >
                 삭제
@@ -193,22 +281,23 @@ export default function PortfolioDetailPage({
         )}
       </section>
 
+      {/* 하단 고정: 갤러리 리스트 */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/92 backdrop-blur">
         <div className="mx-auto flex max-w-6xl gap-3 overflow-x-auto px-3 py-3 md:px-6">
           {allPosts.map((item) => {
-            const isActive = item.slug === post.slug;
+            const active = item.slug === post.slug;
 
             return (
               <Link
                 key={item.id}
                 href={`/portfolio/${item.slug}`}
                 className={`min-w-[110px] flex-shrink-0 transition ${
-                  isActive ? "opacity-100" : "opacity-55 hover:opacity-100"
+                  active ? "opacity-100" : "opacity-55 hover:opacity-100"
                 }`}
               >
                 <div
                   className={`overflow-hidden border ${
-                    isActive ? "border-white" : "border-white/10"
+                    active ? "border-white" : "border-white/10"
                   } bg-[#1a1a1a]`}
                 >
                   {item.cover_image ? (
@@ -226,7 +315,7 @@ export default function PortfolioDetailPage({
 
                 <p
                   className={`mt-1 truncate text-[11px] ${
-                    isActive ? "text-white" : "text-white/45"
+                    active ? "text-white" : "text-white/45"
                   }`}
                 >
                   {item.title}
