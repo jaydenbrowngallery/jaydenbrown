@@ -1,4 +1,5 @@
 "use client";
+
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -89,8 +90,12 @@ export default function Header() {
             )}
           </nav>
 
-          <button onClick={() => setOpen(true)} className="md:hidden">
-            ☰
+          <button
+            onClick={() => setOpen(true)}
+            className="flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-black/5 active:scale-95 md:hidden"
+            aria-label="메뉴 열기"
+          >
+            <Menu size={22} strokeWidth={1.8} />
           </button>
         </div>
       </header>
@@ -131,11 +136,11 @@ export default function Header() {
                 Admin
               </Link>
               <button
-  onClick={() => setOpen(true)}
-  className="md:hidden flex items-center justify-center w-11 h-11 rounded-full transition hover:bg-black/5 active:scale-95"
->
-  <Menu size={22} strokeWidth={1.8} />
-</button>
+                onClick={handleLogout}
+                className="block text-left"
+              >
+                Logout
+              </button>
             </>
           )}
         </div>
