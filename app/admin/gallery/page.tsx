@@ -1,12 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { isAdmin } from "@/lib/isAdmin";
 
 export default function AdminGalleryPage() {
+  const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.replace("/login");
+        return;
+      }
+
+      if (!isAdmin(user.email)) {
+        setCheckingAuth(false);
+        setAuthorized(false);
+        return;
+      }
+
+      setAuthorized(true);
+      setCheckingAuth(false);
+    };
+
+    checkAuth();
+  }, [router]);
 
   const handleUpload = async () => {
     if (!title.trim()) {
@@ -122,6 +152,7 @@ export default function AdminGalleryPage() {
       alert("업로드 완료");
       setTitle("");
       setFiles(null);
+      router.push("/portfolio");
     } catch (error) {
       alert(
         "예상치 못한 오류\n\n" +
@@ -131,6 +162,34 @@ export default function AdminGalleryPage() {
       setLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
+        <div className="mx-auto max-w-2xl rounded-[2rem] bg-white p-8 shadow-sm">
+          <p className="text-sm text-black/50">관리자 권한 확인 중...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!authorized) {
+    return (
+      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
+        <div className="mx-auto max-w-2xl rounded-[2rem] bg-white p-8 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.35em] text-black/45">
+            Access Denied
+          </p>
+          <h1 className="mt-4 text-3xl font-semibold md:text-5xl">
+            접근 권한이 없습니다
+          </h1>
+          <p className="mt-4 text-black/60">
+            관리자 계정으로 로그인한 경우에만 이 페이지를 사용할 수 있습니다.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
