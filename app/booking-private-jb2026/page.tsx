@@ -74,7 +74,7 @@ export default function BookingPrivatePage() {
     e.preventDefault();
 
     if (!name || !phone || !date) {
-      alert("아기 이름, 연락처, 날짜는 필수입니다.");
+      alert("촬영자명, 연락처, 날짜는 필수입니다.");
       return;
     }
 
@@ -129,7 +129,7 @@ export default function BookingPrivatePage() {
 
           <div className="space-y-3">
             <Item label="제목" value={submittedData.title} />
-            <Item label="아기 이름" value={submittedData.name} />
+            <Item label="촬영자명 (돌잔치는 아기이름)" value={submittedData.name} />
             <Item label="연락처" value={submittedData.phone} />
             <Item label="이메일" value={submittedData.email} />
             <Item label="날짜" value={submittedData.date} />
@@ -182,7 +182,7 @@ export default function BookingPrivatePage() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="촬영자명 / 돌잔치는 아기이름 (필수)"
+              placeholder="촬영자명 (돌잔치는 아기이름) (필수)"
               className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
             />
 
@@ -267,9 +267,9 @@ export default function BookingPrivatePage() {
               className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
             >
               <option value="">상품 선택</option>
-  <option value="돌스냅">돌스냅</option>
-  <option value="웨딩스냅">웨딩스냅</option>
-  <option value="고희연">고희연</option>
+              <option value="돌스냅">돌스냅</option>
+              <option value="웨딩스냅">웨딩스냅</option>
+              <option value="고희연">고희연</option>
             </select>
           </div>
 

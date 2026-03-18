@@ -53,17 +53,18 @@ export default async function AdminBookingDetailPage({ params }: Props) {
 
       <div className="space-y-8 rounded-[28px] border border-black/10 bg-white p-6 md:p-8">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <InfoBox label="제목" value={item.title} />
-          <InfoBox label="촬영자명 (돌잔치는 아기이름)" value={item.name} />
-          <InfoBox label="연락처" value={item.phone} />
-          <InfoBox label="날짜" value={item.date} />
-          <InfoBox label="시간" value={item.time} />
-          <InfoBox label="촬영 장소" value={item.location} />
-          <InfoBox label="우편번호" value={item.zipcode} />
-          <InfoBox label="입금자명" value={item.depositor_name} />
-          <InfoBox label="상품 선택" value={item.product} />
-          <InfoBox label="상태" value={item.status || "pending"} />
-        </div>
+  <InfoBox label="제목" value={item.title} />
+  <InfoBox label="촬영자명 (돌잔치는 아기이름)" value={item.name} />
+  <InfoBox label="연락처" value={item.phone} />
+  <InfoBox label="이메일" value={item.email} />
+  <InfoBox label="날짜" value={item.date} />
+  <InfoBox label="시간" value={item.time} />
+  <InfoBox label="촬영 장소" value={item.location} />
+  <InfoBox label="우편번호" value={item.zipcode} />
+  <InfoBox label="입금자명" value={item.depositor_name} />
+  <InfoBox label="상품 선택" value={item.product} />
+  <InfoBox label="상태" value={item.status || "pending"} />
+</div>
 
         <div className="space-y-5">
           <FullBox label="주소" value={item.address} />

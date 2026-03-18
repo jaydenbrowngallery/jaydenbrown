@@ -23,3 +23,4 @@ export async function deleteBookingRequest(formData: FormData) {
 
   revalidatePath("/admin/booking");
 }
+
