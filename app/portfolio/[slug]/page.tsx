@@ -19,6 +19,13 @@ type GalleryImage = {
   sort_order: number;
 };
 
+function getStoragePathFromPublicUrl(imageUrl: string) {
+  const marker = "/storage/v1/object/public/gallery/";
+  const idx = imageUrl.indexOf(marker);
+  if (idx === -1) return null;
+  return decodeURIComponent(imageUrl.substring(idx + marker.length));
+}
+
 export default function PortfolioDetailPage({
   params,
 }: {
@@ -114,7 +121,6 @@ export default function PortfolioDetailPage({
     if (!ok) return;
 
     try {
-      // 1) 연결된 이미지 목록 조회
       const { data: imageRows, error: fetchImagesError } = await supabase
         .from("gallery_images")
         .select("id, image_url")
@@ -125,24 +131,17 @@ export default function PortfolioDetailPage({
         return;
       }
 
-      // 2) storage 경로 추출
       const filePaths =
         imageRows
           ?.map((img) => {
             try {
-              const marker = "/storage/v1/object/public/gallery/";
-              const idx = img.image_url.indexOf(marker);
-              if (idx === -1) return null;
-              return decodeURIComponent(
-                img.image_url.substring(idx + marker.length)
-              );
+              return getStoragePathFromPublicUrl(img.image_url);
             } catch {
               return null;
             }
           })
           .filter((v): v is string => Boolean(v)) ?? [];
 
-      // 3) storage 파일 삭제
       if (filePaths.length > 0) {
         const { error: storageDeleteError } = await supabase.storage
           .from("gallery")
@@ -154,7 +153,6 @@ export default function PortfolioDetailPage({
         }
       }
 
-      // 4) gallery_images 삭제
       const { error: deleteImagesError } = await supabase
         .from("gallery_images")
         .delete()
@@ -165,7 +163,6 @@ export default function PortfolioDetailPage({
         return;
       }
 
-      // 5) gallery_posts 삭제
       const { error: deletePostError } = await supabase
         .from("gallery_posts")
         .delete()
@@ -281,7 +278,6 @@ export default function PortfolioDetailPage({
         )}
       </section>
 
-      {/* 하단 고정: 갤러리 리스트 */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/92 backdrop-blur">
         <div className="mx-auto flex max-w-6xl gap-3 overflow-x-auto px-3 py-3 md:px-6">
           {allPosts.map((item) => {
