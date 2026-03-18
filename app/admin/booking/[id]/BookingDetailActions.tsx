@@ -21,7 +21,13 @@ type Props = {
 };
 
 export default function BookingDetailActions({ item }: Props) {
-  const copyText = [
+  const smsMessage = `안녕하세요^^ 제이든브라운 입니다.
+신청서 접수 되었습니다.
+다음 계좌번호로 예약금 5만원 입금해주시면 됩니다.
+입금 후 따로 연락은 주지 않으셔도 됩니다.^^
+계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
+
+  const bookingCopyText = [
     `[예약 신청서]`,
     `제목: ${item.title || "-"}`,
     `촬영자명: ${item.name || "-"}`,
@@ -39,16 +45,19 @@ export default function BookingDetailActions({ item }: Props) {
     `문의 내용: ${item.message || "-"}`,
   ].join("\n");
 
-  const smsMessage = `안녕하세요^^ 제이든브라운 입니다.
-신청서 접수 되었습니다.
-다음 계좌번호로 예약금 5만원 입금해주시면 됩니다.
-입금 후 따로 연락은 주지 않으셔도 됩니다.^^
-계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
-
-  const handleCopy = async () => {
+  const handleCopyBooking = async () => {
     try {
-      await navigator.clipboard.writeText(copyText);
-      alert("신청 내용이 복사되었습니다.");
+      await navigator.clipboard.writeText(bookingCopyText);
+      alert("신청서 내용이 복사되었습니다.");
+    } catch {
+      alert("복사에 실패했습니다.");
+    }
+  };
+
+  const handleCopySMS = async () => {
+    try {
+      await navigator.clipboard.writeText(smsMessage);
+      alert("문자 내용이 복사되었습니다.");
     } catch {
       alert("복사에 실패했습니다.");
     }
@@ -109,18 +118,16 @@ export default function BookingDetailActions({ item }: Props) {
     );
   };
 
-  const buildSmsUrl = () => {
+  const buildSmsNumberOnlyUrl = () => {
     if (!item.phone) return null;
 
-    // 하이픈/공백 제거
     const normalizedPhone = item.phone.replace(/[^0-9]/g, "");
-
-    return `sms:${normalizedPhone}&body=${encodeURIComponent(smsMessage)}`;
+    return `sms:${normalizedPhone}`;
   };
 
   const handleCalendarAndSMS = async () => {
     const calendarUrl = buildGoogleCalendarUrl();
-    const smsUrl = buildSmsUrl();
+    const smsUrl = buildSmsNumberOnlyUrl();
 
     if (!calendarUrl) {
       alert("날짜 정보가 없어 캘린더를 열 수 없습니다.");
@@ -130,17 +137,24 @@ export default function BookingDetailActions({ item }: Props) {
     // 1) 캘린더 새 탭 열기
     window.open(calendarUrl, "_blank", "noopener,noreferrer");
 
-    // 2) 문자 URL이 있으면 문자 앱 호출 시도
-    if (smsUrl) {
-      // 일부 환경 fallback용으로 문자 본문도 미리 복사
-      try {
-        await navigator.clipboard.writeText(smsMessage);
-      } catch {}
+    // 2) 문자 내용 자동 복사
+    try {
+      await navigator.clipboard.writeText(smsMessage);
+    } catch {
+      // 복사 실패해도 계속 진행
+    }
 
-      // 약간 딜레이 후 문자 앱 호출
+    // 3) 전화번호만 들어간 sms 호출 시도
+    if (smsUrl) {
       setTimeout(() => {
         window.location.href = smsUrl;
       }, 300);
+
+      setTimeout(() => {
+        alert(
+          `문자 앱 호출을 시도했습니다.\n수신번호: ${item.phone || "-"}\n문자 내용은 복사되어 있으니 붙여넣기 후 보내세요.`
+        );
+      }, 600);
 
       return;
     }
@@ -152,10 +166,18 @@ export default function BookingDetailActions({ item }: Props) {
     <div className="flex flex-wrap justify-end gap-3">
       <button
         type="button"
-        onClick={handleCopy}
+        onClick={handleCopyBooking}
         className="rounded-xl border border-black/10 px-5 py-3 text-sm hover:bg-black/5"
       >
-        내용 복사하기
+        신청서 복사
+      </button>
+
+      <button
+        type="button"
+        onClick={handleCopySMS}
+        className="rounded-xl border border-black/10 px-5 py-3 text-sm hover:bg-black/5"
+      >
+        문자 내용 복사
       </button>
 
       <button
