@@ -1,6 +1,3 @@
-import Link from "next/link";
-import { Camera, MessageCircle, BookOpen, User } from "lucide-react";
-
 export default function HomePage() {
   return (
     <main className="bg-[#f7f5f2] text-[#111111]">
@@ -20,37 +17,17 @@ export default function HomePage() {
             </h1>
 
             <div className="mt-7 max-w-2xl space-y-4 text-[15px] leading-7 text-black/45 md:text-[18px] md:leading-8">
-  <p>
-    훗날 사진을 꺼내 보며 웃음 지을 수 있으려면,
-    <br />
-    촬영하는 지금 이 순간이 온전히 행복해야 합니다.
-  </p>
+              <p>
+                훗날 사진을 꺼내 보며 웃음 지을 수 있으려면,
+                <br />
+                촬영하는 지금 이 순간이 온전히 행복해야 합니다.
+              </p>
 
-  
-</div>
-
-            {/* 하단 링크: 모바일/PC 공통 표시 */}
-            <div className="mt-10 grid grid-cols-4 gap-3 md:mt-12 md:max-w-xl">
-              <QuickLink
-                href="/portfolio"
-                icon={<Camera size={20} />}
-                label="갤러리"
-              />
-              <QuickLink
-                href="/contact"
-                icon={<MessageCircle size={20} />}
-                label="문의"
-              />
-              <QuickLink
-                href="/guide"
-                icon={<BookOpen size={20} />}
-                label="가이드"
-              />
-              <QuickLink
-                href="/about"
-                icon={<User size={20} />}
-                label="소개"
-              />
+              <p>
+                당신의 가장 자연스러운 미소를 끌어내는
+                <br />
+                편안한 시간을 선물합니다.
+              </p>
             </div>
           </div>
 
@@ -64,28 +41,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-     
     </main>
-  );
-}
-
-function QuickLink({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex flex-col items-center justify-center rounded-[20px] border border-black/8 bg-white py-5 shadow-sm transition hover:-translate-y-0.5 hover:bg-black/5"
-    >
-      <div className="mb-2 text-black">{icon}</div>
-      <span className="text-xs font-medium text-black/70">{label}</span>
-    </Link>
   );
 }
