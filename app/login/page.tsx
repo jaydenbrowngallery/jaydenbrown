@@ -15,13 +15,18 @@ export default function LoginPage() {
 
     setLoading(true);
 
+    const isLocalhost =
+      typeof window !== "undefined" &&
+      window.location.origin.includes("localhost");
+
+    const redirectUrl = isLocalhost
+      ? "http://localhost:3000"
+      : "https://www.jaydenbrown.kr";
+
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo:
-          typeof window !== "undefined"
-            ? `${window.location.origin}/`
-            : undefined,
+        emailRedirectTo: redirectUrl,
       },
     });
 
