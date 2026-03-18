@@ -45,7 +45,6 @@ export default function PortfolioDetailPage({
       const resolved = await params;
       setSlug(resolved.slug);
     };
-
     resolveParams();
   }, [params]);
 
@@ -63,17 +62,11 @@ export default function PortfolioDetailPage({
 
       setAdmin(isAdmin(user?.email));
 
-      const { data: postData, error: postError } = await supabase
+      const { data: postData } = await supabase
         .from("gallery_posts")
-        .select("id, title, slug, cover_image, created_at")
+        .select("*")
         .eq("slug", slug)
         .maybeSingle();
-
-      if (postError) {
-        setErrorMessage(postError.message);
-        setLoading(false);
-        return;
-      }
 
       if (!postData) {
         setNotFound(true);
@@ -83,29 +76,17 @@ export default function PortfolioDetailPage({
 
       setPost(postData);
 
-      const { data: imageData, error: imageError } = await supabase
+      const { data: imageData } = await supabase
         .from("gallery_images")
-        .select("id, image_url, sort_order")
+        .select("*")
         .eq("post_id", postData.id)
         .order("sort_order", { ascending: true });
 
-      if (imageError) {
-        setErrorMessage(imageError.message);
-        setLoading(false);
-        return;
-      }
-
-      const { data: listData, error: listError } = await supabase
+      const { data: listData } = await supabase
         .from("gallery_posts")
-        .select("id, title, slug, cover_image, created_at")
+        .select("*")
         .not("cover_image", "is", null)
         .order("created_at", { ascending: false });
-
-      if (listError) {
-        setErrorMessage(listError.message);
-        setLoading(false);
-        return;
-      }
 
       setImages(imageData ?? []);
       setAllPosts(listData ?? []);
@@ -121,132 +102,60 @@ export default function PortfolioDetailPage({
     const ok = confirm("정말 삭제하시겠습니까?");
     if (!ok) return;
 
-    try {
-      const { data: imageRows, error: fetchImagesError } = await supabase
-        .from("gallery_images")
-        .select("id, image_url")
-        .eq("post_id", post.id);
+    const { data: imageRows } = await supabase
+      .from("gallery_images")
+      .select("image_url")
+      .eq("post_id", post.id);
 
-      if (fetchImagesError) {
-        alert(`이미지 조회 실패: ${fetchImagesError.message}`);
-        return;
-      }
+    const filePaths =
+      imageRows
+        ?.map((img) => getStoragePathFromPublicUrl(img.image_url))
+        .filter((v): v is string => Boolean(v)) ?? [];
 
-      const filePaths =
-        imageRows
-          ?.map((img) => {
-            try {
-              return getStoragePathFromPublicUrl(img.image_url);
-            } catch {
-              return null;
-            }
-          })
-          .filter((v): v is string => Boolean(v)) ?? [];
-
-      if (filePaths.length > 0) {
-        const { error: storageDeleteError } = await supabase.storage
-          .from("gallery")
-          .remove(filePaths);
-
-        if (storageDeleteError) {
-          alert(`스토리지 삭제 실패: ${storageDeleteError.message}`);
-          return;
-        }
-      }
-
-      const { error: deleteImagesError } = await supabase
-        .from("gallery_images")
-        .delete()
-        .eq("post_id", post.id);
-
-      if (deleteImagesError) {
-        alert(`이미지 DB 삭제 실패: ${deleteImagesError.message}`);
-        return;
-      }
-
-      const { error: deletePostError } = await supabase
-        .from("gallery_posts")
-        .delete()
-        .eq("id", post.id);
-
-      if (deletePostError) {
-        alert(`갤러리 글 삭제 실패: ${deletePostError.message}`);
-        return;
-      }
-
-      alert("삭제 완료");
-      window.location.href = "/portfolio";
-    } catch (error) {
-      alert(
-        "삭제 중 오류가 발생했습니다.\n\n" +
-          (error instanceof Error ? error.message : String(error))
-      );
+    if (filePaths.length > 0) {
+      await supabase.storage.from("gallery").remove(filePaths);
     }
+
+    await supabase.from("gallery_images").delete().eq("post_id", post.id);
+    await supabase.from("gallery_posts").delete().eq("id", post.id);
+
+    alert("삭제 완료");
+    window.location.href = "/portfolio";
   };
 
   if (loading) {
-    return (
-      <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
-        <section className="mx-auto max-w-6xl">
-          <p className="text-sm text-white/60">불러오는 중...</p>
-        </section>
-      </main>
-    );
-  }
-
-  if (errorMessage) {
-    return (
-      <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
-        <section className="mx-auto max-w-6xl">
-          <p className="text-sm text-red-400">불러오기 실패</p>
-          <pre className="mt-4 whitespace-pre-wrap text-xs text-white/60">
-            {errorMessage}
-          </pre>
-        </section>
-      </main>
-    );
+    return <div className="bg-black min-h-screen" />;
   }
 
   if (notFound || !post) {
-    return (
-      <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
-        <section className="mx-auto max-w-6xl">
-          <p className="text-sm text-white/60">존재하지 않는 갤러리입니다.</p>
-          <Link
-            href="/portfolio"
-            className="mt-6 inline-flex border border-white/30 px-6 py-3 text-sm text-white"
-          >
-            갤러리로 돌아가기
-          </Link>
-        </section>
-      </main>
-    );
+    return <div className="bg-black min-h-screen text-white p-10">Not Found</div>;
   }
 
   return (
-    <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
+    <main className="min-h-screen bg-black px-4 py-3 md:px-8 md:py-4">
       <section className="mx-auto max-w-6xl">
+
+        {/* 상단 */}
         <div className="mb-3 flex items-center justify-between">
           <Link
             href="/portfolio"
-            className="inline-flex items-center gap-2 text-sm text-white/40 transition hover:text-white/70"
+            className="text-sm text-white/40 hover:text-white/70"
           >
             ← 갤러리로 돌아가기
           </Link>
 
           {admin && (
-            <div className="flex items-center gap-3">
+            <div className="flex gap-2">
               <Link
                 href={`/admin/gallery/edit/${post.slug}`}
-                className="inline-flex items-center justify-center rounded-full border border-white/25 px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
+                className="border border-white/30 px-3 py-1 text-white text-sm"
               >
                 수정
               </Link>
 
               <button
-                type="button"
                 onClick={handleDelete}
-                className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm text-black transition hover:bg-white/85"
+                className="bg-white text-black px-3 py-1 text-sm"
               >
                 삭제
               </button>
@@ -254,60 +163,36 @@ export default function PortfolioDetailPage({
           )}
         </div>
 
-        {images.length === 0 ? (
-          <div className="mt-6 p-10">
-            <p className="text-white/50">등록된 이미지가 없습니다.</p>
-          </div>
-        ) : (
-          <div className="mt-2 snap-y snap-mandatory">
-            {images.map((image, index) => (
-              <section
-                key={image.id}
-                id={`image-${index + 1}`}
-                className="snap-start py-3 md:py-5"
-              >
-                <div className="flex justify-center">
-                  <img
-                    src={image.image_url}
-                    alt={`${post.title} ${index + 1}`}
-                    className="block max-h-[78svh] w-auto max-w-full object-contain md:max-h-[82svh]"
-                  />
-                </div>
-              </section>
-            ))}
-          </div>
-        )}
+        {/* 이미지 */}
+        <div className="h-[100svh] snap-y snap-mandatory overflow-y-auto scroll-smooth">
+          {images.map((image, index) => (
+            <section
+              key={image.id}
+              className="flex min-h-[100svh] snap-start items-start justify-center px-4 pt-2 md:px-8 md:pt-4"
+            >
+              <div className="flex h-[85svh] w-full max-w-5xl items-center justify-center">
+                <img
+                  src={image.image_url}
+                  alt=""
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+            </section>
+          ))}
+        </div>
       </section>
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/92 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl gap-3 overflow-x-auto px-3 py-3 md:px-6">
-          {allPosts.map((item) => {
-            const active = item.slug === post.slug;
-
-            return (
-              <Link
-                key={item.id}
-                href={`/portfolio/${item.slug}`}
-                className={`min-w-[96px] flex-shrink-0 transition md:min-w-[110px] ${
-                  active ? "opacity-100" : "opacity-55 hover:opacity-100"
-                }`}
-              >
-                <div
-                  className={`overflow-hidden ${
-                    active ? "ring-1 ring-white" : ""
-                  }`}
-                >
-                  {item.cover_image ? (
-                    <img
-                      src={item.cover_image}
-                      alt={item.title}
-                      className="h-14 w-full object-cover md:h-16"
-                    />
-                  ) : null}
-                </div>
-              </Link>
-            );
-          })}
+      {/* 하단 썸네일 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10">
+        <div className="flex gap-2 overflow-x-auto px-3 py-3">
+          {allPosts.map((item) => (
+            <Link key={item.id} href={`/portfolio/${item.slug}`}>
+              <img
+                src={item.cover_image || ""}
+                className="h-14 w-24 object-cover opacity-60 hover:opacity-100"
+              />
+            </Link>
+          ))}
         </div>
       </div>
     </main>
