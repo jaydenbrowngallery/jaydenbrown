@@ -233,32 +233,26 @@ export default function PortfolioDetailPage({
           ← 갤러리로 돌아가기
         </Link>
 
-        <p className="mt-8 text-xs uppercase tracking-[0.35em] text-white/35">
-          Gallery Detail
-        </p>
+        <div className="mt-8 flex justify-end">
+  {admin && (
+    <div className="flex items-center gap-3">
+      <Link
+        href={`/admin/gallery/edit/${post.slug}`}
+        className="inline-flex items-center justify-center rounded-full border border-white/25 px-5 py-2.5 text-sm text-white transition hover:bg-white hover:text-black"
+      >
+        수정
+      </Link>
 
-        <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <h1 className="text-4xl font-semibold md:text-6xl">{post.title}</h1>
-
-          {admin && (
-            <div className="flex items-center gap-3">
-              <Link
-                href={`/admin/gallery/edit/${post.slug}`}
-                className="inline-flex items-center justify-center rounded-full border border-white/25 px-5 py-2.5 text-sm text-white transition hover:bg-white hover:text-black"
-              >
-                수정
-              </Link>
-
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm text-black transition hover:bg-white/85"
-              >
-                삭제
-              </button>
-            </div>
-          )}
-        </div>
+      <button
+        type="button"
+        onClick={handleDelete}
+        className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm text-black transition hover:bg-white/85"
+      >
+        삭제
+      </button>
+    </div>
+  )}
+</div>
 
         {images.length === 0 ? (
           <div className="mt-14 bg-[#1a1a1a] p-10">
