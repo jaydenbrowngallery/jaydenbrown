@@ -11,8 +11,8 @@ type SubmittedData = {
   date: string;
   time: string;
   location: string;
-  address: string;
   zipcode: string;
+  address: string;
   address_detail: string;
   depositor_name: string;
   product: string;
@@ -28,11 +28,9 @@ export default function BookingPrivatePage() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
-
   const [zipcode, setZipcode] = useState("");
   const [address, setAddress] = useState("");
   const [addressDetail, setAddressDetail] = useState("");
-
   const [depositorName, setDepositorName] = useState("");
   const [product, setProduct] = useState("");
   const [message, setMessage] = useState("");
@@ -41,12 +39,14 @@ export default function BookingPrivatePage() {
   const [submittedData, setSubmittedData] = useState<SubmittedData | null>(null);
 
   const openAddressSearch = () => {
-    if (!window.daum?.Postcode) {
+    const daum = (window as any).daum;
+
+    if (!daum?.Postcode) {
       alert("주소 검색 기능을 불러오지 못했습니다.");
       return;
     }
 
-    new window.daum.Postcode({
+    new daum.Postcode({
       oncomplete: function (data: any) {
         setZipcode(data.zonecode || "");
         setAddress(data.roadAddress || data.jibunAddress || "");
@@ -74,7 +74,7 @@ export default function BookingPrivatePage() {
     e.preventDefault();
 
     if (!name || !phone || !date) {
-      alert("촬영자명, 연락처, 날짜는 필수입니다.");
+      alert("촬영자명, 연락처, 촬영 날짜는 필수입니다.");
       return;
     }
 
@@ -93,8 +93,8 @@ export default function BookingPrivatePage() {
       date,
       time,
       location,
-      address,
       zipcode,
+      address,
       address_detail: addressDetail,
       depositor_name: depositorName,
       product,
@@ -132,8 +132,8 @@ export default function BookingPrivatePage() {
             <Item label="촬영자명 (돌잔치는 아기이름)" value={submittedData.name} />
             <Item label="연락처" value={submittedData.phone} />
             <Item label="이메일" value={submittedData.email} />
-            <Item label="날짜" value={submittedData.date} />
-            <Item label="시간" value={submittedData.time} />
+            <Item label="촬영 날짜" value={submittedData.date} />
+            <Item label="촬영 시간" value={submittedData.time} />
             <Item label="촬영 장소" value={submittedData.location} />
             <Item label="우편번호" value={submittedData.zipcode} />
             <Item label="주소" value={submittedData.address} />
@@ -143,7 +143,7 @@ export default function BookingPrivatePage() {
             <Item label="문의 내용" value={submittedData.message} multiline />
           </div>
 
-          <div className="mt-8 flex gap-3">
+          <div className="mt-8">
             <button
               type="button"
               onClick={() => setSubmittedData(null)}
@@ -200,39 +200,33 @@ export default function BookingPrivatePage() {
               className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
             />
 
-            <div className="space-y-2">
-  <label className="text-sm text-black/60">
-    촬영 날짜
-  </label>
+            <div className="relative">
+              {!date && (
+                <span className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 text-black/30">
+                  촬영 날짜
+                </span>
+              )}
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
+              />
+            </div>
 
-  <div className="space-y-2">
-  <label className="text-sm text-black/60">
-    촬영 날짜
-  </label>
-
-  <div className="relative">
-    {!date && (
-      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-black/30">
-        날짜 선택
-      </span>
-    )}
-
-    <input
-      type="date"
-      value={date}
-      onChange={(e) => setDate(e.target.value)}
-      className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
-    />
-  </div>
-</div>
-</div>
-
-            <input
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              placeholder="시간"
-              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
-            />
+            <div className="relative">
+              {!time && (
+                <span className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 text-black/30">
+                  촬영 시간
+                </span>
+              )}
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
+              />
+            </div>
 
             <input
               value={location}
@@ -284,7 +278,7 @@ export default function BookingPrivatePage() {
             <select
               value={product}
               onChange={(e) => setProduct(e.target.value)}
-              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none text-black/70"
             >
               <option value="">상품 선택</option>
               <option value="돌스냅">돌스냅</option>
