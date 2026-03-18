@@ -113,6 +113,13 @@ export default function BookingPrivatePage() {
 
     setSubmittedData(dataToSave);
     resetForm();
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 50);
   };
 
   if (submittedData) {
@@ -146,7 +153,13 @@ export default function BookingPrivatePage() {
           <div className="mt-8">
             <button
               type="button"
-              onClick={() => setSubmittedData(null)}
+              onClick={() => {
+                setSubmittedData(null);
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }}
               className="h-12 rounded-full bg-black px-6 text-white transition hover:opacity-90"
             >
               다시 작성하기
