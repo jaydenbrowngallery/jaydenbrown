@@ -135,10 +135,7 @@ export default function Header() {
               <Link href="/admin/gallery" onClick={() => setOpen(false)}>
                 Admin
               </Link>
-              <button
-                onClick={handleLogout}
-                className="block text-left"
-              >
+              <button onClick={handleLogout} className="block text-left">
                 Logout
               </button>
             </>

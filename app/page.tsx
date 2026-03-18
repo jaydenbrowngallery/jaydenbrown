@@ -1,7 +1,9 @@
+import Link from "next/link";
+import { Camera, MessageCircle, BookOpen, User } from "lucide-react";
+
 export default function HomePage() {
   return (
     <main className="bg-[#f7f5f2] text-[#111111]">
-      {/* Hero */}
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-12 md:px-10 md:pb-24 md:pt-20">
         <div className="grid items-center gap-10 md:grid-cols-[1.05fr_0.95fr] md:gap-16">
           <div className="order-2 md:order-1">
@@ -28,6 +30,30 @@ export default function HomePage() {
                 편안한 시간을 선물합니다.
               </p>
             </div>
+
+            {/* 하단 링크: 모바일/PC 공통 표시 */}
+            <div className="mt-10 grid grid-cols-4 gap-3 md:mt-12 md:max-w-xl">
+              <QuickLink
+                href="/portfolio"
+                icon={<Camera size={20} />}
+                label="작업"
+              />
+              <QuickLink
+                href="/contact"
+                icon={<MessageCircle size={20} />}
+                label="문의"
+              />
+              <QuickLink
+                href="/guide"
+                icon={<BookOpen size={20} />}
+                label="가이드"
+              />
+              <QuickLink
+                href="/about"
+                icon={<User size={20} />}
+                label="소개"
+              />
+            </div>
           </div>
 
           <div className="order-1 md:order-2">
@@ -41,7 +67,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About */}
       <section className="border-t border-black/6">
         <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 md:py-24">
           <div className="max-w-4xl">
@@ -63,74 +88,26 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Process */}
-      <section className="border-t border-black/6">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 md:py-24">
-          <div className="mb-10">
-            <p className="text-[11px] uppercase tracking-[0.3em] text-black/28">
-              Process
-            </p>
-
-            <h2 className="mt-4 text-[2rem] font-semibold leading-[1.2] tracking-[-0.04em] md:text-[3.2rem]">
-              촬영의 시작부터
-              <br />
-              전달까지 차분하게 이어갑니다.
-            </h2>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            <div className="rounded-[28px] border border-black/6 bg-white px-7 py-8 shadow-sm">
-              <p className="text-[12px] tracking-[0.18em] text-black/28">01</p>
-              <h3 className="mt-3 text-[22px] font-medium tracking-[-0.02em]">
-                문의
-              </h3>
-              <p className="mt-4 text-[15px] leading-7 text-black/48">
-                날짜, 시간, 장소를 문자로 남겨주시면
-                가능한 일정과 촬영 방향을 먼저 안내드립니다.
-              </p>
-            </div>
-
-            <div className="rounded-[28px] border border-black/6 bg-white px-7 py-8 shadow-sm">
-              <p className="text-[12px] tracking-[0.18em] text-black/28">02</p>
-              <h3 className="mt-3 text-[22px] font-medium tracking-[-0.02em]">
-                상담 및 확정
-              </h3>
-              <p className="mt-4 text-[15px] leading-7 text-black/48">
-                촬영 목적과 분위기를 함께 정리한 뒤
-                예약과 진행 내용을 확정합니다.
-              </p>
-            </div>
-
-            <div className="rounded-[28px] border border-black/6 bg-white px-7 py-8 shadow-sm">
-              <p className="text-[12px] tracking-[0.18em] text-black/28">03</p>
-              <h3 className="mt-3 text-[22px] font-medium tracking-[-0.02em]">
-                촬영 및 전달
-              </h3>
-              <p className="mt-4 text-[15px] leading-7 text-black/48">
-                편안한 흐름 속에서 촬영하고,
-                보정 후 결과물을 정성껏 전달합니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Closing */}
-      <section className="border-t border-black/6">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 md:py-24">
-          <div className="rounded-[32px] border border-black/6 bg-white px-8 py-10 shadow-sm md:px-12 md:py-14">
-            <p className="text-[11px] uppercase tracking-[0.3em] text-black/28">
-              Note
-            </p>
-
-            <p className="mt-5 max-w-4xl text-[18px] leading-8 tracking-[-0.02em] text-black/62 md:text-[24px] md:leading-10">
-              결국 오래 남는 것은 잘 찍힌 사진 한 장보다,
-              그날의 공기와 표정, 그리고 함께 웃었던 시간이라고 믿습니다.
-            </p>
-          </div>
-        </div>
-      </section>
     </main>
+  );
+}
+
+function QuickLink({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col items-center justify-center rounded-[20px] border border-black/8 bg-white py-5 shadow-sm transition hover:-translate-y-0.5 hover:bg-black/5"
+    >
+      <div className="mb-2 text-black">{icon}</div>
+      <span className="text-xs font-medium text-black/70">{label}</span>
+    </Link>
   );
 }
