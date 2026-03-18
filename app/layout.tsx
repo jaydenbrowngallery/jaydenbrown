@@ -1,6 +1,6 @@
 import "./globals.css";
-import Header from "./components/Header";
 import Script from "next/script";
+import ConditionalHeader from "./ConditionalHeader";
 
 export const metadata = {
   title: "Jayden Brown Studio",
@@ -20,7 +20,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
 
-        <Header />
+        <ConditionalHeader />
 
         {children}
 
