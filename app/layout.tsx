@@ -1,11 +1,7 @@
 import "./globals.css";
 import Script from "next/script";
 import ConditionalHeader from "./ConditionalHeader";
-
-export const metadata = {
-  title: "Jayden Brown Studio",
-  description: "Wedding & Portrait Photography",
-};
+import QuickLinks from "./QuickLinks";
 
 export default function RootLayout({
   children,
@@ -24,10 +20,12 @@ export default function RootLayout({
 
         {children}
 
+        {/* 👇 여기 추가 */}
+        <QuickLinks />
+
         <footer className="border-t border-black/5">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-sm text-black/45 md:flex-row md:items-center md:justify-between md:px-10">
-            <p>© Jayden Brown Studio</p>
-            <p>Quiet moments, warm memories.</p>
+          <div className="mx-auto max-w-7xl px-6 py-8 text-sm text-black/45">
+            © Jayden Brown Studio
           </div>
         </footer>
       </body>
