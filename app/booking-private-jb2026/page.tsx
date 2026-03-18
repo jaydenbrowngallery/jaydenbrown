@@ -205,12 +205,26 @@ export default function BookingPrivatePage() {
     촬영 날짜
   </label>
 
-  <input
-    type="date"
-    value={date}
-    onChange={(e) => setDate(e.target.value)}
-    className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
-  />
+  <div className="space-y-2">
+  <label className="text-sm text-black/60">
+    촬영 날짜
+  </label>
+
+  <div className="relative">
+    {!date && (
+      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-black/30">
+        날짜 선택
+      </span>
+    )}
+
+    <input
+      type="date"
+      value={date}
+      onChange={(e) => setDate(e.target.value)}
+      className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
+    />
+  </div>
+</div>
 </div>
 
             <input
