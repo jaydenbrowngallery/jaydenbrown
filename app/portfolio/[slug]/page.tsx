@@ -98,6 +98,7 @@ export default function PortfolioDetailPage({
       const { data: listData, error: listError } = await supabase
         .from("gallery_posts")
         .select("id, title, slug, cover_image, created_at")
+        .not("cover_image", "is", null)
         .order("created_at", { ascending: false });
 
       if (listError) {
@@ -264,17 +265,23 @@ export default function PortfolioDetailPage({
             <p className="text-white/50">등록된 이미지가 없습니다.</p>
           </div>
         ) : (
-          <div className="mt-14 space-y-10 pb-24">
-            {images.map((image, index) => (
-              <div key={image.id} className="bg-[#181818] p-0">
-                <img
-                  src={image.image_url}
-                  alt={`${post.title} ${index + 1}`}
-                  className="block w-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
+         <div className="mt-14 h-[100svh] snap-y snap-mandatory overflow-y-auto scroll-smooth pb-24">
+  {images.map((image, index) => (
+    <section
+      key={image.id}
+      id={`image-${index + 1}`}
+      className="flex min-h-[100svh] snap-start items-center justify-center px-4 py-6 md:px-8 md:py-10"
+    >
+      <div className="flex h-[78svh] w-full max-w-5xl items-center justify-center">
+        <img
+          src={image.image_url}
+          alt={`${post.title} ${index + 1}`}
+          className="max-h-full max-w-full object-contain transition duration-500"
+        />
+      </div>
+    </section>
+  ))}
+</div>
         )}
       </section>
 
@@ -308,14 +315,6 @@ export default function PortfolioDetailPage({
                     </div>
                   )}
                 </div>
-
-                <p
-                  className={`mt-1 truncate text-[11px] ${
-                    active ? "text-white" : "text-white/45"
-                  }`}
-                >
-                  {item.title}
-                </p>
               </Link>
             );
           })}
