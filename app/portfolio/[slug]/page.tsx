@@ -186,7 +186,7 @@ export default function PortfolioDetailPage({
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black px-6 py-6 md:px-10">
+      <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
         <section className="mx-auto max-w-6xl">
           <p className="text-sm text-white/60">불러오는 중...</p>
         </section>
@@ -196,7 +196,7 @@ export default function PortfolioDetailPage({
 
   if (errorMessage) {
     return (
-      <main className="min-h-screen bg-black px-6 py-6 md:px-10">
+      <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
         <section className="mx-auto max-w-6xl">
           <p className="text-sm text-red-400">불러오기 실패</p>
           <pre className="mt-4 whitespace-pre-wrap text-xs text-white/60">
@@ -209,7 +209,7 @@ export default function PortfolioDetailPage({
 
   if (notFound || !post) {
     return (
-      <main className="min-h-screen bg-black px-6 py-6 md:px-10">
+      <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
         <section className="mx-auto max-w-6xl">
           <p className="text-sm text-white/60">존재하지 않는 갤러리입니다.</p>
           <Link
@@ -224,21 +224,21 @@ export default function PortfolioDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 py-6 md:px-10">
+    <main className="min-h-screen bg-black px-4 py-4 md:px-8 md:py-6">
       <section className="mx-auto max-w-6xl">
-        <Link
-          href="/portfolio"
-          className="inline-flex items-center gap-2 text-sm text-white/40 mb-2 transition hover:text-white/70"
-        >
-          ← 갤러리로 돌아가기
-        </Link>
+        <div className="mb-3 flex items-center justify-between">
+          <Link
+            href="/portfolio"
+            className="inline-flex items-center gap-2 text-sm text-white/40 transition hover:text-white/70"
+          >
+            ← 갤러리로 돌아가기
+          </Link>
 
-        <div className="mt-2 flex justify-end">
           {admin && (
             <div className="flex items-center gap-3">
               <Link
                 href={`/admin/gallery/edit/${post.slug}`}
-                className="inline-flex items-center justify-center rounded-full border border-white/25 px-5 py-2.5 text-sm text-white transition hover:bg-white hover:text-black"
+                className="inline-flex items-center justify-center rounded-full border border-white/25 px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
               >
                 수정
               </Link>
@@ -246,7 +246,7 @@ export default function PortfolioDetailPage({
               <button
                 type="button"
                 onClick={handleDelete}
-                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm text-black transition hover:bg-white/85"
+                className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm text-black transition hover:bg-white/85"
               >
                 삭제
               </button>
@@ -255,22 +255,22 @@ export default function PortfolioDetailPage({
         </div>
 
         {images.length === 0 ? (
-          <div className="mt-8 p-10">
+          <div className="mt-6 p-10">
             <p className="text-white/50">등록된 이미지가 없습니다.</p>
           </div>
         ) : (
-          <div className="mt-4 h-[100svh] snap-y snap-mandatory overflow-y-auto scroll-smooth pb-24">
+          <div className="mt-2 snap-y snap-mandatory">
             {images.map((image, index) => (
               <section
                 key={image.id}
                 id={`image-${index + 1}`}
-                className="flex min-h-[100svh] snap-start items-center justify-center px-4 md:px-8"
+                className="snap-start py-3 md:py-5"
               >
-                <div className="flex h-[85svh] w-full max-w-5xl items-center justify-center">
+                <div className="flex justify-center">
                   <img
                     src={image.image_url}
                     alt={`${post.title} ${index + 1}`}
-                    className="max-h-full max-w-full object-contain transition duration-500"
+                    className="block max-h-[78svh] w-auto max-w-full object-contain md:max-h-[82svh]"
                   />
                 </div>
               </section>
@@ -288,26 +288,22 @@ export default function PortfolioDetailPage({
               <Link
                 key={item.id}
                 href={`/portfolio/${item.slug}`}
-                className={`min-w-[110px] flex-shrink-0 transition ${
+                className={`min-w-[96px] flex-shrink-0 transition md:min-w-[110px] ${
                   active ? "opacity-100" : "opacity-55 hover:opacity-100"
                 }`}
               >
                 <div
-                  className={`overflow-hidden border ${
-                    active ? "border-white" : "border-white/10"
-                  } bg-[#1a1a1a]`}
+                  className={`overflow-hidden ${
+                    active ? "ring-1 ring-white" : ""
+                  }`}
                 >
                   {item.cover_image ? (
                     <img
                       src={item.cover_image}
                       alt={item.title}
-                      className="h-16 w-full object-cover md:h-20"
+                      className="h-14 w-full object-cover md:h-16"
                     />
-                  ) : (
-                    <div className="flex h-16 w-full items-center justify-center text-[10px] text-white/35 md:h-20">
-                      No Image
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               </Link>
             );
