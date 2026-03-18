@@ -50,8 +50,8 @@ export default function PortfolioPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-        <section className="mx-auto max-w-6xl">
+      <main className="min-h-screen bg-[#f7f5f2] px-6 py-16 md:px-10">
+        <section className="mx-auto max-w-7xl">
           <p className="text-sm text-black/50">불러오는 중...</p>
         </section>
       </main>
@@ -60,35 +60,25 @@ export default function PortfolioPage() {
 
   if (errorMessage) {
     return (
-      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-        <div className="mx-auto max-w-6xl">
+      <main className="min-h-screen bg-[#f7f5f2] px-6 py-16 md:px-10">
+        <section className="mx-auto max-w-7xl">
           <p className="text-sm text-red-500">갤러리 불러오기 실패</p>
           <pre className="mt-4 whitespace-pre-wrap text-xs text-black/60">
             {errorMessage}
           </pre>
-        </div>
+        </section>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-      <section className="mx-auto max-w-6xl">
-        <p className="text-xs uppercase tracking-[0.35em] text-black/45">
-          Gallery
-        </p>
-
-        <h1 className="mt-4 text-4xl font-semibold md:text-6xl">갤러리</h1>
-
-        <p className="mt-6 max-w-2xl text-base leading-8 text-black/60 md:text-lg">
-          편안한 흐름 안에서 남긴 장면들을 모아두었습니다.
-        </p>
-
+    <main className="min-h-screen bg-[#f7f5f2] px-6 py-16 md:px-10">
+      <section className="mx-auto max-w-7xl">
         {admin && (
-          <div className="mt-6">
+          <div className="mb-8">
             <Link
               href="/admin/gallery"
-              className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm text-white"
+              className="inline-flex items-center justify-center rounded-full bg-black px-5 py-2.5 text-sm text-white"
             >
               이미지 업로드
             </Link>
@@ -96,18 +86,18 @@ export default function PortfolioPage() {
         )}
 
         {posts.length === 0 ? (
-          <div className="mt-14 rounded-[2rem] bg-white p-10 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-10 shadow-sm">
             <p className="text-black/50">등록된 갤러리가 아직 없습니다.</p>
           </div>
         ) : (
-          <div className="mt-14 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
             {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/portfolio/${post.slug}`}
-                className="group overflow-hidden rounded-[2rem] bg-white shadow-sm transition hover:-translate-y-1"
+                className="group block overflow-hidden bg-[#ece7e2]"
               >
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#e9e4de]">
+                <div className="aspect-[4/5] w-full overflow-hidden">
                   {post.cover_image ? (
                     <img
                       src={post.cover_image}
@@ -115,18 +105,10 @@ export default function PortfolioPage() {
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-sm text-black/35">
+                    <div className="flex h-full w-full items-center justify-center text-xs text-black/35">
                       No Image
                     </div>
                   )}
-                </div>
-
-                <div className="p-6">
-                  <p className="text-xs uppercase tracking-[0.25em] text-black/35">
-                    Gallery
-                  </p>
-                  <h2 className="mt-3 text-2xl font-semibold">{post.title}</h2>
-                  <p className="mt-4 text-sm text-black/45">자세히 보기 →</p>
                 </div>
               </Link>
             ))}
