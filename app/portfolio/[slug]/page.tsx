@@ -37,7 +37,6 @@ export default function PortfolioDetailPage({
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [slug, setSlug] = useState("");
 
   useEffect(() => {
@@ -53,8 +52,6 @@ export default function PortfolioDetailPage({
 
     const fetchData = async () => {
       setLoading(true);
-      setErrorMessage("");
-      setNotFound(false);
 
       const {
         data: { user },
@@ -99,7 +96,7 @@ export default function PortfolioDetailPage({
   const handleDelete = async () => {
     if (!post) return;
 
-    const ok = confirm("정말 삭제하시겠습니까?");
+    const ok = confirm("삭제하시겠습니까?");
     if (!ok) return;
 
     const { data: imageRows } = await supabase
@@ -123,39 +120,34 @@ export default function PortfolioDetailPage({
     window.location.href = "/portfolio";
   };
 
-  if (loading) {
-    return <div className="bg-black min-h-screen" />;
-  }
-
-  if (notFound || !post) {
-    return <div className="bg-black min-h-screen text-white p-10">Not Found</div>;
-  }
+  if (loading) return <div className="bg-black min-h-screen" />;
+  if (notFound || !post) return <div className="bg-black min-h-screen text-white">Not Found</div>;
 
   return (
-    <main className="min-h-screen bg-black px-4 py-3 md:px-8 md:py-4">
+    <main className="min-h-screen bg-black px-3 py-1 md:px-6 md:py-2">
       <section className="mx-auto max-w-6xl">
 
         {/* 상단 */}
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-1 flex items-center justify-between">
           <Link
             href="/portfolio"
-            className="text-sm text-white/40 hover:text-white/70"
+            className="text-xs text-white/40 hover:text-white/70"
           >
-            ← 갤러리로 돌아가기
+            ←
           </Link>
 
           {admin && (
             <div className="flex gap-2">
               <Link
                 href={`/admin/gallery/edit/${post.slug}`}
-                className="border border-white/30 px-3 py-1 text-white text-sm"
+                className="border border-white/30 px-2 py-1 text-xs text-white"
               >
                 수정
               </Link>
 
               <button
                 onClick={handleDelete}
-                className="bg-white text-black px-3 py-1 text-sm"
+                className="bg-white text-black px-2 py-1 text-xs"
               >
                 삭제
               </button>
@@ -165,12 +157,12 @@ export default function PortfolioDetailPage({
 
         {/* 이미지 */}
         <div className="h-[100svh] snap-y snap-mandatory overflow-y-auto scroll-smooth">
-          {images.map((image, index) => (
+          {images.map((image) => (
             <section
               key={image.id}
-              className="flex min-h-[100svh] snap-start items-start justify-center px-4 pt-2 md:px-8 md:pt-4"
+              className="flex min-h-[100svh] snap-start items-start justify-center px-2 pt-0"
             >
-              <div className="flex h-[85svh] w-full max-w-5xl items-center justify-center">
+              <div className="flex h-[88svh] w-full max-w-5xl items-center justify-center">
                 <img
                   src={image.image_url}
                   alt=""
@@ -182,14 +174,14 @@ export default function PortfolioDetailPage({
         </div>
       </section>
 
-      {/* 하단 썸네일 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10">
-        <div className="flex gap-2 overflow-x-auto px-3 py-3">
+      {/* 하단 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur">
+        <div className="flex gap-2 overflow-x-auto px-2 py-2">
           {allPosts.map((item) => (
             <Link key={item.id} href={`/portfolio/${item.slug}`}>
               <img
                 src={item.cover_image || ""}
-                className="h-14 w-24 object-cover opacity-60 hover:opacity-100"
+                className="h-12 w-20 object-cover opacity-60 hover:opacity-100"
               />
             </Link>
           ))}
