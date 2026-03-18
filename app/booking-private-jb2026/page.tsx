@@ -1,12 +1,9 @@
 "use client";
 
-import { redirect } from "next/navigation";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-export default function BookingPage() {
-  redirect("/");
-}
-
-export default function BookingPage() {
+export default function PrivateBookingPage() {
   const [form, setForm] = useState({
     title: "",
     name: "",
@@ -92,8 +89,6 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen bg-[#f7f5f2] px-6 py-16 md:px-10">
       <section className="mx-auto max-w-4xl">
-
-        {/* 제목 */}
         <h1 className="text-3xl font-semibold text-black md:text-5xl">
           예약 신청서
         </h1>
@@ -103,7 +98,6 @@ export default function BookingPage() {
           className="mt-10 rounded-2xl bg-white p-6 shadow-sm md:p-10"
         >
           <div className="grid gap-6 md:grid-cols-2">
-
             <input
               name="title"
               value={form.title}
@@ -203,7 +197,6 @@ export default function BookingPage() {
               placeholder="문의 내용"
               className="input md:col-span-2 h-32"
             />
-
           </div>
 
           <button
