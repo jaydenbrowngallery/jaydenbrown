@@ -23,11 +23,6 @@ export default function HomePage() {
                 촬영하는 지금 이 순간이 온전히 행복해야 합니다.
               </p>
 
-              <p>
-                당신의 가장 자연스러운 미소를 끌어내는
-                <br />
-                편안한 시간을 선물합니다.
-              </p>
             </div>
           </div>
 
