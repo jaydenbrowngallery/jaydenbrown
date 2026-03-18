@@ -1,5 +1,5 @@
 "use client";
-
+import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -130,7 +130,12 @@ export default function Header() {
               <Link href="/admin/gallery" onClick={() => setOpen(false)}>
                 Admin
               </Link>
-              <button onClick={handleLogout}>Logout</button>
+              <button
+  onClick={() => setOpen(true)}
+  className="md:hidden flex items-center justify-center w-11 h-11 rounded-full transition hover:bg-black/5 active:scale-95"
+>
+  <Menu size={22} strokeWidth={1.8} />
+</button>
             </>
           )}
         </div>
