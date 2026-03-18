@@ -34,7 +34,7 @@ export default function HomePage() {
               <QuickLink
                 href="/portfolio"
                 icon={<Camera size={20} />}
-                label="작업"
+                label="갤러리"
               />
               <QuickLink
                 href="/contact"
