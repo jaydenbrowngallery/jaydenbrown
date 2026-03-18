@@ -67,27 +67,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-black/6">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 md:py-24">
-          <div className="max-w-4xl">
-            <p className="text-[11px] uppercase tracking-[0.3em] text-black/28">
-              About
-            </p>
-
-            <h2 className="mt-4 text-[2rem] font-semibold leading-[1.2] tracking-[-0.04em] md:text-[3.4rem]">
-              좋은 사진은
-              <br />
-              좋은 시간에서 시작된다고 믿습니다.
-            </h2>
-
-            <p className="mt-7 max-w-3xl text-[15px] leading-8 text-black/48 md:text-[18px]">
-              과한 연출보다 자연스러운 흐름을 따라가며,
-              그날의 공기와 표정, 관계의 온도를 담는 촬영을 지향합니다.
-              편안한 분위기 안에서 만들어진 장면은 시간이 지나도 더 따뜻하게 남습니다.
-            </p>
-          </div>
-        </div>
-      </section>
+     
     </main>
   );
 }
