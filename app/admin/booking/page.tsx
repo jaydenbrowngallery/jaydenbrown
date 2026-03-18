@@ -79,7 +79,12 @@ export default async function AdminBookingPage() {
                 <td className="px-4 py-3">{item.time ?? "-"}</td>
                 <td className="px-4 py-3">{item.location ?? "-"}</td>
                 <td className="px-4 py-3">
-                  <span className="text-sm text-gray-400">준비중</span>
+                  <Link
+  href={`/admin/booking/${item.id}`}
+  className="text-sm text-black/50 hover:text-black"
+>
+  보기
+</Link>
                 </td>
               </tr>
             ))}

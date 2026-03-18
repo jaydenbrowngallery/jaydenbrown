@@ -3,10 +3,28 @@
 import { FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+type SubmittedData = {
+  title: string;
+  name: string;
+  phone: string;
+  email: string;
+  date: string;
+  time: string;
+  location: string;
+  address: string;
+  zipcode: string;
+  address_detail: string;
+  depositor_name: string;
+  product: string;
+  message: string;
+  status: string;
+};
+
 export default function BookingPrivatePage() {
   const [title, setTitle] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
@@ -20,6 +38,7 @@ export default function BookingPrivatePage() {
   const [message, setMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [submittedData, setSubmittedData] = useState<SubmittedData | null>(null);
 
   const openAddressSearch = () => {
     if (!window.daum?.Postcode) {
@@ -39,6 +58,7 @@ export default function BookingPrivatePage() {
     setTitle("");
     setName("");
     setPhone("");
+    setEmail("");
     setDate("");
     setTime("");
     setLocation("");
@@ -53,17 +73,23 @@ export default function BookingPrivatePage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!title || !name || !phone || !date || !time || !location) {
-      alert("필수 항목을 입력해 주세요.");
+    if (!name || !phone || !date) {
+      alert("아기 이름, 연락처, 날짜는 필수입니다.");
+      return;
+    }
+
+    if (email && !email.includes("@")) {
+      alert("이메일 형식이 올바르지 않습니다.");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.from("booking_requests").insert({
+    const dataToSave: SubmittedData = {
       title,
       name,
       phone,
+      email,
       date,
       time,
       location,
@@ -74,7 +100,9 @@ export default function BookingPrivatePage() {
       product,
       message,
       status: "pending",
-    });
+    };
+
+    const { error } = await supabase.from("booking_requests").insert(dataToSave);
 
     setLoading(false);
 
@@ -83,9 +111,51 @@ export default function BookingPrivatePage() {
       return;
     }
 
-    alert("접수되었습니다.");
+    setSubmittedData(dataToSave);
     resetForm();
   };
+
+  if (submittedData) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-16">
+        <div className="rounded-[28px] bg-white p-8 shadow-sm">
+          <p className="mb-2 text-sm tracking-[0.2em] text-black/40">
+            BOOKING COMPLETE
+          </p>
+          <h1 className="mb-3 text-3xl font-semibold">신청이 완료되었습니다.</h1>
+          <p className="mb-8 text-sm text-black/45">
+            아래 신청 내용을 확인해 주세요.
+          </p>
+
+          <div className="space-y-3">
+            <Item label="제목" value={submittedData.title} />
+            <Item label="아기 이름" value={submittedData.name} />
+            <Item label="연락처" value={submittedData.phone} />
+            <Item label="이메일" value={submittedData.email} />
+            <Item label="날짜" value={submittedData.date} />
+            <Item label="시간" value={submittedData.time} />
+            <Item label="촬영 장소" value={submittedData.location} />
+            <Item label="우편번호" value={submittedData.zipcode} />
+            <Item label="주소" value={submittedData.address} />
+            <Item label="상세주소" value={submittedData.address_detail} />
+            <Item label="입금자명" value={submittedData.depositor_name} />
+            <Item label="상품" value={submittedData.product} />
+            <Item label="문의 내용" value={submittedData.message} multiline />
+          </div>
+
+          <div className="mt-8 flex gap-3">
+            <button
+              type="button"
+              onClick={() => setSubmittedData(null)}
+              className="h-12 rounded-full bg-black px-6 text-white transition hover:opacity-90"
+            >
+              다시 작성하기
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 md:px-8">
@@ -112,14 +182,21 @@ export default function BookingPrivatePage() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="촬영자명"
+              placeholder="촬영자명 / 돌잔치는 아기이름 (필수)"
               className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
             />
 
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="연락처"
+              placeholder="연락처 (필수)"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
+            />
+
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="이메일"
               className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
             />
 
@@ -141,7 +218,7 @@ export default function BookingPrivatePage() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="촬영 장소"
-              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30 md:col-span-2"
             />
           </div>
 
@@ -190,11 +267,9 @@ export default function BookingPrivatePage() {
               className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
             >
               <option value="">상품 선택</option>
-              <option value="웨딩 스냅">웨딩 스냅</option>
-              <option value="본식 촬영">본식 촬영</option>
-              <option value="가족 사진">가족 사진</option>
-              <option value="개인 프로필">개인 프로필</option>
-              <option value="기타">기타</option>
+  <option value="돌스냅">돌스냅</option>
+  <option value="웨딩스냅">웨딩스냅</option>
+  <option value="고희연">고희연</option>
             </select>
           </div>
 
@@ -218,5 +293,22 @@ export default function BookingPrivatePage() {
         </form>
       </div>
     </main>
+  );
+}
+
+function Item({
+  label,
+  value,
+  multiline = false,
+}: {
+  label: string;
+  value?: string;
+  multiline?: boolean;
+}) {
+  return (
+    <div className="rounded-[18px] border border-black/10 bg-[#f7f5f2] px-5 py-4">
+      <p className="mb-2 text-sm text-black/40">{label}</p>
+      <p className={multiline ? "whitespace-pre-wrap" : ""}>{value || "-"}</p>
+    </div>
   );
 }
