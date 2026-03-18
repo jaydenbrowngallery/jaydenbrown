@@ -1,12 +1,9 @@
 "use client";
 
-import { redirect } from "next/navigation";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-export default function BookingPage() {
-  redirect("/");
-}
-
-export default function BookingPage() {
+export default function PrivateBookingPage() {
   const [form, setForm] = useState({
     title: "",
     name: "",
@@ -93,7 +90,6 @@ export default function BookingPage() {
     <main className="min-h-screen bg-[#f7f5f2] px-6 py-16 md:px-10">
       <section className="mx-auto max-w-4xl">
 
-        {/* 제목 */}
         <h1 className="text-3xl font-semibold text-black md:text-5xl">
           예약 신청서
         </h1>
@@ -104,92 +100,20 @@ export default function BookingPage() {
         >
           <div className="grid gap-6 md:grid-cols-2">
 
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="제목"
-              className="input"
-            />
+            <input name="title" value={form.title} onChange={handleChange} placeholder="제목" className="input" />
+            <input name="name" value={form.name} onChange={handleChange} placeholder="촬영자명" className="input" />
+            <input name="phone" value={form.phone} onChange={handleChange} placeholder="연락처" className="input" />
+            <input type="date" name="date" value={form.date} onChange={handleChange} className="input" />
+            <input name="time" value={form.time} onChange={handleChange} placeholder="시간" className="input" />
+            <input name="location" value={form.location} onChange={handleChange} placeholder="촬영 장소" className="input" />
+            <input name="postcode" value={form.postcode} onChange={handleChange} placeholder="우편번호" className="input" />
 
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="촬영자명"
-              className="input"
-            />
+            <input name="address" value={form.address} onChange={handleChange} placeholder="주소" className="input md:col-span-2" />
+            <input name="detailAddress" value={form.detailAddress} onChange={handleChange} placeholder="상세주소" className="input md:col-span-2" />
 
-            <input
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              placeholder="연락처"
-              className="input"
-            />
+            <input name="depositor" value={form.depositor} onChange={handleChange} placeholder="입금자명" className="input" />
 
-            <input
-              type="date"
-              name="date"
-              value={form.date}
-              onChange={handleChange}
-              className="input"
-            />
-
-            <input
-              name="time"
-              value={form.time}
-              onChange={handleChange}
-              placeholder="시간"
-              className="input"
-            />
-
-            <input
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              placeholder="촬영 장소"
-              className="input"
-            />
-
-            <input
-              name="postcode"
-              value={form.postcode}
-              onChange={handleChange}
-              placeholder="우편번호"
-              className="input"
-            />
-
-            <input
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              placeholder="주소"
-              className="input md:col-span-2"
-            />
-
-            <input
-              name="detailAddress"
-              value={form.detailAddress}
-              onChange={handleChange}
-              placeholder="상세주소"
-              className="input md:col-span-2"
-            />
-
-            <input
-              name="depositor"
-              value={form.depositor}
-              onChange={handleChange}
-              placeholder="입금자명"
-              className="input"
-            />
-
-            <select
-              name="product"
-              value={form.product}
-              onChange={handleChange}
-              className="input"
-            >
+            <select name="product" value={form.product} onChange={handleChange} className="input">
               <option value="">상품 선택</option>
               <option value="돌스냅">돌스냅</option>
               <option value="고희연">고희연</option>
