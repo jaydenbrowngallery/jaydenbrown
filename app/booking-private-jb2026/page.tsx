@@ -19,6 +19,19 @@ type SubmittedData = {
   status: string;
 };
 
+function formatTimeSlot(slot: string) {
+  switch (slot) {
+    case "1부":
+      return "1부(12시)";
+    case "2부":
+      return "2부(14시30분)";
+    case "3부":
+      return "3부(16시)";
+    default:
+      return slot || "-";
+  }
+}
+
 export default function BookingPrivatePage() {
   const [title, setTitle] = useState("");
   const [name, setName] = useState("");
@@ -135,7 +148,7 @@ export default function BookingPrivatePage() {
             <Item label="연락처" value={submittedData.phone} />
             <Item label="이메일" value={submittedData.email} />
             <Item label="촬영 날짜" value={submittedData.date} />
-            <Item label="촬영 시간" value={submittedData.time} />
+            <Item label="촬영 시간" value={formatTimeSlot(submittedData.time)} />
             <Item label="촬영 장소" value={submittedData.location} />
             <Item label="주소" value={submittedData.address} />
             <Item label="상세주소" value={submittedData.address_detail} />
@@ -179,65 +192,65 @@ export default function BookingPrivatePage() {
 
         <form onSubmit={handleSubmit} className="space-y-7">
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-  <input
-    value={title}
-    onChange={(e) => setTitle(e.target.value)}
-    placeholder="제목"
-    className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
-  />
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="제목"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
+            />
 
-  <input
-    value={name}
-    onChange={(e) => setName(e.target.value)}
-    placeholder="촬영자명 (돌잔치는 아기이름) (필수)"
-    className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
-  />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="촬영자명 (돌잔치는 아기이름) (필수)"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
+            />
 
-  <input
-    value={phone}
-    onChange={(e) => setPhone(e.target.value)}
-    placeholder="연락처 (필수)"
-    className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
-  />
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="연락처 (필수)"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
+            />
 
-  <input
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-    placeholder="이메일"
-    className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
-  />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="이메일"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30"
+            />
 
-  <div className="space-y-2">
-    <p className="px-1 text-sm text-black/45">촬영 날짜</p>
-    <input
-      type="date"
-      value={date}
-      onChange={(e) => setDate(e.target.value)}
-      className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
-    />
-  </div>
+            <div className="space-y-2">
+              <p className="px-1 text-sm text-black/45">촬영 날짜</p>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none"
+              />
+            </div>
 
-  <div className="space-y-2">
-    <p className="px-1 text-sm text-black/45">촬영 시간</p>
-    <select
-      value={time}
-      onChange={(e) => setTime(e.target.value)}
-      className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none text-black/70"
-    >
-      <option value="">시간 선택</option>
-      <option value="1부">1부</option>
-      <option value="2부">2부</option>
-      <option value="3부">3부</option>
-    </select>
-  </div>
+            <div className="space-y-2">
+              <p className="px-1 text-sm text-black/45">촬영 시간</p>
+              <select
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="h-16 w-full rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none text-black/70"
+              >
+                <option value="">시간 선택</option>
+                <option value="1부">1부(12시)</option>
+                <option value="2부">2부(14시30분)</option>
+                <option value="3부">3부(18시)</option>
+              </select>
+            </div>
 
-  <input
-    value={location}
-    onChange={(e) => setLocation(e.target.value)}
-    placeholder="촬영 장소"
-    className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30 md:col-span-2"
-  />
-</div>
+            <input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="촬영 장소"
+              className="h-16 rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 outline-none placeholder:text-black/30 md:col-span-2"
+            />
+          </div>
 
           <div>
             <button
