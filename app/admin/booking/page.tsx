@@ -189,29 +189,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   const { supabase } = await requireAdmin();
 
-  async function deleteSelectedAction(formData: FormData) {
-    "use server";
-
-    const selectedIds = formData
-      .getAll("selectedIds")
-      .map((value) => String(value))
-      .filter(Boolean);
-
-    if (!selectedIds.length) return;
-
-    const { supabase } = await requireAdmin();
-    const { error } = await supabase
-      .from("booking_requests")
-      .delete()
-      .in("id", selectedIds);
-
-    if (error) {
-      throw new Error(`선택 삭제 실패: ${error.message}`);
-    }
-
-    revalidatePath("/admin/booking");
-  }
-
   const { data: requests, error } = await supabase
     .from("booking_requests")
     .select("*")
@@ -258,12 +235,21 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">예약 신청서 관리</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            검색 결과 {filteredRequests.length}건 / 전체 {allRequests.length}건
-          </p>
+      <div className="mb-8 flex flex-col gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">예약 신청서 관리</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              검색 결과 {filteredRequests.length}건 / 전체 {allRequests.length}건
+            </p>
+          </div>
+
+          <Link
+            href="/booking-private-jb2026"
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-black px-4 text-sm text-white hover:opacity-90"
+          >
+            신청서 작성
+          </Link>
         </div>
 
         <form
@@ -501,7 +487,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
       </section>
 
-  <BookingListTable items={filteredRequests} />
+      <BookingListTable items={filteredRequests} />
     </main>
   );
 }
