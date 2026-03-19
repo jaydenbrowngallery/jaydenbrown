@@ -76,11 +76,8 @@ export default async function CalendarEventDetailPage({ params }: PageProps) {
   const plainDescription =
     parsedRows.length === 0 ? stripHtml(event.description || "") : "";
 
-  const email =
-    findRowValue(parsedRows, ["이메일 주소", "이메일", "메일", "email"]) || "-";
-
-  const phone =
-    findRowValue(parsedRows, ["연락처", "전화번호", "휴대폰", "핸드폰"]) || "-";
+  const email = findRowValue(parsedRows, ["이메일 주소", "이메일", "메일", "email"]) || "-";
+  const phone = findRowValue(parsedRows, ["연락처", "전화번호", "휴대폰", "핸드폰"]) || "-";
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 md:px-8">
