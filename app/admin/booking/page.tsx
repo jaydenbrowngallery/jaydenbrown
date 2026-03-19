@@ -196,7 +196,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   if (error) {
     return (
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main className="mx-auto max-w-7xl px-4 py-10 md:px-8">
         <h1 className="mb-6 text-2xl font-bold">예약 신청서 관리</h1>
         <p className="text-red-500">
           데이터를 불러오지 못했습니다: {error.message}
@@ -233,20 +233,27 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   const prev = getPrevMonth(selectedYear, selectedMonth);
   const next = getNextMonth(selectedYear, selectedMonth);
 
+  const today = new Date();
+  const todayString = `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-8 flex flex-col gap-4">
+    <main className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
+      <div className="mb-8 rounded-[28px] bg-white p-5 shadow-sm md:p-7">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">예약 신청서 관리</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              예약 신청서 관리
+            </h1>
+            <p className="mt-2 text-sm text-black/45">
               검색 결과 {filteredRequests.length}건 / 전체 {allRequests.length}건
             </p>
           </div>
 
           <Link
             href="/booking-private-jb2026"
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-black px-4 text-sm text-white hover:opacity-90"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-medium text-white transition hover:opacity-90"
           >
             신청서 작성
           </Link>
@@ -255,7 +262,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         <form
           action="/admin/booking"
           method="get"
-          className="grid w-full grid-cols-1 gap-3 md:w-auto md:grid-cols-5"
+          className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-5"
         >
           <input type="hidden" name="year" value={selectedYear} />
           <input type="hidden" name="month" value={selectedMonth} />
@@ -265,7 +272,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             name="keyword"
             defaultValue={keyword}
             placeholder="이름 검색"
-            className="h-11 rounded-xl border border-black/10 px-4 outline-none"
+            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
           />
 
           <input
@@ -273,20 +280,20 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             name="phone"
             defaultValue={phone}
             placeholder="연락처 검색"
-            className="h-11 rounded-xl border border-black/10 px-4 outline-none"
+            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
           />
 
           <input
             type="date"
             name="date"
             defaultValue={date}
-            className="h-11 rounded-xl border border-black/10 px-4 outline-none"
+            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
           />
 
           <select
             name="status"
             defaultValue={status}
-            className="h-11 rounded-xl border border-black/10 px-4 outline-none"
+            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
           >
             <option value="">상태 전체</option>
             <option value="pending">대기</option>
@@ -297,14 +304,14 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           <div className="flex gap-2">
             <button
               type="submit"
-              className="h-11 rounded-xl bg-black px-4 text-sm text-white hover:opacity-90"
+              className="h-12 rounded-full bg-black px-5 text-sm font-medium text-white transition hover:opacity-90"
             >
               검색
             </button>
 
             <Link
               href={`/admin/booking?year=${selectedYear}&month=${selectedMonth}`}
-              className="inline-flex h-11 items-center rounded-xl border border-black/10 px-4 text-sm hover:bg-black/5"
+              className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5"
             >
               초기화
             </Link>
@@ -314,18 +321,18 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
       <section className="mb-10">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-bold">대기 중 예약</h2>
-          <p className="text-sm text-gray-500">{pendingRequests.length}건</p>
+          <h2 className="text-xl font-semibold">대기 중 예약</h2>
+          <p className="text-sm text-black/45">{pendingRequests.length}건</p>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          <div className="divide-y">
+        <div className="overflow-hidden rounded-[28px] border border-black/10 bg-white shadow-sm">
+          <div className="divide-y divide-black/5">
             {pendingRequests.length ? (
               pendingRequests.map((item) => (
                 <Link
                   key={item.id}
                   href={`/admin/booking/${item.id}`}
-                  className="flex flex-col gap-2 px-5 py-4 hover:bg-gray-50 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-2 px-5 py-4 transition hover:bg-black/[0.02] md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
@@ -350,7 +357,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 </Link>
               ))
             ) : (
-              <div className="px-5 py-8 text-center text-sm text-gray-500">
+              <div className="px-5 py-8 text-center text-sm text-black/45">
                 대기 중 예약이 없습니다.
               </div>
             )}
@@ -360,7 +367,14 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
       <section className="mb-10">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-xl font-bold">예약 스케줄 캘린더</h2>
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              예약 스케줄 캘린더
+            </h2>
+            <p className="mt-1 text-sm text-black/45">
+              월별 예약 현황을 한눈에 확인할 수 있습니다.
+            </p>
+          </div>
 
           <div className="flex items-center gap-2">
             <Link
@@ -372,12 +386,12 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 date,
                 status
               )}
-              className="rounded-xl border border-black/10 px-4 py-2 text-sm hover:bg-black/5"
+              className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
             >
               이전달
             </Link>
 
-            <div className="min-w-[140px] text-center text-sm font-medium text-black/70">
+            <div className="min-w-[150px] text-center text-sm font-semibold text-black/70">
               {calendar.year}년 {calendar.month}월
             </div>
 
@@ -390,99 +404,103 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 date,
                 status
               )}
-              className="rounded-xl border border-black/10 px-4 py-2 text-sm hover:bg-black/5"
+              className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
             >
               다음달
             </Link>
           </div>
         </div>
 
-        <div className="mb-4 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-blue-700">
-            1부(12시)
-          </span>
-          <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">
-            2부(14시30분)
-          </span>
-          <span className="rounded-full bg-rose-100 px-3 py-1 text-rose-700">
-            3부(16시)
-          </span>
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">
-            대기
-          </span>
-          <span className="rounded-full bg-green-100 px-3 py-1 text-green-700">
-            확정
-          </span>
-          <span className="rounded-full bg-red-100 px-3 py-1 text-red-700">
-            취소
-          </span>
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          <div className="grid grid-cols-7 border-b bg-gray-50 text-sm font-semibold">
-            {weekLabels.map((label) => (
-              <div key={label} className="px-3 py-3 text-center">
+        <div className="overflow-hidden rounded-[32px] border border-black/10 bg-white shadow-sm">
+          <div className="grid grid-cols-7 border-b border-black/10 bg-[#faf8f5]">
+            {weekLabels.map((label, idx) => (
+              <div
+                key={label}
+                className={`px-3 py-4 text-center text-sm font-semibold ${
+                  idx === 0 ? "text-red-500" : idx === 6 ? "text-blue-600" : ""
+                }`}
+              >
                 {label}
               </div>
             ))}
           </div>
 
           <div className="grid grid-cols-7">
-            {calendar.cells.map((cell, index) => (
-              <div
-                key={cell.key}
-                className={`min-h-[170px] border-b border-r p-2 align-top ${
-                  index % 7 === 6 ? "border-r-0" : ""
-                }`}
-              >
-                {cell.day ? (
-                  <>
-                    <div className="mb-2 text-sm font-semibold">{cell.day}</div>
+            {calendar.cells.map((cell, index) => {
+              const isToday = cell.dateString === todayString;
+              const isSunday = index % 7 === 0;
+              const isSaturday = index % 7 === 6;
 
-                    <div className="space-y-2">
-                      {cell.items.slice(0, 4).map((item) => (
-                        <Link
-                          key={item.id}
-                          href={`/admin/booking/${item.id}`}
-                          className="block rounded-xl border border-black/5 bg-[#f7f5f2] p-2 hover:bg-[#efebe5]"
+              return (
+                <div
+                  key={cell.key}
+                  className={`min-h-[165px] border-b border-r border-black/10 p-3 align-top ${
+                    index % 7 === 6 ? "border-r-0" : ""
+                  } ${!cell.day ? "bg-[#fcfbf9]" : "bg-white"}`}
+                >
+                  {cell.day ? (
+                    <>
+                      <div className="mb-3 flex items-center justify-between">
+                        <span
+                          className={`inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-semibold ${
+                            isToday
+                              ? "bg-black text-white"
+                              : isSunday
+                              ? "text-red-500"
+                              : isSaturday
+                              ? "text-blue-600"
+                              : "text-black"
+                          }`}
                         >
-                          <div className="mb-1 flex flex-wrap items-center gap-1">
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(
-                                item.time
-                              )}`}
-                            >
-                              {formatTimeSlot(item.time)}
-                            </span>
+                          {cell.day}
+                        </span>
+                      </div>
 
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(
-                                item.status
-                              )}`}
-                            >
-                              {getStatusText(item.status)}
-                            </span>
-                          </div>
+                      <div className="space-y-2">
+                        {cell.items.slice(0, 4).map((item) => (
+                          <Link
+                            key={item.id}
+                            href={`/admin/booking/${item.id}`}
+                            className="block rounded-2xl border border-black/5 bg-[#f7f5f2] p-2.5 transition hover:bg-[#efebe5]"
+                          >
+                            <div className="mb-1.5 flex flex-wrap items-center gap-1">
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(
+                                  item.time
+                                )}`}
+                              >
+                                {formatTimeSlot(item.time)}
+                              </span>
 
-                          <div className="truncate text-xs font-semibold">
-                            {item.name ?? "-"}
-                          </div>
-                          <div className="truncate text-[11px] text-black/55">
-                            {item.location ?? "-"}
-                          </div>
-                        </Link>
-                      ))}
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(
+                                  item.status
+                                )}`}
+                              >
+                                {getStatusText(item.status)}
+                              </span>
+                            </div>
 
-                      {cell.items.length > 4 && (
-                        <div className="px-1 text-xs text-black/45">
-                          + {cell.items.length - 4}건 더 있음
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : null}
-              </div>
-            ))}
+                            <div className="truncate text-xs font-semibold text-black">
+                              {item.name ?? "-"}
+                            </div>
+                            <div className="truncate text-[11px] text-black/50">
+                              {item.location ?? "-"}
+                            </div>
+                          </Link>
+                        ))}
+
+                        {cell.items.length > 4 && (
+                          <div className="px-1 text-xs text-black/45">
+                            + {cell.items.length - 4}건 더 있음
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
