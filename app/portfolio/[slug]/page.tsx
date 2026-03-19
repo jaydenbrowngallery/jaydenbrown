@@ -1,192 +1,247 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { isAdmin } from "@/lib/isAdmin";
-
-type GalleryPost = {
-  id: string;
-  title: string;
-  slug: string;
-  cover_image: string | null;
-  created_at: string;
-};
+import { useParams } from "next/navigation";
 
 type GalleryImage = {
   id: string;
   image_url: string;
-  sort_order: number;
 };
 
-function getStoragePathFromPublicUrl(imageUrl: string) {
-  const marker = "/storage/v1/object/public/gallery/";
-  const idx = imageUrl.indexOf(marker);
-  if (idx === -1) return null;
-  return decodeURIComponent(imageUrl.substring(idx + marker.length));
-}
+type GalleryPost = {
+  id: string;
+  title: string;
+};
 
-export default function PortfolioDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default function PortfolioDetailPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+
   const [post, setPost] = useState<GalleryPost | null>(null);
   const [images, setImages] = useState<GalleryImage[]>([]);
-  const [allPosts, setAllPosts] = useState<GalleryPost[]>([]);
-  const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
-  const [slug, setSlug] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  const touchStartX = useRef<number | null>(null);
+  const wheelLockRef = useRef(false);
 
   useEffect(() => {
-    const resolveParams = async () => {
-      const resolved = await params;
-      setSlug(resolved.slug);
-    };
-    resolveParams();
-  }, [params]);
-
-  useEffect(() => {
-    if (!slug) return;
-
     const fetchData = async () => {
       setLoading(true);
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setAdmin(isAdmin(user?.email));
-
-      const { data: postData } = await supabase
+      const { data: postData, error: postError } = await supabase
         .from("gallery_posts")
-        .select("*")
+        .select("id, title")
         .eq("slug", slug)
-        .maybeSingle();
+        .single();
 
-      if (!postData) {
-        setNotFound(true);
+      if (postError) {
+        setErrorMessage(postError.message);
         setLoading(false);
         return;
       }
 
       setPost(postData);
 
-      const { data: imageData } = await supabase
+      const { data: imageData, error: imageError } = await supabase
         .from("gallery_images")
-        .select("*")
+        .select("id, image_url")
         .eq("post_id", postData.id)
-        .order("sort_order", { ascending: true });
+        .order("created_at", { ascending: true });
 
-      const { data: listData } = await supabase
-        .from("gallery_posts")
-        .select("*")
-        .not("cover_image", "is", null)
-        .order("created_at", { ascending: false });
+      if (imageError) {
+        setErrorMessage(imageError.message);
+        setLoading(false);
+        return;
+      }
 
-      setImages(imageData ?? []);
-      setAllPosts(listData ?? []);
+      setImages(imageData || []);
+      setCurrentIndex(0);
       setLoading(false);
     };
 
-    fetchData();
+    if (slug) fetchData();
   }, [slug]);
 
-  const handleDelete = async () => {
-    if (!post) return;
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [currentIndex]);
 
-    const ok = confirm("삭제하시겠습니까?");
-    if (!ok) return;
+  useEffect(() => {
+    if (!images.length) return;
 
-    const { data: imageRows } = await supabase
-      .from("gallery_images")
-      .select("image_url")
-      .eq("post_id", post.id);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === "PageDown") {
+        e.preventDefault();
+        setCurrentIndex((prev) => Math.min(prev + 1, images.length - 1));
+      }
 
-    const filePaths =
-      imageRows
-        ?.map((img) => getStoragePathFromPublicUrl(img.image_url))
-        .filter((v): v is string => Boolean(v)) ?? [];
+      if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        setCurrentIndex((prev) => Math.max(prev - 1, 0));
+      }
+    };
 
-    if (filePaths.length > 0) {
-      await supabase.storage.from("gallery").remove(filePaths);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [images.length]);
+
+  useEffect(() => {
+    if (!images.length) return;
+
+    const nextIndex = currentIndex + 1;
+    const prevIndex = currentIndex - 1;
+
+    if (images[nextIndex]?.image_url) {
+      const img = new Image();
+      img.src = images[nextIndex].image_url;
     }
 
-    await supabase.from("gallery_images").delete().eq("post_id", post.id);
-    await supabase.from("gallery_posts").delete().eq("id", post.id);
+    if (images[prevIndex]?.image_url) {
+      const img = new Image();
+      img.src = images[prevIndex].image_url;
+    }
+  }, [currentIndex, images]);
 
-    alert("삭제 완료");
-    window.location.href = "/portfolio";
+  const goPrev = () => {
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
   };
 
-  if (loading) return <div className="bg-black min-h-screen" />;
-  if (notFound || !post) return <div className="bg-black min-h-screen text-white">Not Found</div>;
+  const goNext = () => {
+    setCurrentIndex((prev) => Math.min(prev + 1, images.length - 1));
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+
+    const endX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - endX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        goNext();
+      } else {
+        goPrev();
+      }
+    }
+
+    touchStartX.current = null;
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (wheelLockRef.current) return;
+
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (Math.abs(delta) < 20) return;
+
+    wheelLockRef.current = true;
+
+    if (delta > 0) {
+      goNext();
+    } else {
+      goPrev();
+    }
+
+    window.setTimeout(() => {
+      wheelLockRef.current = false;
+    }, 450);
+  };
+
+  if (loading) {
+    return (
+      <main className="gallery-detail min-h-screen bg-black flex items-center justify-center">
+        <p className="text-sm text-white/60">불러오는 중...</p>
+      </main>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <main className="gallery-detail min-h-screen bg-black flex items-center justify-center px-6">
+        <div>
+          <p className="text-sm text-red-400">에러 발생</p>
+          <pre className="mt-4 whitespace-pre-wrap text-xs text-white/60">
+            {errorMessage}
+          </pre>
+        </div>
+      </main>
+    );
+  }
+
+  if (!images.length) {
+    return (
+      <main className="gallery-detail min-h-screen bg-black flex items-center justify-center">
+        <p className="text-sm text-white/50">이미지가 없습니다.</p>
+      </main>
+    );
+  }
+
+  const currentImage = images[currentIndex];
 
   return (
-    <main className="min-h-screen bg-black px-3 py-1 md:px-6 md:py-2">
-      <section className="mx-auto max-w-6xl">
-
-        {/* 상단 */}
-        <div className="mb-1 flex items-center justify-between">
-          <Link
-            href="/portfolio"
-            className="text-xs text-white/40 hover:text-white/70"
-          >
-            ←
-          </Link>
-
-          {admin && (
-            <div className="flex gap-2">
-              <Link
-                href={`/admin/gallery/edit/${post.slug}`}
-                className="border border-white/30 px-2 py-1 text-xs text-white"
-              >
-                수정
-              </Link>
-
-              <button
-                onClick={handleDelete}
-                className="bg-white text-black px-2 py-1 text-xs"
-              >
-                삭제
-              </button>
-            </div>
-          )}
+    <main
+      className="gallery-detail gallery-detail-viewer"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onWheel={handleWheel}
+    >
+      <div className="gallery-detail-topbar">
+        <div className="gallery-detail-meta">
+          <div className="gallery-detail-title">{post?.title || ""}</div>
+          <div className="gallery-detail-counter">
+            {currentIndex + 1} / {images.length}
+          </div>
         </div>
 
-        {/* 이미지 */}
-        <div className="h-[100svh] snap-y snap-mandatory overflow-y-auto scroll-smooth">
-          {images.map((image) => (
-            <section
-              key={image.id}
-              className="flex min-h-[100svh] snap-start items-start justify-center px-2 pt-0"
-            >
-              <div className="flex h-[88svh] w-full max-w-5xl items-center justify-center">
-                <img
-                  src={image.image_url}
-                  alt=""
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </section>
-          ))}
-        </div>
-      </section>
-
-      {/* 하단 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur">
-        <div className="flex gap-2 overflow-x-auto px-2 py-2">
-          {allPosts.map((item) => (
-            <Link key={item.id} href={`/portfolio/${item.slug}`}>
-              <img
-                src={item.cover_image || ""}
-                className="h-12 w-20 object-cover opacity-60 hover:opacity-100"
-              />
-            </Link>
-          ))}
-        </div>
+        <Link
+          href="/portfolio"
+          className="gallery-detail-back"
+        >
+          갤러리
+        </Link>
       </div>
+
+      <div className="gallery-detail-stage">
+        {!imageLoaded && <div className="gallery-detail-placeholder" />}
+
+        <img
+          key={currentImage.id}
+          src={currentImage.image_url}
+          alt=""
+          onLoad={() => setImageLoaded(true)}
+          className={`gallery-detail-image ${
+            imageLoaded ? "gallery-detail-image-loaded" : "gallery-detail-image-loading"
+          }`}
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={goPrev}
+        disabled={currentIndex === 0}
+        className="gallery-nav gallery-nav-left"
+        aria-label="이전 이미지"
+      >
+        ‹
+      </button>
+
+      <button
+        type="button"
+        onClick={goNext}
+        disabled={currentIndex === images.length - 1}
+        className="gallery-nav gallery-nav-right"
+        aria-label="다음 이미지"
+      >
+        ›
+      </button>
     </main>
   );
 }

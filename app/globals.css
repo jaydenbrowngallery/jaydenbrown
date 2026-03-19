@@ -46,3 +46,362 @@ select {
   border-color: black;
   background: #ffffff;
 }
+/* portfolio 전용 가로 슬라이드 */
+.portfolio-page {
+  position: relative;
+  min-height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+
+.portfolio-admin-bar {
+  position: fixed;
+  top: 88px;
+  left: 24px;
+  z-index: 20;
+}
+
+.portfolio-empty-state {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 24px 48px;
+  background: #000;
+}
+
+.portfolio-slider {
+  display: flex;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.portfolio-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.portfolio-slide {
+  flex: 0 0 100vw;
+  width: 100vw;
+  height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 96px 40px 40px;
+  box-sizing: border-box;
+}
+
+.portfolio-slide-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portfolio-slide-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-decoration: none;
+  color: white;
+}
+
+.portfolio-image-frame {
+  width: min(72vw, 980px);
+  height: min(76vh, 1200px);
+  overflow: hidden;
+  background: #111;
+}
+
+.portfolio-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.portfolio-slide-link:hover .portfolio-image {
+  transform: scale(1.02);
+}
+
+.portfolio-caption {
+  width: min(72vw, 980px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.portfolio-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+}
+
+.portfolio-subtitle {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.portfolio-delete-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  border: 0;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.72);
+  color: white;
+  padding: 8px 14px;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.portfolio-delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .portfolio-admin-bar {
+    top: 76px;
+    left: 16px;
+  }
+
+  .portfolio-slide {
+    padding: 84px 18px 24px;
+  }
+
+  .portfolio-image-frame {
+    width: 100%;
+    height: 72vh;
+  }
+
+  .portfolio-caption {
+    width: 100%;
+  }
+
+  .portfolio-title {
+    font-size: 0.95rem;
+  }
+}
+/* ===== 갤러리 상세 스크롤바 제거 ===== */
+.gallery-detail {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gallery-detail::-webkit-scrollbar {
+  display: none;
+}
+/* 아래 선택자는 가장 흔한 하단 메뉴/도크 형태를 같이 막는 용도 */
+.gallery-detail-page ~ nav,
+.gallery-detail-page ~ .bottom-nav,
+.gallery-detail-page ~ .mobile-bottom-nav,
+.gallery-detail-page ~ .floating-nav,
+.gallery-detail-page ~ .quick-menu,
+.gallery-detail-page ~ .dock {
+  display: none !important;
+}
+
+/* ===== 갤러리 썸네일 hover / blur loading ===== */
+.portfolio-thumb-loading {
+  opacity: 0;
+  transform: scale(1.02);
+  filter: blur(14px);
+}
+
+.portfolio-thumb-loaded {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.group:hover .portfolio-thumb-loaded {
+  transform: scale(1.05);
+  filter: brightness(0.92);
+}
+
+/* ===== 갤러리 상세 스크롤바 제거 ===== */
+.gallery-detail {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gallery-detail::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== 갤러리 상세 뷰어 ===== */
+.gallery-detail-viewer {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+  touch-action: pan-y;
+}
+
+.gallery-detail-topbar {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  z-index: 30;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.gallery-detail-meta {
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  padding: 10px 14px;
+  border-radius: 14px;
+}
+
+.gallery-detail-title {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.gallery-detail-counter {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 12px;
+}
+
+.gallery-detail-back {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  padding: 0 16px;
+  color: #fff !important;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.gallery-detail-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 70px 18px 30px;
+  box-sizing: border-box;
+}
+
+.gallery-detail-placeholder {
+  position: absolute;
+  inset: 70px 18px 30px;
+  background: rgba(255, 255, 255, 0.06);
+  filter: blur(20px);
+}
+
+.gallery-detail-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.gallery-detail-image-loading {
+  opacity: 0;
+  transform: scale(1.015);
+  filter: blur(18px);
+}
+
+.gallery-detail-image-loaded {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.gallery-nav {
+  position: fixed;
+  top: 50%;
+  z-index: 25;
+  width: 52px;
+  height: 52px;
+  margin-top: -26px;
+  border: 0;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.gallery-nav:hover {
+  transform: scale(1.03);
+}
+
+.gallery-nav:disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+}
+
+.gallery-nav-left {
+  left: 18px;
+}
+
+.gallery-nav-right {
+  right: 18px;
+}
+
+@media (max-width: 768px) {
+  .gallery-detail-topbar {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+  }
+
+  .gallery-detail-stage {
+    padding: 72px 10px 20px;
+  }
+
+  .gallery-detail-placeholder {
+    inset: 72px 10px 20px;
+  }
+
+  .gallery-nav {
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    font-size: 28px;
+  }
+
+  .gallery-nav-left {
+    left: 10px;
+  }
+
+  .gallery-nav-right {
+    right: 10px;
+  }
+}
