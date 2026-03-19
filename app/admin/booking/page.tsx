@@ -16,6 +16,32 @@ type BookingRequest = {
   status?: string | null;
 };
 
+type CalendarEvent = {
+  id: string;
+  created_at?: string | null;
+  external_id?: string | null;
+  title?: string | null;
+  description?: string | null;
+  location?: string | null;
+  start_at?: string | null;
+  end_at?: string | null;
+  source?: string | null;
+};
+
+type BookingListItem = {
+  id: string;
+  created_at?: string | null;
+  title?: string | null;
+  name?: string | null;
+  phone?: string | null;
+  date?: string | null;
+  time?: string | null;
+  location?: string | null;
+  status?: string | null;
+  source?: "booking" | "calendar";
+  detailHref?: string | null;
+};
+
 type PageProps = {
   searchParams?: Promise<{
     year?: string;
@@ -142,6 +168,58 @@ function getMonthCalendarData(
   };
 }
 
+function getCalendarEventDateKey(startAt?: string | null) {
+  if (!startAt) return null;
+
+  const date = new Date(startAt);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function formatCalendarEventTime(startAt?: string | null) {
+  if (!startAt) return "";
+
+  const date = new Date(startAt);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+function getExternalEventsMap(events: CalendarEvent[]) {
+  const map = new Map<string, CalendarEvent[]>();
+
+  for (const item of events) {
+    const key = getCalendarEventDateKey(item.start_at);
+    if (!key) continue;
+
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+
+    map.get(key)!.push(item);
+  }
+
+  for (const [key, value] of map.entries()) {
+    value.sort((a, b) => {
+      const aTime = a.start_at ? new Date(a.start_at).getTime() : 0;
+      const bTime = b.start_at ? new Date(b.start_at).getTime() : 0;
+      return aTime - bTime;
+    });
+    map.set(key, value);
+  }
+
+  return map;
+}
+
 function getPrevMonth(year: number, month: number) {
   if (month === 1) {
     return { year: year - 1, month: 12 };
@@ -180,7 +258,8 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   const now = new Date();
 
   const selectedYear = Number(resolvedSearchParams.year) || now.getFullYear();
-  const selectedMonth = Number(resolvedSearchParams.month) || now.getMonth() + 1;
+  const selectedMonth =
+    Number(resolvedSearchParams.month) || now.getMonth() + 1;
 
   const keyword = resolvedSearchParams.keyword?.trim() || "";
   const phone = resolvedSearchParams.phone?.trim() || "";
@@ -189,10 +268,23 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   const { supabase } = await requireAdmin();
 
-  const { data: requests, error } = await supabase
-    .from("booking_requests")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const monthStart = new Date(selectedYear, selectedMonth - 1, 1, 0, 0, 0, 0);
+  const monthEnd = new Date(selectedYear, selectedMonth, 1, 0, 0, 0, 0);
+
+  const [
+    { data: requests, error },
+    { data: calendarEvents, error: calendarError },
+  ] = await Promise.all([
+    supabase.from("booking_requests").select("*").order("created_at", {
+      ascending: false,
+    }),
+    supabase
+      .from("calendar_events")
+      .select("*")
+      .gte("start_at", monthStart.toISOString())
+      .lt("start_at", monthEnd.toISOString())
+      .order("start_at", { ascending: true }),
+  ]);
 
   if (error) {
     return (
@@ -205,7 +297,19 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     );
   }
 
+  if (calendarError) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+        <h1 className="mb-6 text-2xl font-bold">예약 신청서 관리</h1>
+        <p className="text-red-500">
+          캘린더 일정을 불러오지 못했습니다: {calendarError.message}
+        </p>
+      </main>
+    );
+  }
+
   const allRequests = (requests ?? []) as BookingRequest[];
+  const importedCalendarEvents = (calendarEvents ?? []) as CalendarEvent[];
 
   const filteredRequests = allRequests.filter((item) => {
     const matchKeyword = keyword
@@ -228,6 +332,8 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     selectedYear,
     selectedMonth
   );
+  const externalEventsMap = getExternalEventsMap(importedCalendarEvents);
+
   const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
   const prev = getPrevMonth(selectedYear, selectedMonth);
@@ -237,6 +343,79 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   const todayString = `${today.getFullYear()}-${String(
     today.getMonth() + 1
   ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  const bookingListItems: BookingListItem[] = filteredRequests.map((item) => ({
+    id: item.id,
+    created_at: item.created_at,
+    title: item.title,
+    name: item.name,
+    phone: item.phone,
+    date: item.date,
+    time: item.time,
+    location: item.location,
+    status: item.status,
+    source: "booking",
+    detailHref: `/admin/booking/${item.id}`,
+  }));
+
+  const calendarListItems: BookingListItem[] = importedCalendarEvents.map(
+    (item) => {
+      const startDate = item.start_at ? new Date(item.start_at) : null;
+
+      const dateString =
+        startDate && !Number.isNaN(startDate.getTime())
+          ? `${startDate.getFullYear()}-${String(
+              startDate.getMonth() + 1
+            ).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`
+          : null;
+
+      const timeString =
+        startDate && !Number.isNaN(startDate.getTime())
+          ? new Intl.DateTimeFormat("ko-KR", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: false,
+            }).format(startDate)
+          : null;
+
+      return {
+        id: item.id,
+        created_at: item.created_at ?? item.start_at ?? null,
+        title: item.title ?? "제목 없음",
+        name: "기존 캘린더 일정",
+        phone: "-",
+        date: dateString,
+        time: timeString,
+        location: item.location ?? "-",
+        status: "calendar",
+        source: "calendar",
+        detailHref: `/admin/booking/calendar/${item.id}`,
+      };
+    }
+  );
+
+  const mergedListItems = [...calendarListItems, ...bookingListItems].sort(
+    (a, b) => {
+      const aHasDate = !!a.date;
+      const bHasDate = !!b.date;
+
+      if (!aHasDate && !bHasDate) return 0;
+      if (!aHasDate) return 1;
+      if (!bHasDate) return -1;
+
+      const aDateTime = `${a.date}T${
+        a.time && a.time !== "-" ? a.time : "00:00"
+      }:00`;
+      const bDateTime = `${b.date}T${
+        b.time && b.time !== "-" ? b.time : "00:00"
+      }:00`;
+
+      const aTime = new Date(aDateTime).getTime();
+      const bTime = new Date(bDateTime).getTime();
+
+      return bTime - aTime;
+    }
+  );
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
@@ -253,7 +432,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
           <Link
             href="/booking-private-jb2026"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-medium text-white transition hover:opacity-90"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold !text-white shadow-sm hover:opacity-90"
           >
             신청서 작성
           </Link>
@@ -372,7 +551,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
               예약 스케줄 캘린더
             </h2>
             <p className="mt-1 text-sm text-black/45">
-              월별 예약 현황을 한눈에 확인할 수 있습니다.
+              예약 신청과 기존 구글 캘린더 일정을 함께 확인할 수 있습니다.
             </p>
           </div>
 
@@ -411,6 +590,15 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           </div>
         </div>
 
+        <div className="mb-4 flex flex-wrap gap-2 text-xs">
+          <span className="inline-flex items-center rounded-full bg-[#f2ede7] px-3 py-1 text-black/70">
+            베이지 카드 = 기존 구글 캘린더 일정
+          </span>
+          <span className="inline-flex items-center rounded-full bg-[#f7f5f2] px-3 py-1 text-black/70">
+            회색 카드 = 홈페이지 예약 신청
+          </span>
+        </div>
+
         <div className="overflow-hidden rounded-[32px] border border-black/10 bg-white shadow-sm">
           <div className="grid grid-cols-7 border-b border-black/10 bg-[#faf8f5]">
             {weekLabels.map((label, idx) => (
@@ -425,16 +613,19 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             ))}
           </div>
 
-          <div className="grid grid-cols-7">
+          <div className="grid grid-cols-7 auto-rows-[minmax(220px,_auto)]">
             {calendar.cells.map((cell, index) => {
               const isToday = cell.dateString === todayString;
               const isSunday = index % 7 === 0;
               const isSaturday = index % 7 === 6;
+              const externalItems = cell.dateString
+                ? externalEventsMap.get(cell.dateString) ?? []
+                : [];
 
               return (
                 <div
                   key={cell.key}
-                  className={`min-h-[165px] border-b border-r border-black/10 p-3 align-top ${
+                  className={`min-h-[220px] border-b border-r border-black/10 p-3 align-top overflow-y-auto ${
                     index % 7 === 6 ? "border-r-0" : ""
                   } ${!cell.day ? "bg-[#fcfbf9]" : "bg-white"}`}
                 >
@@ -457,6 +648,32 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                       </div>
 
                       <div className="space-y-2">
+                        {externalItems.map((item) => (
+                          <Link
+                            key={item.id}
+                            href={`/admin/booking/calendar/${item.id}`}
+                            className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-2.5 transition hover:bg-[#efe4d6]"
+                          >
+                            <div className="mb-1.5 flex flex-wrap items-center gap-1">
+                              <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#8a5a2b]">
+                                기존 일정
+                              </span>
+                              {formatCalendarEventTime(item.start_at) ? (
+                                <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-black/65">
+                                  {formatCalendarEventTime(item.start_at)}
+                                </span>
+                              ) : null}
+                            </div>
+
+                            <div className="truncate text-xs font-semibold text-black">
+                              {item.title ?? "제목 없음"}
+                            </div>
+                            <div className="truncate text-[11px] text-black/50">
+                              {item.location ?? "-"}
+                            </div>
+                          </Link>
+                        ))}
+
                         {cell.items.slice(0, 4).map((item) => (
                           <Link
                             key={item.id}
@@ -492,7 +709,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
                         {cell.items.length > 4 && (
                           <div className="px-1 text-xs text-black/45">
-                            + {cell.items.length - 4}건 더 있음
+                            예약 + {cell.items.length - 4}건 더 있음
                           </div>
                         )}
                       </div>
@@ -505,7 +722,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
       </section>
 
-      <BookingListTable items={filteredRequests} />
+      <BookingListTable items={mergedListItems} />
     </main>
   );
 }

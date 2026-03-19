@@ -1,7 +1,7 @@
-import { createClient } from "./server";
+import { createClient as createServerClient } from "./server";
 
 export async function requireAdmin() {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   const {
     data: { user },
@@ -9,3 +9,10 @@ export async function requireAdmin() {
 
   return { supabase, user };
 }
+
+import { createClient } from "@supabase/supabase-js";
+
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);

@@ -1,0 +1,1099 @@
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:1제이든브라운43
+X-WR-TIMEZONE:Asia/Seoul
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220513
+DTEND;VALUE=DATE:20220514
+DTSTAMP:20260319T054950Z
+UID:2r427cc1ghh5t0f9l01d2n129f@google.com
+CREATED:20220416T234113Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><br><br><br><br><table><tbody><
+ tr><th>제목</th><td>돌잔치 예약</td></tr><tr><th>글쓴이</th><td>장은혜</td></tr><tr><th>
+ 이메일 주소</th><td><a href="mailto:jjang8895@naver.com">jjang8895@naver.com</a>
+ </td></tr><tr><th>촬영자명</th><td>정담&nbsp\;</td></tr><tr><th>연락처</th><td>010 5
+ 519 8895&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-05-13&nbsp\;</td></tr><t
+ r><th>시간</th><td>18시&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td><
+ /tr><tr><th>주소</th><td>44025 울산 동구 방어진순환도로 999 201동 1512호 (서부동\, 현대패밀리서부2차아
+ 파트)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td>장은혜&nbsp\;</td></tr><tr><th>스냅상
+ 품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tb
+ ody></table><br><a href="http://yeonhu.iptime.org/jayden/index.php?mid=Rese
+ rvation&document_srl=9010&act=dispBoardDelete"><b>삭제</b></a><a href="http:/
+ /yeonhu.iptime.org/jayden/index.php?mid=Reservation"><b>목록</b></a><u></u><u
+ ></u><br><u></u><u></u><u></u></html-blob>
+LAST-MODIFIED:20221007T000652Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1800 m 정담 도동산방
+TRANSP:TRANSPARENT
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
+BEGIN:VALARM
+ACTION:AUDIO
+TRIGGER:-PT15H
+X-WR-ALARMUID:08674671-977C-4581-A66D-D8BC0391A760
+UID:08674671-977C-4581-A66D-D8BC0391A760
+ATTACH;VALUE=URI:Chord
+X-APPLE-DEFAULT-ALARM:TRUE
+ACKNOWLEDGED:20220512T023431Z
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220902
+DTEND;VALUE=DATE:20220903
+DTSTAMP:20260319T054950Z
+UID:53o0hvisn5k90kvpppuffgu9ei@google.com
+CREATED:20220521T095554Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌잔치 스냅 예약신청<
+ /td></tr><tr><th>글쓴이</th><td>전상아</td></tr><tr><th>이메일 주소</th><td><a href="m
+ ailto:i10043000@naver.com">i10043000@naver.com</a></td></tr><tr><th>촬영자명</t
+ h><td>김서이&nbsp\;</td></tr><tr><th>연락처</th><td>010-7299-9990&nbsp\;</td></tr
+ ><tr><th>촬영날짜</th><td>2022-09-02&nbsp\;</td></tr><tr><th>시간</th><td>14:30&n
+ bsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td
+ >44534 울산 중구 학성로 1 (울산 중구 우정동 172) 102동 2281호 (우정동\, 마제스타워 울산)&nbsp\;</td><
+ /tr><tr><th>예약금입금자명</th><td>전상아&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</t
+ h><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table><u><
+ /u></html-blob>
+LAST-MODIFIED:20220904T031929Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1430 ㅡm 낯가림 김서이 도동산방  / 낯가림 있음
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220601
+DTEND;VALUE=DATE:20220602
+DTSTAMP:20260319T054950Z
+UID:569inmbv82m7sau99b544k5ii3@google.com
+CREATED:20220512T063237Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌잔치예약
+ </td></tr><tr><th>글쓴이</th><td>김아롱</td></tr><tr><th>이메일 주소</th><td><a href="
+ mailto:rongee22@naver.com">rongee22@naver.com</a></td></tr><tr><th>촬영자명</th
+ ><td>김이건&nbsp\;</td></tr><tr><th>연락처</th><td>010-7711-1521&nbsp\;</td></tr>
+ <tr><th>촬영날짜</th><td>2022-06-01&nbsp\;</td></tr><tr><th>시간</th><td>12시&nbsp
+ \;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44
+ 521 울산 중구 구교로 59 (울산 중구 학성동 480) 102동 401호 (학성동)&nbsp\;</td></tr><tr><th>예약
+ 금입금자명</th><td>김아롱&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp
+ \;</td></tr><tr><th>내용</th><td></td></tr></tbody></table><u></u><u></u></ht
+ ml-blob>
+LAST-MODIFIED:20220607T022505Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1200 m 김이건 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20210724
+DTEND;VALUE=DATE:20210725
+DTSTAMP:20260319T054950Z
+UID:7bu1id6gdpddvu1uschakg6fse@google.com
+CREATED:20210611T123343Z
+DESCRIPTION:<u></u><u></u><u></u><u></u><u></u><table><tbody><tr><th>제목</th
+ ><td>돌스냅 예약</td></tr><tr><th>글쓴이</th><td>유은경</td></tr><tr><th>이메일 주소</th><t
+ d><a href="mailto:love-sky1002@hanmail.net">love-sky1002@hanmail.net</a></t
+ d></tr><tr><th>촬영자명</th><td>전하윤&nbsp\;</td></tr><tr><th>연락처</th><td>010-620
+ 5-7466&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2021-07-24&nbsp\;</td></tr><tr>
+ <th>행사시작시간</th><td>6시식사예약/4시 촬영시작&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방
+ &nbsp\;</td></tr><tr><th>주소</th><td>13994 경기 안양시 만안구 안양천서로 311 (경기 안양시 만안구 
+ 안양동 90-1) 110동 2403호 (안양동\, 삼성래미안아파트)&nbsp\;</td></tr><tr><th>예약금입금자명</th><
+ td>유은경&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr
+ ><tr><th>내용</th><td></td></tr></tbody></table><u></u><u></u><u></u><u></u><
+ u></u>
+LAST-MODIFIED:20230103T140950Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1800 m 전하윤 도동산방  / 1430에 촬영 후\, 식사전 돌잡이
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221023
+DTEND;VALUE=DATE:20221024
+DTSTAMP:20260319T054950Z
+UID:4i3uk78japabqcsh5cas3ma14o@google.com
+CREATED:20220625T232729Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌스냅</td></tr
+ ><tr><th>글쓴이</th><td>세아엄마</td></tr><tr><th>이메일 주소</th><td><a href="mailto:s
+ eolll26@daum.net">seolll26@daum.net</a></td></tr><tr><th>촬영자명</th><td>김세아&n
+ bsp\;</td></tr><tr><th>연락처</th><td>01075265397&nbsp\;</td></tr><tr><th>촬영날짜
+ </th><td>2022-10-23&nbsp\;</td></tr><tr><th>시간</th><td>식사2시반 촬영 12시30분부터&nb
+ sp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>
+ 44215 울산 북구 신천로 103 (울산 북구 매곡동 963) 110동 1301호 (매곡동\, 매곡 에듀파크 에일린의 뜰)&nbsp\
+ ;</td></tr><tr><th>예약금입금자명</th><td>이한설&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 
+ 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br><p>ㆍ</p></td></tr><
+ /tbody></table><u></u></html-blob>
+LAST-MODIFIED:20221027T063631Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 김세아 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20230120T090000Z
+DTEND:20230120T100000Z
+DTSTAMP:20260319T054950Z
+UID:hdn89stmtardvhhn6k1nuknkpg@google.com
+CREATED:20230111T081728Z
+LAST-MODIFIED:20230111T081728Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:0930
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20230911
+DTEND;VALUE=DATE:20230912
+DTSTAMP:20260319T054950Z
+UID:CF070850-B356-48D0-8646-E6A92DEEB04E
+CREATED:20230908T060344Z
+LAST-MODIFIED:20230908T060355Z
+LOCATION:경북 경주
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:[카카오골프예약] 코오롱가든(P9) 가든
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20260114
+DTEND;VALUE=DATE:20260115
+DTSTAMP:20260319T054950Z
+UID:f6tsdj1c647ah81tvinvloqrak@google.com
+CREATED:20260106T095604Z
+DESCRIPTION:<table><tbody><tr><th>제목</th><td>예약신청</td></tr><tr><th>글쓴이</th>
+ <td>임희은</td></tr><tr><th>이메일 주소</th><td><a href="mailto:heexnee@naver.com">
+ heexnee@naver.com</a></td></tr><tr><th>촬영 종류</th><td>셀프 </td></tr><tr><th>연
+ 락처</th><td>01091472691 </td></tr><tr><th>촬영인원</th><td>2 </td></tr><tr><th>촬
+ 영날짜</th><td>2026-01-14 </td></tr><tr><th>촬영시작시간</th><td>16:00 </td></tr><tr
+ ><th>기타사항</th><td> </td></tr></tbody></table>
+LAST-MODIFIED:20260114T035427Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:취소 1600 임희은 셀프 2인  /.  취소
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221002
+DTEND;VALUE=DATE:20221003
+DTSTAMP:20260319T054950Z
+UID:1ko2sh6j4j7796iou9hvu5dn8r@google.com
+CREATED:20220727T112652Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌스냅</td></tr
+ ><tr><th>글쓴이</th><td>류은아</td></tr><tr><th>이메일 주소</th><td><a href="mailto:19
+ 992556@naver.com">19992556@naver.com</a></td></tr><tr><th>촬영자명</th><td>황기욱&
+ nbsp\;</td></tr><tr><th>연락처</th><td>01028603179&nbsp\;</td></tr><tr><th>촬영날
+ 짜</th><td>2022-10-02&nbsp\;</td></tr><tr><th>시간</th><td>&nbsp\;</td></tr><t
+ r><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>&nbsp\;</td></tr
+ ><tr><th>예약금입금자명</th><td>류은아&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><
+ td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table><u></u>
+ </html-blob>
+LAST-MODIFIED:20221005T043559Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 황기욱 도동산방 / 첫째 7살 유빈
+TRANSP:TRANSPARENT
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
+BEGIN:VALARM
+ACTION:AUDIO
+TRIGGER:-PT15H
+X-WR-ALARMUID:B28DF683-BB79-47EE-89E9-6C9934FD5214
+UID:B28DF683-BB79-47EE-89E9-6C9934FD5214
+ATTACH;VALUE=URI:Basso
+X-APPLE-DEFAULT-ALARM:TRUE
+ACKNOWLEDGED:20221001T095611Z
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220717
+DTEND;VALUE=DATE:20220718
+DTSTAMP:20260319T054950Z
+UID:53kjn38l4gjp8vsmui9l4f8rih@google.com
+CREATED:20220504T055025Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><u></u><table><tbody><tr><th>제목
+ </th><td>돌스냅</td></tr><tr><th>글쓴이</th><td>최혜정</td></tr><tr><th>이메일 주소</th><
+ td><a href="mailto:qwe334202@hanmail.net">qwe334202@hanmail.net</a></td></t
+ r><tr><th>촬영자명</th><td>방지우&nbsp\;</td></tr><tr><th>연락처</th><td>01097573342&
+ nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-07-17&nbsp\;</td></tr><tr><th>시간<
+ /th><td>12시&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><
+ th>주소</th><td>44000 울산 동구 옥류로 87 (울산 동구 동부동 424-1) 8층808호 (동부동\, 남목그린타워)&nb
+ sp\;</td></tr><tr><th>예약금입금자명</th><td>방요셉&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩
+ \, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br><p>돌스냅</p></td><
+ /tr></tbody></table><u></u><u></u><u></u><u></u></html-blob>
+LAST-MODIFIED:20220731T060639Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 통 방지우 도동산방 / 한복
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220820
+DTEND;VALUE=DATE:20220821
+DTSTAMP:20260319T054950Z
+UID:6dbv0jerdtmap58a9sadrllj4h@google.com
+CREATED:20220610T030001Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>소규모돌잔치 스냅예약합
+ 니다</td></tr><tr><th>글쓴이</th><td>박소담</td></tr><tr><th>이메일 주소</th><td><a href
+ ="mailto:dadidam@naver.com">dadidam@naver.com</a></td></tr><tr><th>촬영자명</th
+ ><td>유지호&nbsp\;</td></tr><tr><th>연락처</th><td>01050628934&nbsp\;</td></tr><t
+ r><th>촬영날짜</th><td>2022-08-20&nbsp\;</td></tr><tr><th>시간</th><td>14:30&nbsp
+ \;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>28
+ 424 충북 청주시 흥덕구 대농로 17 (충북 청주시 흥덕구 복대동 3379) 103동 2406호 (복대동\, 지웰시티1차아파트)&nb
+ sp\;</td></tr><tr><th>예약금입금자명</th><td>박소담&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩
+ \, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br><p>첫째를 포함한 4인가족입
+ 니다</p><p>돌잔치는 총 11인이 참석합니다</p></td></tr></tbody></table><u></u></html-blob>
+LAST-MODIFIED:20220821T134104Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430m  유지호 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221127
+DTEND;VALUE=DATE:20221128
+DTSTAMP:20260319T054950Z
+UID:37691p2ksirha4icip1am33m1e@google.com
+CREATED:20220416T002544Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌잔치 예약</td><
+ /tr><tr><th>글쓴이</th><td>강정아</td></tr><tr><th>이메일 주소</th><td><a href="mailto
+ :janga7777@naver.com">janga7777@naver.com</a></td></tr><tr><th>촬영자명</th><td
+ >국아율&nbsp\;</td></tr><tr><th>연락처</th><td>010-8549-1100&nbsp\;</td></tr><tr>
+ <th>촬영날짜</th><td>2022-11-27&nbsp\;</td></tr><tr><th>시간</th><td>12시&nbsp\;</
+ td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>&nbsp\
+ ;</td></tr><tr><th>예약금입금자명</th><td>강정아&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 
+ 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></tab
+ le><u></u></html-blob>
+LAST-MODIFIED:20221130T030516Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1200 m 국아율 도동산방
+TRANSP:TRANSPARENT
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
+BEGIN:VALARM
+ACTION:AUDIO
+TRIGGER:-PT15H
+X-WR-ALARMUID:ABB75DA8-D3C1-4B59-9F92-081981379D47
+UID:ABB75DA8-D3C1-4B59-9F92-081981379D47
+ATTACH;VALUE=URI:Basso
+X-APPLE-DEFAULT-ALARM:TRUE
+ACKNOWLEDGED:20221126T004735Z
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220319
+DTEND;VALUE=DATE:20220320
+DTSTAMP:20260319T054950Z
+UID:694pd24p8bqs6lv6ld6nhr2u7g@google.com
+CREATED:20220120T014543Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><u></u><table><tbody><tr><th>제목
+ </th><td>돌스냅촬영</td></tr><tr><th>글쓴이</th><td>김현주</td></tr><tr><th>이메일 주소</th
+ ><td><a href="mailto:sunfull1114@naver.com">sunfull1114@naver.com</a></td><
+ /tr><tr><th>촬영자명</th><td>황수빈&nbsp\;</td></tr><tr><th>연락처</th><td>0107316998
+ 5&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-03-19&nbsp\;</td></tr><tr><th>행
+ 사시작시간</th><td>2시30분&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></
+ tr><tr><th>주소</th><td>44254 울산 북구 명촌17길 23 102동1002호 (명촌동\, 울산강변효성해링턴 플레이스)
+ &nbsp\;</td></tr><tr><th>예약금입금자명</th><td>황정구&nbsp\;</td></tr><tr><th>스냅상품구성
+ (웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br><p>돌스냅 구성 가족 
+ 야외촬영 인가요?</p></td></tr></tbody></table><u></u><u></u><u></u><u></u></html-b
+ lob>
+LAST-MODIFIED:20221202T093850Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 통 황수빈 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220827
+DTEND;VALUE=DATE:20220828
+DTSTAMP:20260319T054950Z
+UID:196brkbqfv6bhj6eviqu8f4p14@google.com
+CREATED:20220512T233726Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌잔치예약
+ </td></tr><tr><th>글쓴이</th><td>조경미</td></tr><tr><th>이메일 주소</th><td><a href="
+ mailto:vvjkmvv@naver.com">vvjkmvv@naver.com</a></td></tr><tr><th>촬영자명</th><
+ td>고은우&nbsp\;</td></tr><tr><th>연락처</th><td>01030398064&nbsp\;</td></tr><tr>
+ <th>촬영날짜</th><td>2022-08-27&nbsp\;</td></tr><tr><th>시간</th><td>12시&nbsp\;</
+ td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>04757 
+ 서울 성동구 마장로42길 16 8동 1305호 (마장동\, 세림아파트)&nbsp\;</td></tr><tr><th>예약금입금자명</th
+ ><td>조경미&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></
+ tr><tr><th>내용</th><td></td></tr></tbody></table><u></u><u></u></html-blob>
+LAST-MODIFIED:20220831T115400Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 고은우 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20260114
+DTEND;VALUE=DATE:20260115
+DTSTAMP:20260319T054950Z
+UID:feq2talkovomb30o59gflpqnnk@google.com
+CREATED:20260110T110243Z
+LAST-MODIFIED:20260110T110248Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:1700 증명
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221008
+DTEND;VALUE=DATE:20221009
+DTSTAMP:20260319T054950Z
+UID:02g2mh130mpfqm68rqe6aicp0n@google.com
+CREATED:20220606T024055Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌잔치스냅 예약합니다<
+ /td></tr><tr><th>글쓴이</th><td>하린</td></tr><tr><th>이메일 주소</th><td><a href="ma
+ ilto:gkfls7653@naver.com">gkfls7653@naver.com</a></td></tr><tr><th>촬영자명</th
+ ><td>예주안&nbsp\;</td></tr><tr><th>연락처</th><td>01037233650&nbsp\;</td></tr><t
+ r><th>촬영날짜</th><td>2022-10-08&nbsp\;</td></tr><tr><th>시간</th><td>2:00&nbsp\
+ ;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>449
+ 02 울산 울주군 상북면 송락골길 133 (울산 울주군 상북면 산전리 50-16) 도동산방 (산전리)&nbsp\;</td></tr><t
+ r><th>예약금입금자명</th><td>하린&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌
+ 스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table><u></u></ht
+ ml-blob>
+LAST-MODIFIED:20221012T020817Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 예주안 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221228
+DTEND;VALUE=DATE:20221229
+DTSTAMP:20260319T054950Z
+UID:5edgk1759r1mt331mlp7noepsg@google.com
+CREATED:20221224T090345Z
+LAST-MODIFIED:20221224T090353Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:오전 집보러 옴
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221210
+DTEND;VALUE=DATE:20221211
+DTSTAMP:20260319T054950Z
+UID:5a8k902vrqv1262shqek7gm36f@google.com
+CREATED:20220930T000733Z
+DESCRIPTION:<table><tbody><tr><th>제목</th><td>돌잔치 촬영요청</td></tr><tr><th>글쓴이<
+ /th><td>홍성순</td></tr><tr><th>이메일 주소</th><td><a href="mailto:snake_iz@naver.
+ com">snake_iz@naver.com</a></td></tr><tr><th>촬영자명</th><td>홍준서&nbsp\;</td></
+ tr><tr><th>연락처</th><td>01053831628&nbsp\;</td></tr><tr><th>촬영날짜</th><td>202
+ 2-12-10&nbsp\;</td></tr><tr><th>시간</th><td>14:30&nbsp\;</td></tr><tr><th>촬영
+ 장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44902 울산 울주군 상북면 송락골길 13
+ 3 (울산 울주군 상북면 산전리 50-16) 도동산방 (산전리)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td
+ >홍성순&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><
+ tr><th>내용</th><td><br><p>예약 바랍니다.&nbsp\;</p></td></tr></tbody></table>
+LAST-MODIFIED:20221215T011147Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기]1430 m 홍준서 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221120
+DTEND;VALUE=DATE:20221121
+DTSTAMP:20260319T054950Z
+UID:6k8p0q1jdqi0ut002poh32pa04@google.com
+CREATED:20220614T004806Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌스냅 예
+ 약</td></tr><tr><th>글쓴이</th><td>박주현</td></tr><tr><th>이메일 주소</th><td><a href=
+ "mailto:feb22nd22nd@icloud.com">feb22nd22nd@icloud.com</a></td></tr><tr><th
+ >촬영자명</th><td>권리아&nbsp\;</td></tr><tr><th>연락처</th><td>010-7922-2872&nbsp\;<
+ /td></tr><tr><th>촬영날짜</th><td>2022-11-20&nbsp\;</td></tr><tr><th>시간</th><td
+ >18시(동절기라 앞당겨질 수 있다고 하셨어요.)&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\
+ ;</td></tr><tr><th>주소</th><td>44608 울산 남구 대학로121번길 52 (울산 남구 무거동 844-2) 120
+ 2호 (무거동\, 홍일유토피아아파트)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td>권현기&nbsp\;</td
+ ></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><
+ td><br><p>야외돌상도 예약해두었습니다 : )</p></td></tr></tbody></table><u></u><u></u></h
+ tml-blob>
+LAST-MODIFIED:20221123T090911Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1800 m 권리아 도동산방 야외돌상
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20240514
+DTEND;VALUE=DATE:20240515
+DTSTAMP:20260319T054950Z
+UID:1sheehp8qnkpgohtml3m8nod4j@google.com
+CREATED:20240513T002049Z
+LAST-MODIFIED:20240514T104719Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:신한울이 작업 꼭
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221005
+DTEND;VALUE=DATE:20221006
+DTSTAMP:20260319T054950Z
+UID:fhoea4sm3bo6dv4r00qp3vsea0@google.com
+CREATED:20220922T145202Z
+LAST-MODIFIED:20220922T145215Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:1630 야구 NC파크
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221021
+DTEND;VALUE=DATE:20221022
+DTSTAMP:20260319T054950Z
+UID:23t5363cr1ojiausuhe39iqges@google.com
+CREATED:20220812T235044Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌스냅예약합니다.</t
+ d></tr><tr><th>글쓴이</th><td>김란희</td></tr><tr><th>이메일 주소</th><td><a href="mai
+ lto:91210679@hanmail.net">91210679@hanmail.net</a></td></tr><tr><th>촬영자명</t
+ h><td>이규빈&nbsp\;</td></tr><tr><th>연락처</th><td>01059148857&nbsp\;</td></tr><
+ tr><th>촬영날짜</th><td>2022-10-21&nbsp\;</td></tr><tr><th>시간</th><td>12시&nbsp\
+ ;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>449
+ 22 울산 울주군 범서읍 대리2길 46 (울산 울주군 범서읍 구영리 371) 205동2003호 (구영리\, 구영지구푸르지오2단지)&nb
+ sp\;</td></tr><tr><th>예약금입금자명</th><td>김란희&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩
+ \, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></
+ table><u></u></html-blob>
+LAST-MODIFIED:20221021T132748Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 이규빈 도동산방 4살
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221218
+DTEND;VALUE=DATE:20221219
+DTSTAMP:20260319T054950Z
+UID:66t1tibdnm8o5ekheh7u7g947m@google.com
+CREATED:20220915T003341Z
+DESCRIPTION:<u></u><br><br><br><br><table><tbody><tr><th>제목</th><td>12월 18일
+  2시30분 돌잔치 스냅예약</td></tr><tr><th>글쓴이</th><td>김혜주</td></tr><tr><th>이메일 주소</t
+ h><td><a href="mailto:nomusahj624@naver.com">nomusahj624@naver.com</a></td>
+ </tr><tr><th>촬영자명</th><td>방선준&nbsp\;</td></tr><tr><th>연락처</th><td>010940056
+ 73&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-12-18&nbsp\;</td></tr><tr><th>
+ 시간</th><td>02시30분&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr
+ ><tr><th>주소</th><td>44959 울산 울주군 청량읍 율리영해2길 8 (울산 울주군 청량읍 율리 1472-1) (율리\, 
+ 문수데시앙 1단지)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td>방형식&nbsp\;</td></tr><tr>
+ <th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></
+ tr></tbody></table><br><a href="http://yeonhu.iptime.org/jayden/index.php?m
+ id=Reservation&document_srl=9325&act=dispBoardDelete"><b>삭제</b></a><a href=
+ "http://yeonhu.iptime.org/jayden/index.php?mid=Reservation"><b>목록</b></a><u
+ ></u><u></u><br><u></u>
+LAST-MODIFIED:20221222T105543Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 방선준 도동산방 첫째 3살 선우
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221203
+DTEND;VALUE=DATE:20221204
+DTSTAMP:20260319T054950Z
+UID:2fmovk33brq7vn6pecdsbjepg1@google.com
+CREATED:20220901T095301Z
+DESCRIPTION:<html-blob><table><tbody><tr><th>제목</th><td>돌스냅 예약</td></tr><tr
+ ><th>글쓴이</th><td>김지현</td></tr><tr><th>이메일 주소</th><td><a href="mailto:jhkim0
+ 284@naver.com">jhkim0284@naver.com</a></td></tr><tr><th>촬영자명</th><td>이찬영&nb
+ sp\;</td></tr><tr><th>연락처</th><td>01026325071&nbsp\;</td></tr><tr><th>촬영날짜<
+ /th><td>2022-12-03&nbsp\;</td></tr><tr><th>시간</th><td>14:30&nbsp\;</td></tr
+ ><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44978 울산 울주군 
+ 온양읍 남창강변로 102 (울산 울주군 온양읍 대안리 543-11) 105동 801호 (대안리\, 현대아파트)&nbsp\;</td></
+ tr><tr><th>예약금입금자명</th><td>김지현&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th
+ ><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table></htm
+ l-blob>
+LAST-MODIFIED:20221206T010433Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 이찬영 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220925
+DTEND;VALUE=DATE:20220926
+DTSTAMP:20260319T054950Z
+UID:4h7g750rkh22no5mhtf1h5eqph@google.com
+CREATED:20220727T112945Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌사진 촬
+ 영 예약</td></tr><tr><th>글쓴이</th><td>이진석</td></tr><tr><th>이메일 주소</th><td><a hr
+ ef="mailto:ljs12251@naver.com">ljs12251@naver.com</a></td></tr><tr><th>촬영자명
+ </th><td>이준호&nbsp\;</td></tr><tr><th>연락처</th><td>01085266959&nbsp\;</td></t
+ r><tr><th>촬영날짜</th><td>2022-09-25&nbsp\;</td></tr><tr><th>시간</th><td>오후 2시 
+ 반&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th>
+ <td>44417 울산 중구 성안로 256 (울산 중구 성안동 405-5) 902호 (성안동\, 아드리아2차)&nbsp\;</td></
+ tr><tr><th>예약금입금자명</th><td>이진석&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th
+ ><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br><p>돌사진 예약 신청드립니다.</p><p>식사 
+ 후 촬영으로 구두협의했습니다</p></td></tr></tbody></table><u></u><u></u></html-blob>
+LAST-MODIFIED:20220930T032101Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:$$ 1430 m 식후 이준호 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221026
+DTEND;VALUE=DATE:20221027
+DTSTAMP:20260319T054950Z
+UID:4sla09jjs75fdokgdv9r245ehq@google.com
+CREATED:20221018T075938Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>김소이 돌잔치 예약(도
+ 동산방10/26 수)</td></tr><tr><th>글쓴이</th><td>황민혜</td></tr><tr><th>이메일 주소</th><t
+ d><a href="mailto:aclover1@naver.com">aclover1@naver.com</a></td></tr><tr><
+ th>촬영자명</th><td>김소이&nbsp\;</td></tr><tr><th>연락처</th><td>01066787469&nbsp\;<
+ /td></tr><tr><th>촬영날짜</th><td>2022-10-26&nbsp\;</td></tr><tr><th>시간</th><td
+ >저녁타임 스냅3-4시&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr>
+ <th>주소</th><td>44932 울산 울주군 범서읍 장검길 88 (울산 울주군 범서읍 굴화리 758) 110동 1904호 (굴화리
+ \, 울산 문수산 더샵)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td>황민혜&nbsp\;</td></tr><
+ tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br>
+ <p>둘째딸&nbsp\;돌잔치 입니다.</p><p>위로 4살딸아이도 있는&nbsp\;자매에요^^</p><p>촬영 잘 부탁드립니다.</p
+ ></td></tr></tbody></table><u></u></html-blob>
+LAST-MODIFIED:20221028T020955Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1800m 김소이 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220926
+DTEND;VALUE=DATE:20220927
+DTSTAMP:20260319T054950Z
+UID:2q2u3711ok6stonl7t1hc1hii0@google.com
+CREATED:20220923T063024Z
+LAST-MODIFIED:20220923T063033Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:09:00 에어콘 배관
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221017
+DTEND;VALUE=DATE:20221018
+DTSTAMP:20260319T054950Z
+UID:6rbjjq5dghm61fc3if929esdpv@google.com
+CREATED:20221007T121526Z
+LAST-MODIFIED:20221007T121555Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:사랑하는 우리 지연이 이사하는 날~
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220625
+DTEND;VALUE=DATE:20220626
+DTSTAMP:20260319T054950Z
+UID:3ov2t1ln794ff9spm1a1er5gg4@google.com
+CREATED:20220415T095404Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>6.25 돌잔치스냅 예
+ 약</td></tr><tr><th>글쓴이</th><td>정민아</td></tr><tr><th>이메일 주소</th><td><a href=
+ "mailto:superlady8717@gmail.com">superlady8717@gmail.com</a></td></tr><tr><
+ th>촬영자명</th><td>김정원&nbsp\;</td></tr><tr><th>연락처</th><td>010-5717-1824&nbsp\
+ ;</td></tr><tr><th>촬영날짜</th><td>2022-06-25&nbsp\;</td></tr><tr><th>시간</th><
+ td>18:00&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>
+ 주소</th><td>44954 울산 울주군 삼남읍 마산길 88 (울산 울주군 삼남읍 상천리 1-5) 전원주택 (상천리)&nbsp\;</
+ td></tr><tr><th>예약금입금자명</th><td>정민아&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치
+ )</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table>
+ <u></u></html-blob>
+LAST-MODIFIED:20220701T031558Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1800 m 43 김정원 43 도동산방 
+TRANSP:TRANSPARENT
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
+BEGIN:VALARM
+ACTION:AUDIO
+TRIGGER:-PT15H
+X-WR-ALARMUID:A5AF52E3-5AB8-4536-BB91-4200760798F0
+UID:A5AF52E3-5AB8-4536-BB91-4200760798F0
+ATTACH;VALUE=URI:Basso
+X-APPLE-DEFAULT-ALARM:TRUE
+ACKNOWLEDGED:20220624T080832Z
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221023
+DTEND;VALUE=DATE:20221024
+DTSTAMP:20260319T054950Z
+UID:3j1gm505eef5m63r4vobr5aee3@google.com
+CREATED:20220615T050521Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌잔치 신청</td><
+ /tr><tr><th>글쓴이</th><td>차경환</td></tr><tr><th>이메일 주소</th><td><a href="mailto
+ :khc5834@naver.com">khc5834@naver.com</a></td></tr><tr><th>촬영자명</th><td>차민채
+ &nbsp\;</td></tr><tr><th>연락처</th><td>01020025834&nbsp\;</td></tr><tr><th>촬영
+ 날짜</th><td>2022-10-23&nbsp\;</td></tr><tr><th>시간</th><td>12:00&nbsp\;</td><
+ /tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44902 울산 울
+ 주군 상북면 송락골길 133 (울산 울주군 상북면 산전리 50-16) (산전리)&nbsp\;</td></tr><tr><th>예약금입금자
+ 명</th><td>차경환&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</
+ td></tr><tr><th>내용</th><td></td></tr></tbody></table><u></u></html-blob>
+LAST-MODIFIED:20221027T063804Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 차민채 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220724
+DTEND;VALUE=DATE:20220725
+DTSTAMP:20260319T054950Z
+UID:0qhaj8peoi4jnhalslbe1vtvqc@google.com
+CREATED:20220623T062247Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌잔치</td></tr
+ ><tr><th>글쓴이</th><td>권지선</td></tr><tr><th>이메일 주소</th><td><a href="mailto:vo
+ v5417@hanmail.net">vov5417@hanmail.net</a></td></tr><tr><th>촬영자명</th><td>허지
+ 아&nbsp\;</td></tr><tr><th>연락처</th><td>01051565417&nbsp\; 01093182312&nbsp\;
+ </td></tr><tr><th>촬영날짜</th><td>2022-07-24&nbsp\;</td></tr><tr><th>시간</th><t
+ d>6시&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</
+ th><td>44415 울산 중구 함월로 75 (울산 중구 성안동 758) 102동502호 (성안동\, 현대싱그런아파트)&nbsp\;<
+ /td></tr><tr><th>예약금입금자명</th><td>권지선&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔
+ 치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table
+ ><u></u></html-blob>
+LAST-MODIFIED:20220726T115500Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1800 m 허지아 도동산방  첫째 다섯 (친척 박성준8살\, 정언이 촬영했음) 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20251027T100000Z
+DTEND:20251027T110000Z
+DTSTAMP:20260319T054950Z
+UID:5i4ckpvgf8pduikn89ne7uh3uc@google.com
+CREATED:20251021T092833Z
+LAST-MODIFIED:20251021T092843Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:문어
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220828
+DTEND;VALUE=DATE:20220829
+DTSTAMP:20260319T054950Z
+UID:6c93adbeav8u23l2ard8aiqcc8@google.com
+CREATED:20220328T012616Z
+DESCRIPTION:<u></u><u></u><table><tbody><tr><th>제목</th><td>돌잔치 스냅 예약</td></
+ tr><tr><th>글쓴이</th><td>이진여</td></tr><tr><th>이메일 주소</th><td><a href="mailto:
+ dlwlsdu2008@naver.com">dlwlsdu2008@naver.com</a></td></tr><tr><th>촬영자명</th>
+ <td>김설&nbsp\;</td></tr><tr><th>연락처</th><td>01094868544&nbsp\;</td></tr><tr>
+ <th>촬영날짜</th><td>2022-08-28&nbsp\;</td></tr><tr><th>행사시작시간</th><td>돌잔치 식사 1
+ 4:30 예약함&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>
+ 주소</th><td>44264 울산 북구 산하중앙3로 142 105동 2301호 (산하동\, 울산블루마시티 서희스타힐스블루원아파트)&n
+ bsp\;</td></tr><tr><th>예약금입금자명</th><td>이진여&nbsp\;</td></tr><tr><th>스냅상품구성(웨
+ 딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody><
+ /table><u></u><u></u>
+LAST-MODIFIED:20221230T034248Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1430 m 김설 도동산방 / 양장후 한복
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220815
+DTEND;VALUE=DATE:20220816
+DTSTAMP:20260319T054950Z
+UID:61d791rg9r95op7230kjspf2io@google.com
+CREATED:20220616T113233Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>신청</td></tr>
+ <tr><th>글쓴이</th><td>김민주</td></tr><tr><th>이메일 주소</th><td><a href="mailto:let
+ mj@naver.com">letmj@naver.com</a></td></tr><tr><th>촬영자명</th><td>조서아&nbsp\;<
+ /td></tr><tr><th>연락처</th><td>01038527331&nbsp\;</td></tr><tr><th>촬영날짜</th><
+ td>2022-08-15&nbsp\;</td></tr><tr><th>시간</th><td>12시&nbsp\;</td></tr><tr><t
+ h>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44902 울산 울주군 상북면 송락골
+ 길 133 (울산 울주군 상북면 산전리 50-16) 도동산방 (산전리)&nbsp\;</td></tr><tr><th>예약금입금자명</th
+ ><td>김민주&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></
+ tr><tr><th>내용</th><td></td></tr></tbody></table><u></u></html-blob>
+LAST-MODIFIED:20220817T072020Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 조서아 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221022
+DTEND;VALUE=DATE:20221023
+DTSTAMP:20260319T054950Z
+UID:5qo36e8lo1sotoae8rhhfv9f49@google.com
+CREATED:20220511T061442Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌잔치</
+ td></tr><tr><th>글쓴이</th><td>김가람</td></tr><tr><th>이메일 주소</th><td><a href="ma
+ ilto:clack1986@nate.com">clack1986@nate.com</a></td></tr><tr><th>촬영자명</th><
+ td>정유주&nbsp\;</td></tr><tr><th>연락처</th><td>01085060586&nbsp\;</td></tr><tr>
+ <th>촬영날짜</th><td>2022-10-22&nbsp\;</td></tr><tr><th>시간</th><td>14:30&nbsp\;
+ </td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>4467
+ 4 울산 남구 돋질로47번길 23 B동 313호 (신정동\, 운포아파트)&nbsp\;</td></tr><tr><th>예약금입금자명</t
+ h><td>김가람&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td><
+ /tr><tr><th>내용</th><td><br><p>우리가족 아이에게 좋은추억 만들어 주세요~</p></td></tr></tbody>
+ </table><u></u><u></u></html-blob>
+LAST-MODIFIED:20221027T124050Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1430 m 정유주 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220709
+DTEND;VALUE=DATE:20220710
+DTSTAMP:20260319T054950Z
+UID:7mcilaid1ltur01uhdotrb7c34@google.com
+CREATED:20220512T063123Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><u></u><table><tbody><tr><th>제목
+ </th><td>돌잔치 예약</td></tr><tr><th>글쓴이</th><td>김성미</td></tr><tr><th>이메일 주소</t
+ h><td><a href="mailto:tnbu@naver.com">tnbu@naver.com</a></td></tr><tr><th>촬
+ 영자명</th><td>김리안&nbsp\;</td></tr><tr><th>연락처</th><td>01048073302&nbsp\;</td>
+ </tr><tr><th>촬영날짜</th><td>2022-07-09&nbsp\;</td></tr><tr><th>시간</th><td>14:
+ 30&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th
+ ><td>05623 서울 송파구 송파대로48길 29 (서울 송파구 송파동 33) 101-112 (송파동\, 호수임광아파트)&nbsp\;
+ </td></tr><tr><th>예약금입금자명</th><td>김성미&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌
+ 잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></tabl
+ e><u></u><u></u><u></u><u></u></html-blob>
+LAST-MODIFIED:20220728T050143Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1430  m 김리안 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20250526
+DTEND;VALUE=DATE:20250528
+DTSTAMP:20260319T054950Z
+UID:tifdksrfuset67p7s3r9bs4sd0@google.com
+CREATED:20250518T031423Z
+LAST-MODIFIED:20250518T031435Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:제주
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220724
+DTEND;VALUE=DATE:20220725
+DTSTAMP:20260319T054950Z
+UID:3e0ac5e0lnp44m01amirf0q8n4@google.com
+CREATED:20220719T052704Z
+DESCRIPTION:01032446287
+LAST-MODIFIED:20220726T121634Z
+SEQUENCE:3
+STATUS:CONFIRMED
+SUMMARY:1500 m 웨딩 기념촬영
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220724
+DTEND;VALUE=DATE:20220725
+DTSTAMP:20260319T054950Z
+UID:7dm3hebssmptcufajpgcu2bke0@google.com
+CREATED:20220502T034013Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌잔치스냅
+ 예약</td></tr><tr><th>글쓴이</th><td>김아름</td></tr><tr><th>이메일 주소</th><td><a href
+ ="mailto:s2ujmyhn@naver.com">s2ujmyhn@naver.com</a></td></tr><tr><th>촬영자명</
+ th><td>엄서인&nbsp\;</td></tr><tr><th>연락처</th><td>01077607655&nbsp\;</td></tr>
+ <tr><th>촬영날짜</th><td>2022-07-24&nbsp\;</td></tr><tr><th>시간</th><td>Pm2:30&n
+ bsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td
+ >39353 경북 구미시 왕산로 28-10 (경북 구미시 임은동 822) 102동704호 (임은동\, 구미 임은 삼도뷰엔빌W)&nbsp
+ \;</td></tr><tr><th>예약금입금자명</th><td>김아름&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\,
+  돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></ta
+ ble><u></u><u></u></html-blob>
+LAST-MODIFIED:20221207T055332Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 엄서인 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220520
+DTEND;VALUE=DATE:20220521
+DTSTAMP:20260319T054950Z
+UID:3hi1o4qc6boc3da728aur521ig@google.com
+CREATED:20220503T092935Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><u></u><u></u><table><tbody><tr
+ ><th>제목</th><td>돌잔치 야외스냅 예약</td></tr><tr><th>글쓴이</th><td>박다민</td></tr><tr><
+ th>이메일 주소</th><td><a href="mailto:pdm3843@naver.com">pdm3843@naver.com</a><
+ /td></tr><tr><th>촬영자명</th><td>김하율&nbsp\;</td></tr><tr><th>연락처</th><td>010-4
+ 998-0558&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-05-20&nbsp\;</td></tr><t
+ r><th>시간</th><td>14:30&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td
+ ></tr><tr><th>주소</th><td>44527 울산 중구 학성공원4길 27 (울산 중구 학성동 86-2) 한아름빌리지302호 
+ (학성동)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td>박다민&nbsp\;</td></tr><tr><th>스
+ 냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></
+ tbody></table><u></u><u></u><u></u><u></u><u></u></html-blob>
+LAST-MODIFIED:20220526T134519Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 김하율 도동산방
+TRANSP:TRANSPARENT
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
+BEGIN:VALARM
+ACTION:AUDIO
+TRIGGER:-PT15H
+X-WR-ALARMUID:966A8B4C-DBA0-4AE0-A38A-B2DEC482188B
+UID:966A8B4C-DBA0-4AE0-A38A-B2DEC482188B
+ATTACH;VALUE=URI:Chord
+X-APPLE-DEFAULT-ALARM:TRUE
+ACKNOWLEDGED:20220520T063714Z
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220723
+DTEND;VALUE=DATE:20220724
+DTSTAMP:20260319T054950Z
+UID:0jsm1j1fueadlh41fm6ck4nriq@google.com
+CREATED:20220629T041256Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>예약합니다.</td><
+ /tr><tr><th>글쓴이</th><td>김아영</td></tr><tr><th>이메일 주소</th><td><a href="mailto
+ :thy950113@s-oil.com">thy950113@s-oil.com</a></td></tr><tr><th>촬영자명</th><td
+ >유지오&nbsp\;</td></tr><tr><th>연락처</th><td>01068063236&nbsp\;</td></tr><tr><t
+ h>촬영날짜</th><td>2022-07-23&nbsp\;</td></tr><tr><th>시간</th><td>6시&nbsp\;</td>
+ </tr><tr><th>촬영장소</th><td>EXO21&nbsp\;</td></tr><tr><th>주소</th><td>44746 울산
+  남구 중앙로 39 (울산 남구 야음동 725-1) 107-707 (야음동\, 일동미라주아파트)&nbsp\;</td></tr><tr><
+ th>예약금입금자명</th><td>김아영&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅
+ &nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table><u></u></html
+ -blob>
+LAST-MODIFIED:20220726T115201Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기]1800 통 유지오 엑소21 48만 한복
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220928
+DTEND;VALUE=DATE:20220929
+DTSTAMP:20260319T054950Z
+UID:50f9rkbeq2tp13il0ud7rkgu79@google.com
+CREATED:20220703T034206Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><u></u><u></u><table><tbody><tr
+ ><th>제목</th><td>돌스냅예약</td></tr><tr><th>글쓴이</th><td>배은영</td></tr><tr><th>이메일
+  주소</th><td><a href="mailto:flowerssss1@naver.com">flowerssss1@naver.com</a
+ ></td></tr><tr><th>촬영자명</th><td>박지한&nbsp\;</td></tr><tr><th>연락처</th><td>010
+ 90825647&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-09-18&nbsp\;</td></tr><t
+ r><th>시간</th><td>오후2시30분&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</
+ td></tr><tr><th>주소</th><td>44236 울산 북구 송정8길 3 (울산 북구 송정동 1162-4) 주택1층 (송정동)
+ &nbsp\;</td></tr><tr><th>예약금입금자명</th><td>배은영&nbsp\;</td></tr><tr><th>스냅상품구성
+ (웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br><p>실내촬영이랑 돌야외
+ 촬영도 같이하는건가요?</p></td></tr></tbody></table><u></u><u></u><u></u><u></u><u></
+ u></html-blob>
+LAST-MODIFIED:20220929T092952Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:$$ 1430 m 박지한 도동산방 / 첫째 다섯 지유 딸.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220420
+DTEND;VALUE=DATE:20220421
+DTSTAMP:20260319T054950Z
+UID:iglal19tm6424na4puocer8sgg@google.com
+CREATED:20220415T151411Z
+LAST-MODIFIED:20220421T032108Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:제나업
+TRANSP:TRANSPARENT
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
+BEGIN:VALARM
+ACTION:AUDIO
+TRIGGER:-PT15H
+X-WR-ALARMUID:CD6DC1F9-F06C-4B69-8028-5AC50BA76C9D
+UID:CD6DC1F9-F06C-4B69-8028-5AC50BA76C9D
+ATTACH;VALUE=URI:Chord
+X-APPLE-DEFAULT-ALARM:TRUE
+ACKNOWLEDGED:20220420T024213Z
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220707
+DTEND;VALUE=DATE:20220709
+DTSTAMP:20260319T054950Z
+UID:s1tk8sd27tpvvblqa0sljcpnbo@google.com
+CREATED:20220630T030137Z
+LAST-MODIFIED:20220630T030137Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:수빈여행
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221119
+DTEND;VALUE=DATE:20221120
+DTSTAMP:20260319T054950Z
+UID:5gqccllut0f13ai3q2e3rktn5s@google.com
+CREATED:20220918T034734Z
+DESCRIPTION:<u></u><u></u><table><tbody><tr><th>제목</th><td>돌스냅예약</td></tr><
+ tr><th>글쓴이</th><td>홍이슬</td></tr><tr><th>이메일 주소</th><td><a href="mailto:dltm
+ f2244@naver.com">dltmf2244@naver.com</a></td></tr><tr><th>촬영자명</th><td>송나권 
+ </td></tr><tr><th>연락처</th><td>01049414405 </td></tr><tr><th>촬영날짜</th><td>20
+ 22-11-19 </td></tr><tr><th>시간</th><td>12시 </td></tr><tr><th>촬영장소</th><td>도동
+ 산방 </td></tr><tr><th>주소</th><td>44532 ㅋ</td></tr><tr><th>예약금입금자명</th><td>홍이
+ 슬 </td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅 </td></tr><tr><th>내용</th><
+ td></td></tr></tbody></table><u></u><u></u>
+LAST-MODIFIED:20230406T065110Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 송나권 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220814
+DTEND;VALUE=DATE:20220815
+DTSTAMP:20260319T054950Z
+UID:02ka7kofuahha5bevlsqm5ecvk@google.com
+CREATED:20220420T112551Z
+DESCRIPTION:<html-blob><u></u><table><tbody><tr><th>제목</th><td>돌스냅예약</td></
+ tr><tr><th>글쓴이</th><td>정현선</td></tr><tr><th>이메일 주소</th><td><a href="mailto:
+ gustjs84@hanmail.net">gustjs84@hanmail.net</a></td></tr><tr><th>촬영자명</th><t
+ d>김태준&nbsp\;</td></tr><tr><th>연락처</th><td>01098798405&nbsp\;</td></tr><tr><
+ th>촬영날짜</th><td>2022-08-14&nbsp\;</td></tr><tr><th>시간</th><td>12:00&nbsp\;<
+ /td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44733
+  울산 남구 대암로 82 (울산 남구 야음동 594-10) 204동 2404호 (야음동\, 신정현대홈타운2단지아파트)&nbsp\;</t
+ d></tr><tr><th>예약금입금자명</th><td>정현선&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)
+ </th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table><
+ u></u></html-blob>
+LAST-MODIFIED:20220817T072649Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:1200 m 김태준 도동산방 / 양장
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220626
+DTEND;VALUE=DATE:20220627
+DTSTAMP:20260319T054950Z
+UID:3aof7oeajmf5381k2bfpdb8mqt@google.com
+CREATED:20220609T111007Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><u></u><table><tbody><tr><th>제목
+ </th><td>6월27일</td></tr><tr><th>글쓴이</th><td>조민우</td></tr><tr><th>이메일 주소</th
+ ><td><a href="mailto:hokuu08@naver.com">hokuu08@naver.com</a></td></tr><tr>
+ <th>촬영자명</th><td>조아준&nbsp\;</td></tr><tr><th>연락처</th><td>01079429679&nbsp\;
+  / 010-5508-9270</td></tr><tr><th>촬영날짜</th><td>2022-06-26&nbsp\;</td></tr><
+ tr><th>시간</th><td>10:30 오전촬영 14:30분 돌잡이촬영&nbsp\;</td></tr><tr><th>촬영장소</th>
+ <td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44711 울산 남구 돋질로401번길 12 (울산 남구 
+ 삼산동 172-1) 107동903호 (삼산동\, 세양청구아파트)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td
+ >조민우&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><
+ tr><th>내용</th><td><br><p>10:30 오전촬영 14:30분 돌잡이촬영</p></td></tr></tbody></tab
+ le><u></u><u></u><u></u><u></u></html-blob>
+LAST-MODIFIED:20220701T035858Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 조아준 도동산방 (돌잡이는 두시반 식후) / 다섯살 조아라 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20241021T040000Z
+DTEND:20241021T050000Z
+DTSTAMP:20260319T054950Z
+UID:v6b2ujk5q227hm4qtkoapt3588@google.com
+CREATED:20240930T035746Z
+LAST-MODIFIED:20240930T035746Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:인테리어 마무리
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220804
+DTEND;VALUE=DATE:20220805
+DTSTAMP:20260319T054950Z
+UID:2l9gf8br4h70avr2gj92aclmko@google.com
+CREATED:20220520T101018Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌스냅</
+ td></tr><tr><th>글쓴이</th><td>조유미</td></tr><tr><th>이메일 주소</th><td><a href="ma
+ ilto:gkdlfn00692@hanmail.net">gkdlfn00692@hanmail.net</a></td></tr><tr><th>
+ 촬영자명</th><td>전정빈&nbsp\;</td></tr><tr><th>연락처</th><td>01050944213&nbsp\;</td
+ ></tr><tr><th>촬영날짜</th><td>2022-08-04&nbsp\;</td></tr><tr><th>시간</th><td>12
+ 시&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th>
+ <td>25911 강원 삼척시 하실길 72 (강원 삼척시 교동 793) 105동 1004호 (교동\, e편한세상 삼척교동)&nbsp\;
+ </td></tr><tr><th>예약금입금자명</th><td>조유미&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌
+ 잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></tabl
+ e><u></u><u></u></html-blob>
+LAST-MODIFIED:20220811T081954Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 전정빈 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221127
+DTEND;VALUE=DATE:20221128
+DTSTAMP:20260319T054950Z
+UID:0l2pcakqiohafao1b1p3ifbgj7@google.com
+CREATED:20220918T034942Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌잔치 스
+ 냅 신청합니다^^</td></tr><tr><th>글쓴이</th><td>이은호</td></tr><tr><th>이메일 주소</th><td>
+ <a href="mailto:humaneunho@naver.com">humaneunho@naver.com</a></td></tr><tr
+ ><th>촬영자명</th><td>이다인&nbsp\;</td></tr><tr><th>연락처</th><td>&nbsp\;0107488689
+ 7&nbsp\; &nbsp\; / 01088994192&nbsp\; /&nbsp\;&nbsp\;</td></tr><tr><th>촬영날짜
+ </th><td>2022-11-27&nbsp\;</td></tr><tr><th>시간</th><td>2시30분&nbsp\;</td></t
+ r><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>44215 울산 북구 
+ 신천로 105 (울산 북구 매곡동 917) 106동 806호 (매곡동\, 오토밸리로 효성해링턴 플레이스 아파트)&nbsp\;</td><
+ /tr><tr><th>예약금입금자명</th><td>이은호&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</t
+ h><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></tr></tbody></table><u><
+ /u><u></u></html-blob>
+LAST-MODIFIED:20221130T081455Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 이다인 도동산방
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220702
+DTEND;VALUE=DATE:20220703
+DTSTAMP:20260319T054950Z
+UID:7bd3slivgape4c1h822csauqgc@google.com
+CREATED:20220514T113340Z
+DESCRIPTION:<html-blob><u></u><u></u><table><tbody><tr><th>제목</th><td>돌스냅촬영
+ 예약</td></tr><tr><th>글쓴이</th><td>박성화</td></tr><tr><th>이메일 주소</th><td><a href
+ ="mailto:psh1267@naver.com">psh1267@naver.com</a></td></tr><tr><th>촬영자명</th
+ ><td>김지안&nbsp\;</td></tr><tr><th>연락처</th><td>010-7108-2426&nbsp\;</td></tr>
+ <tr><th>촬영날짜</th><td>2022-07-02&nbsp\;</td></tr><tr><th>시간</th><td>12:00&nb
+ sp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>
+ &nbsp\;</td></tr><tr><th>예약금입금자명</th><td>박성화&nbsp\;</td></tr><tr><th>스냅상품구성
+ (웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td><br><p>식사먼저 후촬영</
+ p></td></tr></tbody></table><u></u><u></u></html-blob>
+LAST-MODIFIED:20220704T135714Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1200 m 식후 김지안 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20221113
+DTEND;VALUE=DATE:20221114
+DTSTAMP:20260319T054950Z
+UID:2ap22oir1b93vl69mb5gpaf26r@google.com
+CREATED:20220905T075708Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><br><br><br><br><table><tbody><
+ tr><th>제목</th><td>돌잔치스냅</td></tr><tr><th>글쓴이</th><td>양이진</td></tr><tr><th>이
+ 메일 주소</th><td><a href="mailto:chuchu224@naver.com">chuchu224@naver.com</a><
+ /td></tr><tr><th>촬영자명</th><td>김도겸&nbsp\;</td></tr><tr><th>연락처</th><td>01085
+ 068428&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-11-13&nbsp\;</td></tr><tr>
+ <th>시간</th><td>2:30&nbsp\;</td></tr><tr><th>촬영장소</th><td>도동산방&nbsp\;</td></
+ tr><tr><th>주소</th><td>44244 울산 북구 두부곡4길 17 (울산 북구 연암동 370) 111동 306호 (연암동\,
+  엘지진로아파트)&nbsp\;</td></tr><tr><th>예약금입금자명</th><td>양이진&nbsp\;</td></tr><tr><
+ th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;</td></tr><tr><th>내용</th><td></td></t
+ r></tbody></table><br><a href="http://yeonhu.iptime.org/jayden/index.php?mi
+ d=Reservation&document_srl=9317&act=dispBoardDelete"><b>삭제</b></a><a href="
+ http://yeonhu.iptime.org/jayden/index.php?mid=Reservation"><b>목록</b></a><u>
+ </u><u></u><br><u></u><u></u><u></u></html-blob>
+LAST-MODIFIED:20221116T102204Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기]1430 m 김도겸 도동산방 양장
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20220626
+DTEND;VALUE=DATE:20220627
+DTSTAMP:20260319T054950Z
+UID:206h7p4ara3j35cb7lpvig934m@google.com
+CREATED:20220326T033316Z
+DESCRIPTION:<html-blob><u></u><u></u><u></u><table><tbody><tr><th>제목</th><t
+ d>돌스냅 예약</td></tr><tr><th>글쓴이</th><td>이미은</td></tr><tr><th>이메일 주소</th><td><
+ a href="mailto:wlfldhksth@naver.com" id="ow970" __is_owner="true">wlfldhkst
+ h@naver.com</a></td></tr><tr><th>촬영자명</th><td>박소이&nbsp\;</td></tr><tr><th>연
+ 락처</th><td>01077490834&nbsp\;</td></tr><tr><th>촬영날짜</th><td>2022-06-26&nbsp
+ \;</td></tr><tr><th>행사시작시간</th><td>14:30식사&nbsp\;</td></tr><tr><th>촬영장소</th
+ ><td>도동산방&nbsp\;</td></tr><tr><th>주소</th><td>51415 ㅋ</td></tr><tr><th>예약금입금
+ 자명</th><td>이미은&nbsp\;</td></tr><tr><th>스냅상품구성(웨딩\, 돌잔치)</th><td>돌스냅&nbsp\;<
+ /td></tr><tr><th>내용</th><td></td></tr></tbody></table><u></u><u></u><u></u>
+ </html-blob>
+LAST-MODIFIED:20221118T021522Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:[입금대기] 1430 m 박소이 도동산방 
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
