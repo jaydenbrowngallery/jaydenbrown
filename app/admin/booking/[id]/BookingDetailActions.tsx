@@ -102,7 +102,6 @@ function buildGoogleCalendarUrl(item: BookingItem) {
     location,
   });
 
-  // render?action=TEMPLATE 대신 eventedit 사용
   return `https://calendar.google.com/calendar/u/0/r/eventedit?${params.toString()}`;
 }
 
@@ -112,6 +111,38 @@ function buildSmsBody() {
 다음 계좌번호로 예약금 5만원 입금해주시면 됩니다.
 입금 후 따로 연락은 주지 않으셔도 됩니다.^^
 계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
+}
+
+async function copyTextWithFallback(text: string) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (error) {
+    console.error("Clipboard API 복사 실패:", error);
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    textarea.style.left = "-9999px";
+
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    const copied = document.execCommand("copy");
+    document.body.removeChild(textarea);
+
+    return copied;
+  } catch (error) {
+    console.error("fallback 복사 실패:", error);
+    return false;
+  }
 }
 
 function openSmsApp(phone: string, body: string) {
@@ -127,7 +158,7 @@ function openSmsApp(phone: string, body: string) {
 }
 
 export default function BookingDetailActions({ item }: { item: BookingItem }) {
-  const handleSmsClick = () => {
+  const handleSmsClick = async () => {
     const phone = item.phone?.trim();
 
     if (!phone) {
@@ -136,7 +167,20 @@ export default function BookingDetailActions({ item }: { item: BookingItem }) {
     }
 
     const smsBody = buildSmsBody();
-    openSmsApp(phone, smsBody);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      openSmsApp(phone, smsBody);
+      return;
+    }
+
+    const copied = await copyTextWithFallback(smsBody);
+
+    if (copied) {
+      alert("데스크톱에서는 문자 앱이 자동으로 열리지 않을 수 있어 문자 내용을 복사했습니다.");
+    } else {
+      alert("데스크톱에서는 문자 앱 자동 실행이 어려울 수 있습니다.");
+    }
   };
 
   const handleCalendarClick = () => {
