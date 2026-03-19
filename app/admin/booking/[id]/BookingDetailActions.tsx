@@ -113,77 +113,8 @@ function buildSmsBody() {
 계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
 }
 
-async function copyTextWithFallback(text: string) {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  } catch (error) {
-    console.error("Clipboard API 복사 실패:", error);
-  }
-
-  try {
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.top = "-9999px";
-    textarea.style.left = "-9999px";
-
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-
-    const copied = document.execCommand("copy");
-    document.body.removeChild(textarea);
-
-    return copied;
-  } catch (error) {
-    console.error("fallback 복사 실패:", error);
-    return false;
-  }
-}
-
-function openSmsApp(phone: string, body: string) {
-  const cleanedPhone = phone.replace(/[^\d+]/g, "");
-  const encodedBody = encodeURIComponent(body);
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const smsUrl = isIOS
-    ? `sms:${cleanedPhone}&body=${encodedBody}`
-    : `sms:${cleanedPhone}?body=${encodedBody}`;
-
-  window.location.href = smsUrl;
-}
-
 export default function BookingDetailActions({ item }: { item: BookingItem }) {
-  const handleSmsClick = async () => {
-    const phone = item.phone?.trim();
-
-    if (!phone) {
-      alert("연락처가 없습니다.");
-      return;
-    }
-
-    const smsBody = buildSmsBody();
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      openSmsApp(phone, smsBody);
-      return;
-    }
-
-    const copied = await copyTextWithFallback(smsBody);
-
-    if (copied) {
-      alert("데스크톱에서는 문자 앱이 자동으로 열리지 않을 수 있어 문자 내용을 복사했습니다.");
-    } else {
-      alert("데스크톱에서는 문자 앱 자동 실행이 어려울 수 있습니다.");
-    }
-  };
-
-  const handleCalendarClick = () => {
+  const handleCalendarClick = async () => {
     const calendarUrl = buildGoogleCalendarUrl(item);
 
     if (!calendarUrl) {
@@ -191,23 +122,55 @@ export default function BookingDetailActions({ item }: { item: BookingItem }) {
       return;
     }
 
+    try {
+      const res = await fetch("/api/booking/confirm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: item.id }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.ok) {
+        alert(result.message || "상태를 확정으로 변경하지 못했습니다.");
+        return;
+      }
+    } catch (error) {
+      alert("상태 변경 중 오류가 발생했습니다.");
+      return;
+    }
+
     window.open(calendarUrl, "_blank", "noopener,noreferrer");
+
+    const phone = item.phone?.trim();
+    if (!phone) {
+      window.location.reload();
+      return;
+    }
+
+    const smsBody = buildSmsBody();
+    const cleanedPhone = phone.replace(/[^\d+]/g, "");
+    const encodedBody = encodeURIComponent(smsBody);
+
+    const smsUrl = `sms:${cleanedPhone}&body=${encodedBody}`;
+
+    setTimeout(() => {
+      window.location.href = smsUrl;
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 800);
+    }, 500);
   };
 
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button
         type="button"
-        onClick={handleSmsClick}
-        className="rounded-xl bg-black px-5 py-3 text-sm text-white hover:opacity-90"
-      >
-        문자 보내기
-      </button>
-
-      <button
-        type="button"
         onClick={handleCalendarClick}
-        className="rounded-xl border border-black/10 px-5 py-3 text-sm hover:bg-black/5"
+        className="rounded-xl bg-black px-5 py-3 text-sm text-white hover:opacity-90"
       >
         구글 캘린더 추가
       </button>
