@@ -50,6 +50,7 @@ type PageProps = {
     phone?: string;
     date?: string;
     status?: string;
+    selectedDate?: string;
   }>;
 };
 
@@ -240,11 +241,34 @@ function buildMonthLink(
   keyword: string,
   phone: string,
   date: string,
+  status: string,
+  selectedDate?: string
+) {
+  const params = new URLSearchParams();
+  params.set("year", String(year));
+  params.set("month", String(month));
+  if (keyword) params.set("keyword", keyword);
+  if (phone) params.set("phone", phone);
+  if (date) params.set("date", date);
+  if (status) params.set("status", status);
+  if (selectedDate) params.set("selectedDate", selectedDate);
+
+  return `/admin/booking?${params.toString()}`;
+}
+
+function buildSelectedDateLink(
+  targetDate: string,
+  year: number,
+  month: number,
+  keyword: string,
+  phone: string,
+  date: string,
   status: string
 ) {
   const params = new URLSearchParams();
   params.set("year", String(year));
   params.set("month", String(month));
+  params.set("selectedDate", targetDate);
   if (keyword) params.set("keyword", keyword);
   if (phone) params.set("phone", phone);
   if (date) params.set("date", date);
@@ -265,6 +289,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   const phone = resolvedSearchParams.phone?.trim() || "";
   const date = resolvedSearchParams.date?.trim() || "";
   const status = resolvedSearchParams.status?.trim() || "";
+  const selectedDate = resolvedSearchParams.selectedDate?.trim() || "";
 
   const { supabase } = await requireAdmin();
 
@@ -417,6 +442,14 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     }
   );
 
+  const selectedDateBookingItems = selectedDate
+    ? filteredRequests.filter((item) => item.date === selectedDate)
+    : [];
+
+  const selectedDateExternalItems = selectedDate
+    ? externalEventsMap.get(selectedDate) ?? []
+    : [];
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
       <div className="mb-8 rounded-[28px] bg-white p-5 shadow-sm md:p-7">
@@ -550,12 +583,12 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             <h2 className="text-2xl font-semibold tracking-tight">
               예약 스케줄 캘린더
             </h2>
-            <p className="mt-1 text-sm text-black/45">
+            <p className="mt-1 text-sm text-black/45 md:block hidden">
               예약 신청과 기존 구글 캘린더 일정을 함께 확인할 수 있습니다.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2">
             <Link
               href={buildMonthLink(
                 prev.year,
@@ -563,14 +596,15 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 keyword,
                 phone,
                 date,
-                status
+                status,
+                selectedDate
               )}
               className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
             >
               이전달
             </Link>
 
-            <div className="min-w-[150px] text-center text-sm font-semibold text-black/70">
+            <div className="min-w-[130px] text-center text-sm font-semibold text-black/70 md:min-w-[150px]">
               {calendar.year}년 {calendar.month}월
             </div>
 
@@ -581,7 +615,8 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 keyword,
                 phone,
                 date,
-                status
+                status,
+                selectedDate
               )}
               className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
             >
@@ -592,10 +627,10 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
           <span className="inline-flex items-center rounded-full bg-[#f2ede7] px-3 py-1 text-black/70">
-            베이지 카드 = 기존 구글 캘린더 일정
+            베이지 = 기존 일정
           </span>
           <span className="inline-flex items-center rounded-full bg-[#f7f5f2] px-3 py-1 text-black/70">
-            회색 카드 = 홈페이지 예약 신청
+            회색 = 예약
           </span>
         </div>
 
@@ -604,7 +639,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             {weekLabels.map((label, idx) => (
               <div
                 key={label}
-                className={`px-3 py-4 text-center text-sm font-semibold ${
+                className={`px-2 py-4 text-center text-sm font-semibold md:px-3 ${
                   idx === 0 ? "text-red-500" : idx === 6 ? "text-blue-600" : ""
                 }`}
               >
@@ -613,7 +648,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             ))}
           </div>
 
-          <div className="grid grid-cols-7 auto-rows-[minmax(220px,_auto)]">
+          <div className="grid grid-cols-7 auto-rows-[minmax(88px,_auto)] md:auto-rows-[minmax(220px,_auto)]">
             {calendar.cells.map((cell, index) => {
               const isToday = cell.dateString === todayString;
               const isSunday = index % 7 === 0;
@@ -621,104 +656,266 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
               const externalItems = cell.dateString
                 ? externalEventsMap.get(cell.dateString) ?? []
                 : [];
+              const isSelected = cell.dateString === selectedDate;
 
               return (
                 <div
                   key={cell.key}
-                  className={`min-h-[220px] border-b border-r border-black/10 p-3 align-top overflow-y-auto ${
+                  className={`border-b border-r border-black/10 ${
                     index % 7 === 6 ? "border-r-0" : ""
                   } ${!cell.day ? "bg-[#fcfbf9]" : "bg-white"}`}
                 >
                   {cell.day ? (
                     <>
-                      <div className="mb-3 flex items-center justify-between">
-                        <span
-                          className={`inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-semibold ${
-                            isToday
-                              ? "bg-black text-white"
-                              : isSunday
-                              ? "text-red-500"
-                              : isSaturday
-                              ? "text-blue-600"
-                              : "text-black"
-                          }`}
-                        >
-                          {cell.day}
-                        </span>
-                      </div>
-
-                      <div className="space-y-2">
-                        {externalItems.map((item) => (
-                          <Link
-                            key={item.id}
-                            href={`/admin/booking/calendar/${item.id}`}
-                            className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-2.5 transition hover:bg-[#efe4d6]"
-                          >
-                            <div className="mb-1.5 flex flex-wrap items-center gap-1">
-                              <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#8a5a2b]">
-                                기존 일정
-                              </span>
-                              {formatCalendarEventTime(item.start_at) ? (
-                                <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-black/65">
-                                  {formatCalendarEventTime(item.start_at)}
-                                </span>
-                              ) : null}
-                            </div>
-
-                            <div className="truncate text-xs font-semibold text-black">
-                              {item.title ?? "제목 없음"}
-                            </div>
-                            <div className="truncate text-[11px] text-black/50">
-                              {item.location ?? "-"}
-                            </div>
-                          </Link>
-                        ))}
-
-                        {cell.items.slice(0, 4).map((item) => (
-                          <Link
-                            key={item.id}
-                            href={`/admin/booking/${item.id}`}
-                            className="block rounded-2xl border border-black/5 bg-[#f7f5f2] p-2.5 transition hover:bg-[#efebe5]"
-                          >
-                            <div className="mb-1.5 flex flex-wrap items-center gap-1">
-                              <span
-                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(
-                                  item.time
-                                )}`}
-                              >
-                                {formatTimeSlot(item.time)}
-                              </span>
-
-                              <span
-                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(
-                                  item.status
-                                )}`}
-                              >
-                                {getStatusText(item.status)}
-                              </span>
-                            </div>
-
-                            <div className="truncate text-xs font-semibold text-black">
-                              {item.name ?? "-"}
-                            </div>
-                            <div className="truncate text-[11px] text-black/50">
-                              {item.location ?? "-"}
-                            </div>
-                          </Link>
-                        ))}
-
-                        {cell.items.length > 4 && (
-                          <div className="px-1 text-xs text-black/45">
-                            예약 + {cell.items.length - 4}건 더 있음
-                          </div>
+                      {/* 모바일용 */}
+                      <Link
+                        href={buildSelectedDateLink(
+                          cell.dateString!,
+                          selectedYear,
+                          selectedMonth,
+                          keyword,
+                          phone,
+                          date,
+                          status
                         )}
+                        className={`flex h-full min-h-[88px] flex-col justify-between p-2 md:hidden ${
+                          isSelected ? "bg-black/[0.04]" : ""
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-sm font-semibold ${
+                              isToday
+                                ? "bg-black text-white"
+                                : isSunday
+                                ? "text-red-500"
+                                : isSaturday
+                                ? "text-blue-600"
+                                : "text-black"
+                            }`}
+                          >
+                            {cell.day}
+                          </span>
+
+                          {(externalItems.length > 0 || cell.items.length > 0) && (
+                            <span className="text-[10px] text-black/35">
+                              {externalItems.length + cell.items.length}건
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-1">
+                          {externalItems.length > 0 && (
+                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f2ede7] px-1.5 text-[10px] text-[#8a5a2b]">
+                              기{externalItems.length}
+                            </span>
+                          )}
+                          {cell.items.length > 0 && (
+                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f7f5f2] px-1.5 text-[10px] text-black/70">
+                              예{cell.items.length}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+
+                      {/* 데스크톱용 */}
+                      <div
+                        className={`hidden min-h-[220px] p-3 md:block ${
+                          isSelected ? "bg-black/[0.02]" : ""
+                        }`}
+                      >
+                        <div className="mb-3 flex items-center justify-between">
+                          <Link
+                            href={buildSelectedDateLink(
+                              cell.dateString!,
+                              selectedYear,
+                              selectedMonth,
+                              keyword,
+                              phone,
+                              date,
+                              status
+                            )}
+                            className={`inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-semibold transition hover:bg-black/5 ${
+                              isToday
+                                ? "bg-black text-white"
+                                : isSunday
+                                ? "text-red-500"
+                                : isSaturday
+                                ? "text-blue-600"
+                                : "text-black"
+                            }`}
+                          >
+                            {cell.day}
+                          </Link>
+                        </div>
+
+                        <div className="space-y-2">
+                          {externalItems.map((item) => (
+                            <Link
+                              key={item.id}
+                              href={`/admin/booking/calendar/${item.id}`}
+                              className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-2.5 transition hover:bg-[#efe4d6]"
+                            >
+                              <div className="mb-1.5 flex flex-wrap items-center gap-1">
+                                <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#8a5a2b]">
+                                  기존 일정
+                                </span>
+                                {formatCalendarEventTime(item.start_at) ? (
+                                  <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-black/65">
+                                    {formatCalendarEventTime(item.start_at)}
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <div className="truncate text-xs font-semibold text-black">
+                                {item.title ?? "제목 없음"}
+                              </div>
+                              <div className="truncate text-[11px] text-black/50">
+                                {item.location ?? "-"}
+                              </div>
+                            </Link>
+                          ))}
+
+                          {cell.items.slice(0, 4).map((item) => (
+                            <Link
+                              key={item.id}
+                              href={`/admin/booking/${item.id}`}
+                              className="block rounded-2xl border border-black/5 bg-[#f7f5f2] p-2.5 transition hover:bg-[#efebe5]"
+                            >
+                              <div className="mb-1.5 flex flex-wrap items-center gap-1">
+                                <span
+                                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(
+                                    item.time
+                                  )}`}
+                                >
+                                  {formatTimeSlot(item.time)}
+                                </span>
+
+                                <span
+                                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(
+                                    item.status
+                                  )}`}
+                                >
+                                  {getStatusText(item.status)}
+                                </span>
+                              </div>
+
+                              <div className="truncate text-xs font-semibold text-black">
+                                {item.name ?? "-"}
+                              </div>
+                              <div className="truncate text-[11px] text-black/50">
+                                {item.location ?? "-"}
+                              </div>
+                            </Link>
+                          ))}
+
+                          {cell.items.length > 4 && (
+                            <div className="px-1 text-xs text-black/45">
+                              예약 + {cell.items.length - 4}건 더 있음
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </>
-                  ) : null}
+                  ) : (
+                    <div className="min-h-[88px] md:min-h-[220px]" />
+                  )}
                 </div>
               );
             })}
           </div>
+        </div>
+
+        {/* 모바일 날짜 선택 리스트 */}
+        <div className="mt-5 rounded-[24px] border border-black/10 bg-white p-4 shadow-sm md:hidden">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-base font-semibold">
+              {selectedDate ? `${selectedDate} 일정` : "날짜를 선택하세요"}
+            </h3>
+            {selectedDate ? (
+              <Link
+                href={buildMonthLink(
+                  selectedYear,
+                  selectedMonth,
+                  keyword,
+                  phone,
+                  date,
+                  status
+                )}
+                className="text-xs text-black/45"
+              >
+                선택 해제
+              </Link>
+            ) : null}
+          </div>
+
+          {!selectedDate ? (
+            <p className="text-sm text-black/45">
+              캘린더에서 날짜를 누르면 아래에 해당 일정이 표시됩니다.
+            </p>
+          ) : selectedDateExternalItems.length === 0 &&
+            selectedDateBookingItems.length === 0 ? (
+            <p className="text-sm text-black/45">해당 날짜 일정이 없습니다.</p>
+          ) : (
+            <div className="space-y-2">
+              {selectedDateExternalItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/admin/booking/calendar/${item.id}`}
+                  className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-3"
+                >
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#8a5a2b]">
+                      기존 일정
+                    </span>
+                    {formatCalendarEventTime(item.start_at) ? (
+                      <span className="text-xs text-black/55">
+                        {formatCalendarEventTime(item.start_at)}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="text-sm font-semibold text-black">
+                    {item.title ?? "제목 없음"}
+                  </div>
+                  <div className="mt-1 text-xs text-black/50">
+                    {item.location ?? "-"}
+                  </div>
+                </Link>
+              ))}
+
+              {selectedDateBookingItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/admin/booking/${item.id}`}
+                  className="block rounded-2xl border border-black/8 bg-[#f7f5f2] p-3"
+                >
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(
+                        item.time
+                      )}`}
+                    >
+                      {formatTimeSlot(item.time)}
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(
+                        item.status
+                      )}`}
+                    >
+                      {getStatusText(item.status)}
+                    </span>
+                  </div>
+
+                  <div className="text-sm font-semibold text-black">
+                    {item.name ?? item.title ?? "-"}
+                  </div>
+                  <div className="mt-1 text-xs text-black/50">
+                    {item.location ?? "-"}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

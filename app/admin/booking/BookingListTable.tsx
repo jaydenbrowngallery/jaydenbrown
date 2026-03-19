@@ -185,7 +185,8 @@ export default function BookingListTable({
     }
   };
 
-  const startNumber = items.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const startNumber =
+    items.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endNumber = Math.min(currentPage * ITEMS_PER_PAGE, items.length);
 
   return (
@@ -228,7 +229,6 @@ export default function BookingListTable({
               <th className="px-4 py-3 text-left font-semibold">시간</th>
               <th className="px-4 py-3 text-left font-semibold">장소</th>
               <th className="px-4 py-3 text-left font-semibold">상태</th>
-              <th className="px-4 py-3 text-left font-semibold">상세</th>
             </tr>
           </thead>
 
@@ -240,7 +240,10 @@ export default function BookingListTable({
                 item.detailHref || (isBooking ? `/admin/booking/${item.id}` : null);
 
               return (
-                <tr key={`${source}-${item.id}`} className="border-b last:border-b-0">
+                <tr
+                  key={`${source}-${item.id}`}
+                  className="border-b last:border-b-0"
+                >
                   <td className="px-4 py-3">
                     {isBooking ? (
                       <input
@@ -266,24 +269,40 @@ export default function BookingListTable({
                   </td>
 
                   <td className="px-4 py-3">{formatCreatedAt(item.created_at)}</td>
-                  <td className="px-4 py-3">{item.name ?? "-"}</td>
-                  <td className="px-4 py-3">{item.phone ?? "-"}</td>
-                  <td className="px-4 py-3">{item.title ?? "-"}</td>
-                  <td className="px-4 py-3">{item.date ?? "-"}</td>
-                  <td className="px-4 py-3">{formatTimeSlot(item.time)}</td>
-                  <td className="px-4 py-3">{item.location ?? "-"}</td>
-                  <td className="px-4 py-3">{formatStatus(item.status, item.source)}</td>
+
                   <td className="px-4 py-3">
                     {href ? (
                       <Link
                         href={href}
-                        className="inline-flex rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+                        className="font-medium text-black transition hover:text-black/60"
                       >
-                        보기
+                        {item.name ?? "-"}
                       </Link>
                     ) : (
-                      <span className="text-gray-400">-</span>
+                      item.name ?? "-"
                     )}
+                  </td>
+
+                  <td className="px-4 py-3">{item.phone ?? "-"}</td>
+
+                  <td className="px-4 py-3">
+                    {href ? (
+                      <Link
+                        href={href}
+                        className="font-medium text-black transition hover:text-black/60"
+                      >
+                        {item.title ?? "-"}
+                      </Link>
+                    ) : (
+                      item.title ?? "-"
+                    )}
+                  </td>
+
+                  <td className="px-4 py-3">{item.date ?? "-"}</td>
+                  <td className="px-4 py-3">{formatTimeSlot(item.time)}</td>
+                  <td className="px-4 py-3">{item.location ?? "-"}</td>
+                  <td className="px-4 py-3">
+                    {formatStatus(item.status, item.source)}
                   </td>
                 </tr>
               );
@@ -291,7 +310,7 @@ export default function BookingListTable({
 
             {!pagedItems.length && (
               <tr>
-                <td colSpan={11} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={10} className="px-4 py-10 text-center text-gray-500">
                   검색 결과가 없습니다.
                 </td>
               </tr>
