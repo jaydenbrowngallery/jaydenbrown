@@ -30,31 +30,19 @@ function stripHtml(html: string) {
 function parseDescriptionTable(description?: string | null) {
   if (!description) return [];
 
-  const rows = Array.from(
-    description.matchAll(
-      /<tr[^>]*>\s*<th[^>]*>(.*?)<\/th>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/gis
-    )
-  );
+  const matches = description.match(/<tr[^>]*>[\s\S]*?<\/tr>/g) || [];
 
-  return rows
-    .map((match) => ({
-      label: stripHtml(match[1] || ""),
-      value: stripHtml(match[2] || ""),
-    }))
+  return matches
+    .map((row) => {
+      const th = row.match(/<th[^>]*>([\s\S]*?)<\/th>/);
+      const td = row.match(/<td[^>]*>([\s\S]*?)<\/td>/);
+
+      return {
+        label: stripHtml(th?.[1] || ""),
+        value: stripHtml(td?.[1] || ""),
+      };
+    })
     .filter((row) => row.label || row.value);
-}
-
-function findRowValue(
-  rows: Array<{ label: string; value: string }>,
-  labels: string[]
-) {
-  const normalizedLabels = labels.map((label) => label.replace(/\s/g, ""));
-
-  const found = rows.find((row) =>
-    normalizedLabels.includes(row.label.replace(/\s/g, ""))
-  );
-
-  return found?.value || null;
 }
 
 export default async function CalendarEventDetailPage({ params }: PageProps) {
