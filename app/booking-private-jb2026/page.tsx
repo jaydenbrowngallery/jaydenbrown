@@ -157,21 +157,46 @@ export default function BookingPrivatePage() {
             <Item label="문의 내용" value={submittedData.message} multiline />
           </div>
 
-          <div className="mt-8">
-            <button
-              type="button"
-              onClick={() => {
-                setSubmittedData(null);
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }}
-              className="h-12 rounded-full bg-black px-6 text-white transition hover:opacity-90"
-            >
-              다시 작성하기
-            </button>
-          </div>
+         <div className="mt-8">
+  <button
+    type="button"
+    onClick={() => {
+      const phone = submittedData.phone?.replace(/[^\d+]/g, "") || "";
+
+      if (!phone) {
+        alert("연락처 정보가 없습니다.");
+        return;
+      }
+
+      const message = [
+        "[예약 신청 내용]",
+        `제목: ${submittedData.title || "-"}`,
+        `촬영자명: ${submittedData.name || "-"}`,
+        `연락처: ${submittedData.phone || "-"}`,
+        `이메일: ${submittedData.email || "-"}`,
+        `촬영 날짜: ${submittedData.date || "-"}`,
+        `촬영 시간: ${formatTimeSlot(submittedData.time)}`,
+        `촬영 장소: ${submittedData.location || "-"}`,
+        `주소: ${submittedData.address || "-"}`,
+        `상세주소: ${submittedData.address_detail || "-"}`,
+        `입금자명: ${submittedData.depositor_name || "-"}`,
+        `상품: ${submittedData.product || "-"}`,
+        `문의 내용: ${submittedData.message || "-"}`,
+      ].join("\n");
+
+      const encodedMessage = encodeURIComponent(message);
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const smsUrl = isIOS
+        ? `sms:${phone}&body=${encodedMessage}`
+        : `sms:${phone}?body=${encodedMessage}`;
+
+      window.location.href = smsUrl;
+    }}
+    className="h-12 rounded-full bg-black px-6 text-white transition hover:opacity-90"
+  >
+    문자로 내용 받기
+  </button>
+</div>
         </div>
       </main>
     );

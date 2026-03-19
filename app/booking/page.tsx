@@ -3,6 +3,32 @@ import { requireAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
+// 🔥 시간 표시 변환
+function formatTimeSlot(slot: string) {
+  switch (slot) {
+    case "1부":
+      return "1부(12시)";
+    case "2부":
+      return "2부(14시30분)";
+    case "3부":
+      return "3부(16시)";
+    default:
+      return slot || "-";
+  }
+}
+
+// 🔥 상태 표시 스타일
+function formatStatus(status: string) {
+  switch (status) {
+    case "confirmed":
+      return <span className="text-green-600">확정</span>;
+    case "cancelled":
+      return <span className="text-red-500">취소</span>;
+    default:
+      return <span className="text-gray-400">대기</span>;
+  }
+}
+
 export default async function AdminBookingPage() {
   const { supabase } = await requireAdmin();
 
@@ -40,6 +66,7 @@ export default async function AdminBookingPage() {
               <th className="px-4 py-3 text-left font-semibold">날짜</th>
               <th className="px-4 py-3 text-left font-semibold">시간</th>
               <th className="px-4 py-3 text-left font-semibold">장소</th>
+              <th className="px-4 py-3 text-left font-semibold">상태</th>
               <th className="px-4 py-3 text-left font-semibold">상세</th>
             </tr>
           </thead>
@@ -52,12 +79,24 @@ export default async function AdminBookingPage() {
                     ? new Date(item.created_at).toLocaleString("ko-KR")
                     : "-"}
                 </td>
+
                 <td className="px-4 py-3">{item.name ?? "-"}</td>
                 <td className="px-4 py-3">{item.phone ?? "-"}</td>
                 <td className="px-4 py-3">{item.title ?? "-"}</td>
                 <td className="px-4 py-3">{item.date ?? "-"}</td>
-                <td className="px-4 py-3">{item.time ?? "-"}</td>
+
+                {/* 🔥 시간 변환 적용 */}
+                <td className="px-4 py-3">
+                  {formatTimeSlot(item.time)}
+                </td>
+
                 <td className="px-4 py-3">{item.location ?? "-"}</td>
+
+                {/* 🔥 상태 표시 */}
+                <td className="px-4 py-3">
+                  {formatStatus(item.status)}
+                </td>
+
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/booking/${item.id}`}
@@ -71,7 +110,7 @@ export default async function AdminBookingPage() {
 
             {!requests?.length && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={9} className="px-4 py-10 text-center text-gray-500">
                   신청서가 없습니다.
                 </td>
               </tr>

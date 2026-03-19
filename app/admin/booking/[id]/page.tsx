@@ -10,6 +10,31 @@ type Props = {
 
 export const dynamic = "force-dynamic";
 
+function formatTimeSlot(slot?: string | null) {
+  switch (slot) {
+    case "1부":
+      return "1부(12시)";
+    case "2부":
+      return "2부(14시30분)";
+    case "3부":
+      return "3부(16시)";
+    default:
+      return slot || "-";
+  }
+}
+
+function formatStatus(status?: string | null) {
+  switch (status) {
+    case "confirmed":
+      return "확정";
+    case "cancelled":
+      return "취소";
+    case "pending":
+    default:
+      return "대기";
+  }
+}
+
 export default async function AdminBookingDetailPage({ params }: Props) {
   const { id } = await params;
   const { supabase } = await requireAdmin();
@@ -53,18 +78,17 @@ export default async function AdminBookingDetailPage({ params }: Props) {
 
       <div className="space-y-8 rounded-[28px] border border-black/10 bg-white p-6 md:p-8">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-  <InfoBox label="제목" value={item.title} />
-  <InfoBox label="촬영자명 (돌잔치는 아기이름)" value={item.name} />
-  <InfoBox label="연락처" value={item.phone} />
-  <InfoBox label="이메일" value={item.email} />
-  <InfoBox label="날짜" value={item.date} />
-  <InfoBox label="시간" value={item.time} />
-  <InfoBox label="촬영 장소" value={item.location} />
-  <InfoBox label="우편번호" value={item.zipcode} />
-  <InfoBox label="입금자명" value={item.depositor_name} />
-  <InfoBox label="상품 선택" value={item.product} />
-  <InfoBox label="상태" value={item.status || "pending"} />
-</div>
+          <InfoBox label="제목" value={item.title} />
+          <InfoBox label="촬영자명 (돌잔치는 아기이름)" value={item.name} />
+          <InfoBox label="연락처" value={item.phone} />
+          <InfoBox label="이메일" value={item.email} />
+          <InfoBox label="날짜" value={item.date} />
+          <InfoBox label="시간" value={formatTimeSlot(item.time)} />
+          <InfoBox label="촬영 장소" value={item.location} />
+          <InfoBox label="입금자명" value={item.depositor_name} />
+          <InfoBox label="상품 선택" value={item.product} />
+          <InfoBox label="상태" value={formatStatus(item.status)} />
+        </div>
 
         <div className="space-y-5">
           <FullBox label="주소" value={item.address} />
@@ -74,7 +98,16 @@ export default async function AdminBookingDetailPage({ params }: Props) {
 
         <div className="border-t border-black/10 pt-6">
   <div className="flex flex-wrap items-center justify-between gap-3">
-    <BookingDetailActions item={item} />
+    <div className="flex flex-wrap items-center gap-3">
+      <BookingDetailActions item={item} />
+
+      <Link
+        href={`/admin/booking/${item.id}/edit`}
+        className="rounded-xl border border-black/10 px-5 py-3 text-sm hover:bg-black/5"
+      >
+        수정하기
+      </Link>
+    </div>
 
     <form action={deleteAction}>
       <input type="hidden" name="id" value={item.id} />
@@ -117,7 +150,7 @@ function FullBox({
   return (
     <div className="rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 py-5">
       <p className="mb-2 text-sm text-black/40">{label}</p>
-      <p className="text-base font-medium text-black break-all">
+      <p className="break-all text-base font-medium text-black">
         {value || "-"}
       </p>
     </div>

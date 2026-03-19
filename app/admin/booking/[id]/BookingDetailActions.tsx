@@ -1,159 +1,226 @@
 "use client";
 
-type Props = {
-  item: {
-    id: string;
-    title?: string | null;
-    name?: string | null;
-    phone?: string | null;
-    email?: string | null;
-    date?: string | null;
-    time?: string | null;
-    location?: string | null;
-    zipcode?: string | null;
-    address?: string | null;
-    address_detail?: string | null;
-    depositor_name?: string | null;
-    product?: string | null;
-    message?: string | null;
-    status?: string | null;
-  };
+import { useMemo, useState } from "react";
+
+type BookingItem = {
+  id: string;
+  name?: string | null;
+  phone?: string | null;
+  date?: string | null;
+  time?: string | null;
+  location?: string | null;
+  status?: string | null;
 };
 
-export default function BookingDetailActions({ item }: Props) {
-  const smsMessage = `안녕하세요^^ 제이든브라운 입니다.
-신청서 접수 되었습니다.
-다음 계좌번호로 예약금 5만원 입금해주시면 됩니다.
-입금 후 따로 연락은 주지 않으셔도 됩니다.^^
-계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
+function formatTimeSlot(slot?: string | null) {
+  switch (slot) {
+    case "1부":
+      return "1부(12시)";
+    case "2부":
+      return "2부(14시30분)";
+    case "3부":
+      return "3부(16시)";
+    default:
+      return slot || "-";
+  }
+}
 
-  const buildGoogleCalendarUrl = () => {
-    if (!item.date) return null;
+function getTimeRange(slot?: string | null) {
+  switch (slot) {
+    case "1부":
+      return { startHour: 12, startMinute: 0, endHour: 13, endMinute: 0 };
+    case "2부":
+      return { startHour: 14, startMinute: 30, endHour: 15, endMinute: 30 };
+    case "3부":
+      return { startHour: 16, startMinute: 0, endHour: 17, endMinute: 0 };
+    default:
+      return { startHour: 12, startMinute: 0, endHour: 13, endMinute: 0 };
+  }
+}
 
-    const start = new Date(item.date);
-    if (Number.isNaN(start.getTime())) return null;
+function buildSmsMessage(item: BookingItem) {
+  return [
+    `${item.name || "고객"}님, 예약 안내드립니다.`,
+    "",
+    `촬영 날짜: ${item.date || "-"}`,
+    `촬영 시간: ${formatTimeSlot(item.time)}`,
+    `촬영 장소: ${item.location || "-"}`,
+    "",
+    `문의사항 있으시면 편하게 연락 부탁드립니다.`,
+    `감사합니다.`,
+  ].join("\n");
+}
 
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
+async function copyTextWithFallback(text: string) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (error) {
+    console.error("Clipboard API 복사 실패:", error);
+  }
 
-    const formatDate = (d: Date) => {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}${m}${day}`;
-    };
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    textarea.style.left = "-9999px";
 
-    const startDate = formatDate(start);
-    const endDate = formatDate(end);
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
 
-    const calendarTitle = [item.time, item.name, item.location]
-      .filter(Boolean)
-      .join(" / ");
+    const copied = document.execCommand("copy");
+    document.body.removeChild(textarea);
 
-    const details = [
-      `[예약 신청서]`,
-      `제목: ${item.title || "-"}`,
-      `촬영자명: ${item.name || "-"}`,
-      `연락처: ${item.phone || "-"}`,
-      `이메일: ${item.email || "-"}`,
-      `날짜: ${item.date || "-"}`,
-      `시간: ${item.time || "-"}`,
-      `장소: ${item.location || "-"}`,
-      `우편번호: ${item.zipcode || "-"}`,
-      `주소: ${item.address || "-"}`,
-      `상세주소: ${item.address_detail || "-"}`,
-      `입금자명: ${item.depositor_name || "-"}`,
-      `상품: ${item.product || "-"}`,
-      `상태: ${item.status || "pending"}`,
-      `문의 내용: ${item.message || "-"}`,
-    ].join("\n");
+    return copied;
+  } catch (error) {
+    console.error("fallback 복사 실패:", error);
+    return false;
+  }
+}
 
-    const location = [item.location, item.address, item.address_detail]
-      .filter(Boolean)
-      .join(" / ");
+function toGoogleCalendarDate(date: Date) {
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(date.getUTCDate()).padStart(2, "0");
+  const hh = String(date.getUTCHours()).padStart(2, "0");
+  const mi = String(date.getUTCMinutes()).padStart(2, "0");
+  const ss = String(date.getUTCSeconds()).padStart(2, "0");
+  return `${yyyy}${mm}${dd}T${hh}${mi}${ss}Z`;
+}
 
-    return (
-      "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-      `&text=${encodeURIComponent(calendarTitle || "예약 일정")}` +
-      `&dates=${startDate}/${endDate}` +
-      `&details=${encodeURIComponent(details)}` +
-      `&location=${encodeURIComponent(location)}`
-    );
+function buildGoogleCalendarUrl(item: BookingItem) {
+  if (!item.date) return "";
+
+  const [year, month, day] = item.date.split("-").map(Number);
+  if (!year || !month || !day) return "";
+
+  const range = getTimeRange(item.time);
+
+  // 한국 시간 기준으로 생성 후 UTC 문자열로 변환
+  const startLocal = new Date(year, month - 1, day, range.startHour, range.startMinute);
+  const endLocal = new Date(year, month - 1, day, range.endHour, range.endMinute);
+
+  const title = `${item.name || "고객"} 촬영`;
+  const details = [
+    `이름: ${item.name || "-"}`,
+    `연락처: ${item.phone || "-"}`,
+    `시간: ${formatTimeSlot(item.time)}`,
+    `장소: ${item.location || "-"}`,
+  ].join("\n");
+
+  const location = item.location || "";
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${toGoogleCalendarDate(startLocal)}/${toGoogleCalendarDate(endLocal)}`,
+    details,
+    location,
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export default function BookingDetailActions({ item }: { item: BookingItem }) {
+  const [showSmsBox, setShowSmsBox] = useState(false);
+
+  const smsMessage = useMemo(() => buildSmsMessage(item), [item]);
+  const googleCalendarUrl = useMemo(() => buildGoogleCalendarUrl(item), [item]);
+
+  const handleCopySms = async () => {
+    const copied = await copyTextWithFallback(smsMessage);
+
+    if (copied) {
+      alert("문자 내용이 복사되었습니다.");
+    } else {
+      alert("복사에 실패했습니다. 아래 문자 내용 박스에서 직접 복사해 주세요.");
+      setShowSmsBox(true);
+    }
   };
 
-  const buildSmsNumberOnlyUrl = () => {
-    if (!item.phone) return null;
-
-    const normalizedPhone = item.phone.replace(/[^0-9]/g, "");
-    return `sms:${normalizedPhone}`;
-  };
-
-  const handleCalendarAndSMS = async () => {
-    const calendarUrl = buildGoogleCalendarUrl();
-    const smsUrl = buildSmsNumberOnlyUrl();
-
-    if (!calendarUrl) {
-      alert("날짜 정보가 없어 캘린더를 열 수 없습니다.");
+  const handleOpenSms = () => {
+    const phone = item.phone?.replace(/[^\d+]/g, "") || "";
+    if (!phone) {
+      alert("연락처가 없습니다.");
       return;
     }
 
-    if (!smsUrl) {
-      alert("전화번호가 없어 문자창을 열 수 없습니다.");
-      return;
-    }
+    const encodedBody = encodeURIComponent(smsMessage);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const smsUrl = isIOS
+      ? `sms:${phone}&body=${encodedBody}`
+      : `sms:${phone}?body=${encodedBody}`;
 
-    // 1) 상태를 confirmed로 변경
-    try {
-      const res = await fetch("/api/booking/confirm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: item.id }),
-      });
-
-      const json = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        alert(json?.error || "상태 업데이트에 실패했습니다.");
-        return;
-      }
-    } catch {
-      alert("상태 업데이트 요청에 실패했습니다.");
-      return;
-    }
-
-    // 2) 문자 내용 복사
-    try {
-      await navigator.clipboard.writeText(smsMessage);
-    } catch {
-      alert("문자 내용 복사에 실패했습니다.");
-      return;
-    }
-
-    // 3) 구글 캘린더 새 탭 열기
-    window.open(calendarUrl, "_blank", "noopener,noreferrer");
-
-    // 4) 전화번호만 들어간 문자창 열기 시도
-    setTimeout(() => {
-      window.location.href = smsUrl;
-    }, 250);
-
-    // 5) 현재 페이지 새로고침해서 상태 반영
-    setTimeout(() => {
-      window.location.reload();
-    }, 1200);
+    window.location.href = smsUrl;
   };
 
   return (
-    <div className="flex justify-end">
-      <button
-        type="button"
-        onClick={handleCalendarAndSMS}
-        className="rounded-xl bg-black px-5 py-3 text-sm text-white hover:opacity-90"
-      >
-        캘린더 호출
-      </button>
+    <div className="w-full space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShowSmsBox((prev) => !prev)}
+          className="rounded-xl bg-black px-5 py-3 text-sm text-white hover:opacity-90"
+        >
+          문자 내용 보기
+        </button>
+
+        <button
+          type="button"
+          onClick={handleCopySms}
+          className="rounded-xl border border-black/10 px-5 py-3 text-sm hover:bg-black/5"
+        >
+          문자 내용 복사
+        </button>
+
+        <button
+          type="button"
+          onClick={handleOpenSms}
+          className="rounded-xl border border-black/10 px-5 py-3 text-sm hover:bg-black/5"
+        >
+          문자 앱 열기
+        </button>
+
+        <a
+          href={googleCalendarUrl || "#"}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => {
+            if (!googleCalendarUrl) {
+              e.preventDefault();
+              alert("날짜 정보가 없어 캘린더를 열 수 없습니다.");
+            }
+          }}
+          className="rounded-xl border border-black/10 px-5 py-3 text-sm hover:bg-black/5"
+        >
+          구글 캘린더 추가
+        </a>
+      </div>
+
+      {showSmsBox && (
+        <div className="rounded-[22px] border border-black/10 bg-[#f7f5f2] p-5">
+          <p className="mb-3 text-sm text-black/45">문자 내용</p>
+          <textarea
+            readOnly
+            value={smsMessage}
+            className="min-h-[180px] w-full rounded-xl border border-black/10 bg-white p-4 text-sm outline-none"
+          />
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              onClick={handleCopySms}
+              className="rounded-xl bg-black px-4 py-2 text-sm text-white hover:opacity-90"
+            >
+              다시 복사
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
