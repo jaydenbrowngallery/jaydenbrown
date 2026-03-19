@@ -64,7 +64,7 @@ export default function PortfolioDetailPage() {
 
   if (loading) {
     return (
-      <main className="gallery-detail gallery-detail-vertical min-h-screen bg-black flex items-center justify-center">
+      <main className="gallery-detail gallery-detail-page gallery-detail-vertical min-h-screen bg-black flex items-center justify-center">
         <p className="text-sm text-white/60">불러오는 중...</p>
       </main>
     );
@@ -72,7 +72,7 @@ export default function PortfolioDetailPage() {
 
   if (errorMessage) {
     return (
-      <main className="gallery-detail gallery-detail-vertical min-h-screen bg-black flex items-center justify-center px-6">
+      <main className="gallery-detail gallery-detail-page gallery-detail-vertical min-h-screen bg-black flex items-center justify-center px-6">
         <div>
           <p className="text-sm text-red-400">에러 발생</p>
           <pre className="mt-4 whitespace-pre-wrap text-xs text-white/60">
@@ -84,13 +84,8 @@ export default function PortfolioDetailPage() {
   }
 
   return (
-    <main className="gallery-detail gallery-detail-vertical">
+    <main className="gallery-detail gallery-detail-page gallery-detail-vertical">
       <div className="gallery-detail-topbar">
-        <div className="gallery-detail-meta">
-          <div className="gallery-detail-title">{post?.title || ""}</div>
-          
-        </div>
-
         <Link href="/portfolio" className="gallery-detail-back">
           갤러리
         </Link>
@@ -114,7 +109,7 @@ export default function PortfolioDetailPage() {
 
                 <img
                   src={img.image_url}
-                  alt=""
+                  alt={post?.title || ""}
                   onLoad={() =>
                     setLoadedMap((prev) => ({ ...prev, [img.id]: true }))
                   }
