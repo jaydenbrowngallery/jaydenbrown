@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type BookingRequest = {
   id: string;
@@ -39,14 +40,34 @@ function formatStatus(status?: string | null) {
   }
 }
 
+function formatCreatedAt(value?: string | null) {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  const period = hours >= 12 ? "오후" : "오전";
+  const displayHours = hours % 12 || 12;
+
+  return `${year}. ${month}. ${day}. ${period} ${displayHours}:${minutes}:${seconds}`;
+}
+
 export default function BookingListTable({
   items,
-  deleteSelectedAction,
 }: {
   items: BookingRequest[];
-  deleteSelectedAction: (formData: FormData) => void;
 }) {
+  const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleting, setDeleting] = useState(false);
 
   const isAllSelected = useMemo(() => {
     return items.length > 0 && selectedIds.length === items.length;
@@ -66,21 +87,59 @@ export default function BookingListTable({
     );
   };
 
-  return (
-    <form action={deleteSelectedAction}>
-      {selectedIds.map((id) => (
-        <input key={id} type="hidden" name="selectedIds" value={id} />
-      ))}
+  const handleDeleteSelected = async () => {
+    if (!selectedIds.length) {
+      alert("삭제할 항목을 선택해 주세요.");
+      return;
+    }
 
+    const confirmed = window.confirm(
+      `선택한 ${selectedIds.length}건을 삭제할까요?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeleting(true);
+
+      const res = await fetch("/api/booking/delete-selected", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.ok) {
+        alert(result.message || "선택 삭제에 실패했습니다.");
+        return;
+      }
+
+      setSelectedIds([]);
+      alert("선택한 예약이 삭제되었습니다.");
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert("선택 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-xl font-bold">전체 예약 리스트</h2>
 
         <button
-          type="submit"
-          disabled={selectedIds.length === 0}
+          type="button"
+          onClick={handleDeleteSelected}
+          disabled={selectedIds.length === 0 || deleting}
           className="rounded-xl bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          선택 삭제
+          {deleting ? "삭제 중..." : "선택 삭제"}
         </button>
       </div>
 
@@ -117,11 +176,7 @@ export default function BookingListTable({
                     onChange={() => toggleOne(item.id)}
                   />
                 </td>
-                <td className="px-4 py-3">
-                  {item.created_at
-                    ? new Date(item.created_at).toLocaleString("ko-KR")
-                    : "-"}
-                </td>
+                <td className="px-4 py-3">{formatCreatedAt(item.created_at)}</td>
                 <td className="px-4 py-3">{item.name ?? "-"}</td>
                 <td className="px-4 py-3">{item.phone ?? "-"}</td>
                 <td className="px-4 py-3">{item.title ?? "-"}</td>
@@ -150,6 +205,6 @@ export default function BookingListTable({
           </tbody>
         </table>
       </div>
-    </form>
+    </div>
   );
 }

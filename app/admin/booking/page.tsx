@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/supabase/admin";
 import BookingListTable from "./BookingListTable";
 
@@ -502,10 +501,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
       </section>
 
-      <BookingListTable
-        items={filteredRequests}
-        deleteSelectedAction={deleteSelectedAction}
-      />
+  <BookingListTable items={filteredRequests} />
     </main>
   );
 }
