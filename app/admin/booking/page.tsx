@@ -315,22 +315,27 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) || {};
   const todayParts = getKSTTodayParts();
 
-  const selectedYear = Number(resolvedSearchParams.year) || 2026;
-  const selectedMonth = Number(resolvedSearchParams.month) || Number(todayParts.month);
-
   const keyword = resolvedSearchParams.keyword?.trim() || "";
   const phone = resolvedSearchParams.phone?.trim() || "";
   const status = resolvedSearchParams.status?.trim() || "";
   const selectedDate = resolvedSearchParams.selectedDate?.trim() || "";
 
-  const searchYearInput = resolvedSearchParams.searchYear?.trim() || "2026";
-  const searchMonthInput = resolvedSearchParams.searchMonth?.trim() || todayParts.month;
-  const searchDayInput = resolvedSearchParams.searchDay?.trim() || todayParts.day;
+  const searchYearInput = resolvedSearchParams.searchYear?.trim() || "";
+  const searchMonthInput = resolvedSearchParams.searchMonth?.trim() || "";
+  const searchDayInput = resolvedSearchParams.searchDay?.trim() || "";
 
   const hasExplicitDateFilter =
-    Boolean(resolvedSearchParams.searchYear) &&
-    Boolean(resolvedSearchParams.searchMonth) &&
-    Boolean(resolvedSearchParams.searchDay);
+    Boolean(searchYearInput) &&
+    Boolean(searchMonthInput) &&
+    Boolean(searchDayInput);
+
+  // 날짜 검색이 있으면 해당 년/월로 캘린더 이동, 없으면 year/month 파라미터 사용
+  const selectedYear = hasExplicitDateFilter
+    ? Number(searchYearInput)
+    : Number(resolvedSearchParams.year) || Number(todayParts.year);
+  const selectedMonth = hasExplicitDateFilter
+    ? Number(searchMonthInput)
+    : Number(resolvedSearchParams.month) || Number(todayParts.month);
 
   const exactFilterDate = hasExplicitDateFilter
     ? `${searchYearInput}-${pad2(searchMonthInput)}-${pad2(searchDayInput)}`
@@ -596,8 +601,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
             {/* 이전달 / 년월 / 다음달 + 날짜 검색 + Today */}
             <form action="/admin/booking" method="get" className="flex flex-wrap items-center gap-2">
-              <input type="hidden" name="year" value={selectedYear} />
-              <input type="hidden" name="month" value={selectedMonth} />
               <input type="hidden" name="keyword" value={keyword} />
               <input type="hidden" name="phone" value={phone} />
               <input type="hidden" name="status" value={status} />
@@ -646,7 +649,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
               <input
                 type="number"
                 name="searchYear"
-                defaultValue={searchYearInput}
+                defaultValue={searchYearInput || ""}
                 min={2020}
                 max={2100}
                 placeholder="년도"
@@ -655,7 +658,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
               <input
                 type="number"
                 name="searchMonth"
-                defaultValue={searchMonthInput}
+                defaultValue={searchMonthInput || ""}
                 min={1}
                 max={12}
                 placeholder="월"
@@ -664,7 +667,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
               <input
                 type="number"
                 name="searchDay"
-                defaultValue={searchDayInput}
+                defaultValue={searchDayInput || ""}
                 min={1}
                 max={31}
                 placeholder="일"
