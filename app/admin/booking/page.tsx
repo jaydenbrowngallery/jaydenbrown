@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/admin";
 import BookingListTable from "./BookingListTable";
 import CalendarNavForm from "./CalendarNavForm";
+import DepositMatcher from "./DepositMatcher";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ type BookingRequest = {
   time?: string | null;
   location?: string | null;
   status?: string | null;
+  depositor_name?: string | null;
 };
 
 type CalendarEvent = {
@@ -973,6 +975,14 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
         )}
       </section>
+
+      <DepositMatcher bookings={allRequests.map((r) => ({
+        id: r.id,
+        depositor_name: r.depositor_name ?? null,
+        name: r.name ?? null,
+        date: r.date ?? null,
+        status: r.status ?? null,
+      }))} />
 
       <div className="mb-4 rounded-[24px] bg-white p-4 shadow-sm md:p-5">
         <form action="/admin/booking" method="get" className="space-y-3">
