@@ -1,7 +1,6 @@
 "use client";
 
-import BookingCalendar from "./BookingCalendar";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 type SubmittedData = {
@@ -18,24 +17,6 @@ type SubmittedData = {
   product: string;
   message: string;
   status: string;
-};
-
-type BookingRow = {
-  id: string;
-  title: string | null;
-  name: string | null;
-  phone: string | null;
-  email: string | null;
-  date: string | null;
-  time: string | null;
-  location: string | null;
-  address: string | null;
-  address_detail: string | null;
-  depositor_name: string | null;
-  product: string | null;
-  message: string | null;
-  status: string | null;
-  created_at?: string | null;
 };
 
 function formatTimeSlot(slot: string) {
@@ -66,34 +47,7 @@ export default function BookingPrivatePage() {
   const [message, setMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [calendarLoading, setCalendarLoading] = useState(true);
-  const [bookingRequests, setBookingRequests] = useState<BookingRow[]>([]);
   const [submittedData, setSubmittedData] = useState<SubmittedData | null>(null);
-
-  const fetchBookings = async () => {
-    setCalendarLoading(true);
-
-    const { data, error } = await supabase
-      .from("booking_requests")
-      .select(
-        "id, title, name, phone, email, date, time, location, address, address_detail, depositor_name, product, message, status, created_at"
-      )
-      .order("date", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      console.error("예약 목록 불러오기 실패:", error.message);
-      setCalendarLoading(false);
-      return;
-    }
-
-    setBookingRequests(data ?? []);
-    setCalendarLoading(false);
-  };
-
-  useEffect(() => {
-    fetchBookings();
-  }, []);
 
   const openAddressSearch = () => {
     const daum = (window as any).daum;
@@ -167,7 +121,6 @@ export default function BookingPrivatePage() {
 
     setSubmittedData(dataToSave);
     resetForm();
-    fetchBookings();
 
     setTimeout(() => {
       window.scrollTo({
@@ -250,29 +203,8 @@ export default function BookingPrivatePage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+    <main className="mx-auto max-w-3xl px-4 py-12 md:px-8">
       <div className="space-y-8">
-        <section className="rounded-[28px] bg-white p-6 shadow-sm md:p-10">
-          <div className="mb-8">
-            <p className="mb-2 text-sm tracking-[0.2em] text-black/40">
-              BOOKING CALENDAR
-            </p>
-            <h2 className="text-2xl font-semibold md:text-3xl">예약 현황</h2>
-            <p className="mt-3 text-sm text-black/45">
-              모바일에서는 날짜를 눌러 아래 리스트를 확인하고, PC에서는 전체 흐름을
-              한눈에 볼 수 있습니다.
-            </p>
-          </div>
-
-          {calendarLoading ? (
-            <div className="rounded-[22px] border border-black/10 bg-[#f7f5f2] px-6 py-10 text-sm text-black/45">
-              예약 현황을 불러오는 중입니다...
-            </div>
-          ) : (
-            <BookingCalendar bookings={bookingRequests} />
-          )}
-        </section>
-
         <section className="rounded-[28px] bg-white p-6 shadow-sm md:p-10">
           <div className="mb-10">
             <p className="mb-2 text-sm tracking-[0.2em] text-black/40">

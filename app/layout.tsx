@@ -1,10 +1,9 @@
 import "./globals.css";
 import Script from "next/script";
 import ConditionalHeader from "./ConditionalHeader";
-import QuickLinks from "./QuickLinks";
+import ConditionalFooter from "./ConditionalFooter";
 import { Suspense } from "react";
 import ScrollToAnchor from "./ScrollToAnchor";
-import Link from "next/link";
 
 export default function RootLayout({
   children,
@@ -27,15 +26,7 @@ export default function RootLayout({
 
         {children}
 
-        <QuickLinks />
-
-        <footer className="border-t border-black/5">
-          <div className="mx-auto max-w-7xl px-6 py-8 text-sm text-black/45">
-            <Link href="/login" className="hover:text-black/70 transition">
-              © Jayden Brown Studio
-            </Link>
-          </div>
-        </footer>
+        <ConditionalFooter />
       </body>
     </html>
   );

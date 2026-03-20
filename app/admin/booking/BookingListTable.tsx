@@ -185,24 +185,6 @@ export default function BookingListTable({
 
   return (
     <div>
-      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-xl font-bold">전체 예약 리스트</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            전체 {items.length}건 중 {startNumber}-{endNumber} 표시
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleDeleteSelected}
-          disabled={selectedIds.length === 0 || deleting}
-          className="rounded-xl bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {deleting ? "삭제 중..." : "선택 삭제"}
-        </button>
-      </div>
-
       <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
         <table className="min-w-full text-sm">
           <thead className="border-b bg-gray-50">
@@ -336,6 +318,17 @@ export default function BookingListTable({
             다음
           </button>
         </div>
+      </div>
+
+      <div className="mt-3 flex justify-end">
+        <button
+          type="button"
+          onClick={handleDeleteSelected}
+          disabled={selectedIds.length === 0 || deleting}
+          className="rounded-xl border border-black/10 bg-white px-4 py-2 text-sm text-black/60 transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {deleting ? "삭제 중..." : "선택 삭제"}
+        </button>
       </div>
     </div>
   );

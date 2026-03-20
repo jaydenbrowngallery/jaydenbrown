@@ -7,8 +7,9 @@ export default function ConditionalHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isGalleryDetail = pathname.startsWith("/portfolio/") && pathname !== "/portfolio";
+  const isBookingForm = pathname.startsWith("/booking-private-jb2026");
 
-  if (isHome || isGalleryDetail) return null;
+  if (isHome || isGalleryDetail || isBookingForm) return null;
 
   return <Header />;
 }
