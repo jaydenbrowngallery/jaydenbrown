@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/admin";
 import BookingListTable from "./BookingListTable";
+import CalendarNavForm from "./CalendarNavForm";
 
 export const dynamic = "force-dynamic";
 
@@ -329,13 +330,9 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     Boolean(searchMonthInput) &&
     Boolean(searchDayInput);
 
-  // 날짜 검색이 있으면 해당 년/월로 캘린더 이동, 없으면 year/month 파라미터 사용
-  const selectedYear = hasExplicitDateFilter
-    ? Number(searchYearInput)
-    : Number(resolvedSearchParams.year) || Number(todayParts.year);
-  const selectedMonth = hasExplicitDateFilter
-    ? Number(searchMonthInput)
-    : Number(resolvedSearchParams.month) || Number(todayParts.month);
+  // 캘린더 년월은 year/month 파라미터 기준 (이전달/다음달 동작)
+  const selectedYear = Number(resolvedSearchParams.year) || Number(todayParts.year);
+  const selectedMonth = Number(resolvedSearchParams.month) || Number(todayParts.month);
 
   const exactFilterDate = hasExplicitDateFilter
     ? `${searchYearInput}-${pad2(searchMonthInput)}-${pad2(searchDayInput)}`
@@ -600,108 +597,32 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             </div>
 
             {/* 이전달 / 년월 / 다음달 + 날짜 검색 + Today */}
-            <form action="/admin/booking" method="get" className="flex flex-wrap items-center gap-2">
-              <input type="hidden" name="keyword" value={keyword} />
-              <input type="hidden" name="phone" value={phone} />
-              <input type="hidden" name="status" value={status} />
-
-              <Link
-                href={buildMonthLink({
-                  year: prev.year,
-                  month: prev.month,
-                  keyword,
-                  phone,
-                  status,
-                  selectedDate,
-                  searchYear: searchYearInput,
-                  searchMonth: searchMonthInput,
-                  searchDay: searchDayInput,
-                })}
-                className="inline-flex h-10 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
-              >
-                이전달
-              </Link>
-
-              <div className="min-w-[120px] text-center text-sm font-semibold text-black/70">
-                {calendar.year}년 {calendar.month}월
-              </div>
-
-              <Link
-                href={buildMonthLink({
-                  year: next.year,
-                  month: next.month,
-                  keyword,
-                  phone,
-                  status,
-                  selectedDate,
-                  searchYear: searchYearInput,
-                  searchMonth: searchMonthInput,
-                  searchDay: searchDayInput,
-                })}
-                className="inline-flex h-10 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
-              >
-                다음달
-              </Link>
-
-              <div className="h-6 w-px bg-black/10 mx-1 hidden md:block" />
-
-              {/* 날짜 검색 인풋 */}
-              <input
-                type="number"
-                name="searchYear"
-                defaultValue={searchYearInput || ""}
-                min={2020}
-                max={2100}
-                placeholder="년도"
-                className="h-10 w-20 rounded-2xl border border-black/10 bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-black/5"
-              />
-              <input
-                type="number"
-                name="searchMonth"
-                defaultValue={searchMonthInput || ""}
-                min={1}
-                max={12}
-                placeholder="월"
-                className="h-10 w-14 rounded-2xl border border-black/10 bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-black/5"
-              />
-              <input
-                type="number"
-                name="searchDay"
-                defaultValue={searchDayInput || ""}
-                min={1}
-                max={31}
-                placeholder="일"
-                className="h-10 w-14 rounded-2xl border border-black/10 bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-black/5"
-              />
-              <button
-                type="submit"
-                className="h-10 rounded-full bg-black px-4 text-sm font-medium text-white transition hover:opacity-90"
-              >
-                적용
-              </button>
-
-              <Link
-                href={buildMonthLink({
-                  year: Number(todayParts.year),
-                  month: Number(todayParts.month),
-                  keyword,
-                  phone,
-                  status,
-                  selectedDate: todayString,
-                  searchYear: todayParts.year,
-                  searchMonth: todayParts.month,
-                  searchDay: todayParts.day,
-                })}
-                className="inline-flex h-10 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
-              >
-                Today
-              </Link>
-            </form>
+            <CalendarNavForm
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
+              keyword={keyword}
+              phone={phone}
+              status={status}
+              selectedDate={selectedDate}
+              searchYearInput={searchYearInput}
+              searchMonthInput={searchMonthInput}
+              searchDayInput={searchDayInput}
+              prevYear={prev.year}
+              prevMonth={prev.month}
+              nextYear={next.year}
+              nextMonth={next.month}
+              calendarYear={calendar.year}
+              calendarMonth={calendar.month}
+              todayYear={Number(todayParts.year)}
+              todayMonth={Number(todayParts.month)}
+              todayDay={Number(todayParts.day)}
+              todayString={todayString}
+            />
           </div>
 
           {/* 날짜 검색 결과 리스트 - 캘린더 위에 표시 */}
           {hasExplicitDateFilter && exactFilterDate && (
-            <div className="rounded-[24px] border border-black/8 bg-white p-4 shadow-sm">
+            <div id="date-result" className="rounded-[24px] border border-black/8 bg-white p-4 shadow-sm">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-base font-semibold">
                   {exactFilterDate} 일정
