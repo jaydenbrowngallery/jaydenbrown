@@ -12,21 +12,25 @@ export default function Header() {
   const [admin, setAdmin] = useState(false);
   const pathname = usePathname();
 
-  const menus = [
+  const publicMenus = [
     { href: "/", label: "Home" },
     { href: "/portfolio", label: "Gallery" },
     { href: "/about", label: "About" },
     { href: "/guide", label: "Guide" },
-    { href: "/admin/booking", label: "Booking" },
     { href: "/contact", label: "Contact" },
   ];
+
+  const adminMenus = [
+    { href: "/admin/booking", label: "Booking" },
+  ];
+
+  const menus = admin ? [...publicMenus, ...adminMenus] : publicMenus;
 
   useEffect(() => {
     const checkUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-
       setAdmin(isAdmin(user?.email));
     };
 
@@ -100,6 +104,7 @@ export default function Header() {
         </div>
       </header>
 
+      {/* 모바일 오버레이 */}
       <div
         className={`fixed inset-0 z-50 bg-black/60 transition ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
@@ -107,6 +112,7 @@ export default function Header() {
         onClick={() => setOpen(false)}
       />
 
+      {/* 모바일 슬라이드 메뉴 */}
       <div
         className={`fixed right-0 top-0 z-50 h-full w-[80%] transform bg-[#111] text-white transition ${
           open ? "translate-x-0" : "translate-x-full"
