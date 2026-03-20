@@ -35,7 +35,14 @@ function formatTimeSlot(slot?: string | null) {
 
 function formatStatus(status?: string | null, source?: string | null) {
   if (source === "calendar") {
-    return <span className="text-amber-700">기존 일정</span>;
+    return (
+      <span
+        className="inline-flex items-center gap-1"
+        title="기존 캘린더 일정"
+      >
+        <span className="inline-block h-2 w-2 rounded-full bg-[#c7a77a]" />
+      </span>
+    );
   }
 
   switch (status) {
@@ -54,18 +61,10 @@ function formatCreatedAt(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "-";
 
-  const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
 
-  const hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  const period = hours >= 12 ? "오후" : "오전";
-  const displayHours = hours % 12 || 12;
-
-  return `${year}. ${month}. ${day}. ${period} ${displayHours}:${minutes}:${seconds}`;
+  return `${month}. ${day}.`;
 }
 
 export default function BookingListTable({
@@ -81,11 +80,6 @@ export default function BookingListTable({
   const deletableItems = useMemo(
     () => items.filter((item) => (item.source || "booking") === "booking"),
     [items]
-  );
-
-  const deletableIds = useMemo(
-    () => deletableItems.map((item) => item.id),
-    [deletableItems]
   );
 
   const totalPages = Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE));
@@ -221,7 +215,7 @@ export default function BookingListTable({
                 />
               </th>
               <th className="px-4 py-3 text-left font-semibold">구분</th>
-              <th className="px-4 py-3 text-left font-semibold">신청일/등록일</th>
+              <th className="px-4 py-3 text-left font-semibold">신청일</th>
               <th className="px-4 py-3 text-left font-semibold">이름</th>
               <th className="px-4 py-3 text-left font-semibold">연락처</th>
               <th className="px-4 py-3 text-left font-semibold">제목</th>
@@ -258,13 +252,12 @@ export default function BookingListTable({
 
                   <td className="px-4 py-3">
                     {isBooking ? (
-                      <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">
-                        예약
-                      </span>
+                      <span className="inline-flex h-2 w-2 rounded-full bg-black/45" />
                     ) : (
-                      <span className="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800">
-                        기존 일정
-                      </span>
+                      <span
+                        className="inline-flex h-2 w-2 rounded-full bg-[#c7a77a]"
+                        title="기존 캘린더 일정"
+                      />
                     )}
                   </td>
 

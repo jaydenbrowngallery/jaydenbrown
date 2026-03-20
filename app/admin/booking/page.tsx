@@ -4,6 +4,8 @@ import BookingListTable from "./BookingListTable";
 
 export const dynamic = "force-dynamic";
 
+const KST_TIMEZONE = "Asia/Seoul";
+
 type BookingRequest = {
   id: string;
   created_at?: string | null;
@@ -48,58 +50,66 @@ type PageProps = {
     month?: string;
     keyword?: string;
     phone?: string;
-    date?: string;
     status?: string;
     selectedDate?: string;
+    searchYear?: string;
+    searchMonth?: string;
+    searchDay?: string;
   }>;
 };
 
-function formatTimeSlot(slot?: string | null) {
-  switch (slot) {
-    case "1부":
-      return "1부(12시)";
-    case "2부":
-      return "2부(14시30분)";
-    case "3부":
-      return "3부(16시)";
-    default:
-      return slot || "-";
-  }
+function pad2(value: number | string) {
+  return String(value).padStart(2, "0");
 }
 
-function getTimeSlotBadgeClass(slot?: string | null) {
-  switch (slot) {
-    case "1부":
-      return "bg-blue-100 text-blue-700";
-    case "2부":
-      return "bg-amber-100 text-amber-700";
-    case "3부":
-      return "bg-rose-100 text-rose-700";
-    default:
-      return "bg-gray-100 text-gray-600";
-  }
+function getKSTTodayParts() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: KST_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const year = parts.find((p) => p.type === "year")?.value || "2026";
+  const month = parts.find((p) => p.type === "month")?.value || "01";
+  const day = parts.find((p) => p.type === "day")?.value || "01";
+
+  return { year, month, day };
 }
 
-function getStatusText(status?: string | null) {
-  switch (status) {
-    case "confirmed":
-      return "확정";
-    case "cancelled":
-      return "취소";
-    default:
-      return "대기";
-  }
+function getKSTDateStringFromISO(value?: string | null) {
+  if (!value) return null;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: KST_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const year = parts.find((p) => p.type === "year")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const day = parts.find((p) => p.type === "day")?.value;
+
+  if (!year || !month || !day) return null;
+  return `${year}-${month}-${day}`;
 }
 
-function getStatusBadgeClass(status?: string | null) {
-  switch (status) {
-    case "confirmed":
-      return "bg-green-100 text-green-700";
-    case "cancelled":
-      return "bg-red-100 text-red-700";
-    default:
-      return "bg-gray-100 text-gray-600";
-  }
+function getKSTTimeStringFromISO(value?: string | null) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: KST_TIMEZONE,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
 }
 
 function getMonthCalendarData(
@@ -107,11 +117,9 @@ function getMonthCalendarData(
   year: number,
   month: number
 ) {
-  const firstDay = new Date(year, month - 1, 1);
-  const lastDay = new Date(year, month, 0);
-
-  const startWeekday = firstDay.getDay();
-  const totalDays = lastDay.getDate();
+  const safeDate = new Date(`${year}-${pad2(month)}-01T12:00:00+09:00`);
+  const startWeekday = safeDate.getUTCDay();
+  const totalDays = new Date(year, month, 0).getDate();
 
   const dateMap = new Map<string, BookingRequest[]>();
 
@@ -138,9 +146,7 @@ function getMonthCalendarData(
   }
 
   for (let day = 1; day <= totalDays; day++) {
-    const mm = String(month).padStart(2, "0");
-    const dd = String(day).padStart(2, "0");
-    const dateString = `${year}-${mm}-${dd}`;
+    const dateString = `${year}-${pad2(month)}-${pad2(day)}`;
 
     const items = (dateMap.get(dateString) ?? []).sort((a, b) => {
       const order = { "1부": 1, "2부": 2, "3부": 3 } as Record<string, number>;
@@ -169,37 +175,59 @@ function getMonthCalendarData(
   };
 }
 
-function getCalendarEventDateKey(startAt?: string | null) {
-  if (!startAt) return null;
-
-  const date = new Date(startAt);
-  if (Number.isNaN(date.getTime())) return null;
-
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-
-  return `${yyyy}-${mm}-${dd}`;
+function getTimeSlotBadgeClass(slot?: string | null) {
+  switch (slot) {
+    case "1부":
+      return "bg-blue-100 text-blue-700";
+    case "2부":
+      return "bg-amber-100 text-amber-700";
+    case "3부":
+      return "bg-rose-100 text-rose-700";
+    default:
+      return "bg-gray-100 text-gray-600";
+  }
 }
 
-function formatCalendarEventTime(startAt?: string | null) {
-  if (!startAt) return "";
+function formatTimeSlot(slot?: string | null) {
+  switch (slot) {
+    case "1부":
+      return "1부(12시)";
+    case "2부":
+      return "2부(14시30분)";
+    case "3부":
+      return "3부(16시)";
+    default:
+      return slot || "-";
+  }
+}
 
-  const date = new Date(startAt);
-  if (Number.isNaN(date.getTime())) return "";
+function getStatusText(status?: string | null) {
+  switch (status) {
+    case "confirmed":
+      return "확정";
+    case "cancelled":
+      return "취소";
+    default:
+      return "대기";
+  }
+}
 
-  return new Intl.DateTimeFormat("ko-KR", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
+function getStatusBadgeClass(status?: string | null) {
+  switch (status) {
+    case "confirmed":
+      return "bg-green-100 text-green-700";
+    case "cancelled":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-600";
+  }
 }
 
 function getExternalEventsMap(events: CalendarEvent[]) {
   const map = new Map<string, CalendarEvent[]>();
 
   for (const item of events) {
-    const key = getCalendarEventDateKey(item.start_at);
+    const key = getKSTDateStringFromISO(item.start_at);
     if (!key) continue;
 
     if (!map.has(key)) {
@@ -222,79 +250,99 @@ function getExternalEventsMap(events: CalendarEvent[]) {
 }
 
 function getPrevMonth(year: number, month: number) {
-  if (month === 1) {
-    return { year: year - 1, month: 12 };
-  }
+  if (month === 1) return { year: year - 1, month: 12 };
   return { year, month: month - 1 };
 }
 
 function getNextMonth(year: number, month: number) {
-  if (month === 12) {
-    return { year: year + 1, month: 1 };
-  }
+  if (month === 12) return { year: year + 1, month: 1 };
   return { year, month: month + 1 };
 }
 
-function buildMonthLink(
-  year: number,
-  month: number,
-  keyword: string,
-  phone: string,
-  date: string,
-  status: string,
-  selectedDate?: string
-) {
+function buildMonthLink(args: {
+  year: number;
+  month: number;
+  keyword: string;
+  phone: string;
+  status: string;
+  selectedDate?: string;
+  searchYear?: string;
+  searchMonth?: string;
+  searchDay?: string;
+}) {
   const params = new URLSearchParams();
-  params.set("year", String(year));
-  params.set("month", String(month));
-  if (keyword) params.set("keyword", keyword);
-  if (phone) params.set("phone", phone);
-  if (date) params.set("date", date);
-  if (status) params.set("status", status);
-  if (selectedDate) params.set("selectedDate", selectedDate);
+  params.set("year", String(args.year));
+  params.set("month", String(args.month));
+
+  if (args.keyword) params.set("keyword", args.keyword);
+  if (args.phone) params.set("phone", args.phone);
+  if (args.status) params.set("status", args.status);
+  if (args.selectedDate) params.set("selectedDate", args.selectedDate);
+  if (args.searchYear) params.set("searchYear", args.searchYear);
+  if (args.searchMonth) params.set("searchMonth", args.searchMonth);
+  if (args.searchDay) params.set("searchDay", args.searchDay);
 
   return `/admin/booking?${params.toString()}`;
 }
 
-function buildSelectedDateLink(
-  targetDate: string,
-  year: number,
-  month: number,
-  keyword: string,
-  phone: string,
-  date: string,
-  status: string
-) {
+function buildSelectedDateLink(args: {
+  targetDate: string;
+  year: number;
+  month: number;
+  keyword: string;
+  phone: string;
+  status: string;
+  searchYear?: string;
+  searchMonth?: string;
+  searchDay?: string;
+}) {
   const params = new URLSearchParams();
-  params.set("year", String(year));
-  params.set("month", String(month));
-  params.set("selectedDate", targetDate);
-  if (keyword) params.set("keyword", keyword);
-  if (phone) params.set("phone", phone);
-  if (date) params.set("date", date);
-  if (status) params.set("status", status);
+  params.set("year", String(args.year));
+  params.set("month", String(args.month));
+  params.set("selectedDate", args.targetDate);
+
+  if (args.keyword) params.set("keyword", args.keyword);
+  if (args.phone) params.set("phone", args.phone);
+  if (args.status) params.set("status", args.status);
+  if (args.searchYear) params.set("searchYear", args.searchYear);
+  if (args.searchMonth) params.set("searchMonth", args.searchMonth);
+  if (args.searchDay) params.set("searchDay", args.searchDay);
 
   return `/admin/booking?${params.toString()}`;
 }
 
 export default async function AdminBookingPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) || {};
-  const now = new Date();
+  const todayParts = getKSTTodayParts();
 
-  const selectedYear = Number(resolvedSearchParams.year) || now.getFullYear();
-  const selectedMonth =
-    Number(resolvedSearchParams.month) || now.getMonth() + 1;
+  const selectedYear = Number(resolvedSearchParams.year) || 2026;
+  const selectedMonth = Number(resolvedSearchParams.month) || Number(todayParts.month);
 
   const keyword = resolvedSearchParams.keyword?.trim() || "";
   const phone = resolvedSearchParams.phone?.trim() || "";
-  const date = resolvedSearchParams.date?.trim() || "";
   const status = resolvedSearchParams.status?.trim() || "";
   const selectedDate = resolvedSearchParams.selectedDate?.trim() || "";
 
+  const searchYearInput = resolvedSearchParams.searchYear?.trim() || "2026";
+  const searchMonthInput = resolvedSearchParams.searchMonth?.trim() || todayParts.month;
+  const searchDayInput = resolvedSearchParams.searchDay?.trim() || todayParts.day;
+
+  const hasExplicitDateFilter =
+    Boolean(resolvedSearchParams.searchYear) &&
+    Boolean(resolvedSearchParams.searchMonth) &&
+    Boolean(resolvedSearchParams.searchDay);
+
+  const exactFilterDate = hasExplicitDateFilter
+    ? `${searchYearInput}-${pad2(searchMonthInput)}-${pad2(searchDayInput)}`
+    : "";
+
   const { supabase } = await requireAdmin();
 
-  const monthStart = new Date(selectedYear, selectedMonth - 1, 1, 0, 0, 0, 0);
-  const monthEnd = new Date(selectedYear, selectedMonth, 1, 0, 0, 0, 0);
+  const monthStart = new Date(`${selectedYear}-${pad2(selectedMonth)}-01T00:00:00+09:00`);
+  const monthEnd =
+    selectedMonth === 12
+      ? new Date(`${selectedYear + 1}-01-01T00:00:00+09:00`)
+      : new Date(`${selectedYear}-${pad2(selectedMonth + 1)}-01T00:00:00+09:00`);
 
   const [
     { data: requests, error },
@@ -342,7 +390,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
       : true;
 
     const matchPhone = phone ? (item.phone || "").includes(phone) : true;
-    const matchDate = date ? item.date === date : true;
+    const matchDate = exactFilterDate ? item.date === exactFilterDate : true;
     const matchStatus = status ? (item.status || "pending") === status : true;
 
     return matchKeyword && matchPhone && matchDate && matchStatus;
@@ -360,14 +408,9 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   const externalEventsMap = getExternalEventsMap(importedCalendarEvents);
 
   const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
-
   const prev = getPrevMonth(selectedYear, selectedMonth);
   const next = getNextMonth(selectedYear, selectedMonth);
-
-  const today = new Date();
-  const todayString = `${today.getFullYear()}-${String(
-    today.getMonth() + 1
-  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const todayString = `${todayParts.year}-${todayParts.month}-${todayParts.day}`;
 
   const bookingListItems: BookingListItem[] = filteredRequests.map((item) => ({
     id: item.id,
@@ -385,27 +428,12 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   const calendarListItems: BookingListItem[] = importedCalendarEvents.map(
     (item) => {
-      const startDate = item.start_at ? new Date(item.start_at) : null;
-
-      const dateString =
-        startDate && !Number.isNaN(startDate.getTime())
-          ? `${startDate.getFullYear()}-${String(
-              startDate.getMonth() + 1
-            ).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`
-          : null;
-
-      const timeString =
-        startDate && !Number.isNaN(startDate.getTime())
-          ? new Intl.DateTimeFormat("ko-KR", {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: false,
-            }).format(startDate)
-          : null;
+      const dateString = getKSTDateStringFromISO(item.start_at);
+      const timeString = getKSTTimeStringFromISO(item.start_at);
 
       return {
         id: item.id,
-        created_at: item.created_at ?? item.start_at ?? null,
+        created_at: item.start_at ?? item.created_at ?? null,
         title: item.title ?? "제목 없음",
         name: "기존 캘린더 일정",
         phone: "-",
@@ -421,23 +449,8 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   const mergedListItems = [...calendarListItems, ...bookingListItems].sort(
     (a, b) => {
-      const aHasDate = !!a.date;
-      const bHasDate = !!b.date;
-
-      if (!aHasDate && !bHasDate) return 0;
-      if (!aHasDate) return 1;
-      if (!bHasDate) return -1;
-
-      const aDateTime = `${a.date}T${
-        a.time && a.time !== "-" ? a.time : "00:00"
-      }:00`;
-      const bDateTime = `${b.date}T${
-        b.time && b.time !== "-" ? b.time : "00:00"
-      }:00`;
-
-      const aTime = new Date(aDateTime).getTime();
-      const bTime = new Date(bDateTime).getTime();
-
+      const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
       return bTime - aTime;
     }
   );
@@ -471,62 +484,111 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           </Link>
         </div>
 
-        <form
-          action="/admin/booking"
-          method="get"
-          className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-5"
-        >
+        <form action="/admin/booking" method="get" className="mt-6 space-y-4">
           <input type="hidden" name="year" value={selectedYear} />
           <input type="hidden" name="month" value={selectedMonth} />
 
-          <input
-            type="text"
-            name="keyword"
-            defaultValue={keyword}
-            placeholder="이름 검색"
-            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
-          />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+            <input
+              type="text"
+              name="keyword"
+              defaultValue={keyword}
+              placeholder="이름 검색"
+              className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
+            />
 
-          <input
-            type="text"
-            name="phone"
-            defaultValue={phone}
-            placeholder="연락처 검색"
-            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
-          />
+            <input
+              type="text"
+              name="phone"
+              defaultValue={phone}
+              placeholder="연락처 검색"
+              className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
+            />
 
-          <input
-            type="date"
-            name="date"
-            defaultValue={date}
-            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
-          />
-
-          <select
-            name="status"
-            defaultValue={status}
-            className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none"
-          >
-            <option value="">상태 전체</option>
-            <option value="pending">대기</option>
-            <option value="confirmed">확정</option>
-            <option value="cancelled">취소</option>
-          </select>
-
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="h-12 rounded-full bg-black px-5 text-sm font-medium text-white transition hover:opacity-90"
+            <select
+              name="status"
+              defaultValue={status}
+              className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
             >
-              검색
-            </button>
+              <option value="">상태 전체</option>
+              <option value="pending">대기</option>
+              <option value="confirmed">확정</option>
+              <option value="cancelled">취소</option>
+            </select>
 
-            <Link
-              href={`/admin/booking?year=${selectedYear}&month=${selectedMonth}`}
-              className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5"
-            >
-              초기화
-            </Link>
+            <div className="md:col-span-2 flex gap-2">
+              <button
+                type="submit"
+                className="h-12 rounded-full bg-black px-5 text-sm font-medium text-white transition hover:opacity-90"
+              >
+                검색
+              </button>
+
+              <Link
+                href={`/admin/booking?year=${selectedYear}&month=${selectedMonth}`}
+                className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5"
+              >
+                초기화
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-black/8 bg-[#fbfaf8] p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm font-semibold text-black/70">날짜 검색</p>
+              <Link
+                href={buildMonthLink({
+                  year: Number(todayParts.year),
+                  month: Number(todayParts.month),
+                  keyword,
+                  phone,
+                  status,
+                  selectedDate: todayString,
+                  searchYear: todayParts.year,
+                  searchMonth: todayParts.month,
+                  searchDay: todayParts.day,
+                })}
+                className="inline-flex h-10 items-center rounded-full bg-white px-4 text-sm font-medium text-black shadow-sm ring-1 ring-black/8 transition hover:bg-black/5"
+              >
+                Today
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 md:grid-cols-[1fr_1fr_1fr_auto]">
+              <input
+                type="number"
+                name="searchYear"
+                defaultValue={searchYearInput}
+                min={2020}
+                max={2100}
+                placeholder="년도"
+                className="h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:ring-2 focus:ring-black/5"
+              />
+              <input
+                type="number"
+                name="searchMonth"
+                defaultValue={searchMonthInput}
+                min={1}
+                max={12}
+                placeholder="월"
+                className="h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:ring-2 focus:ring-black/5"
+              />
+              <input
+                type="number"
+                name="searchDay"
+                defaultValue={searchDayInput}
+                min={1}
+                max={31}
+                placeholder="일"
+                className="h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:ring-2 focus:ring-black/5"
+              />
+              <button
+                type="submit"
+                className="col-span-3 md:col-span-1 h-12 rounded-full bg-[#111] px-5 text-sm font-medium text-white transition hover:opacity-90"
+              >
+                날짜 적용
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -583,22 +645,24 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             <h2 className="text-2xl font-semibold tracking-tight">
               예약 스케줄 캘린더
             </h2>
-            <p className="mt-1 text-sm text-black/45 md:block hidden">
+            <p className="mt-1 hidden text-sm text-black/45 md:block">
               예약 신청과 기존 구글 캘린더 일정을 함께 확인할 수 있습니다.
             </p>
           </div>
 
           <div className="flex items-center justify-between gap-2">
             <Link
-              href={buildMonthLink(
-                prev.year,
-                prev.month,
+              href={buildMonthLink({
+                year: prev.year,
+                month: prev.month,
                 keyword,
                 phone,
-                date,
                 status,
-                selectedDate
-              )}
+                selectedDate,
+                searchYear: searchYearInput,
+                searchMonth: searchMonthInput,
+                searchDay: searchDayInput,
+              })}
               className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
             >
               이전달
@@ -609,15 +673,17 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             </div>
 
             <Link
-              href={buildMonthLink(
-                next.year,
-                next.month,
+              href={buildMonthLink({
+                year: next.year,
+                month: next.month,
                 keyword,
                 phone,
-                date,
                 status,
-                selectedDate
-              )}
+                selectedDate,
+                searchYear: searchYearInput,
+                searchMonth: searchMonthInput,
+                searchDay: searchDayInput,
+              })}
               className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
             >
               다음달
@@ -626,11 +692,13 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
-          <span className="inline-flex items-center rounded-full bg-[#f2ede7] px-3 py-1 text-black/70">
-            베이지 = 기존 일정
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#f2ede7] px-3 py-1 text-black/70">
+            <span className="inline-block h-2 w-2 rounded-full bg-[#c7a77a]" />
+            기존 일정
           </span>
-          <span className="inline-flex items-center rounded-full bg-[#f7f5f2] px-3 py-1 text-black/70">
-            회색 = 예약
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#f7f5f2] px-3 py-1 text-black/70">
+            <span className="inline-block h-2 w-2 rounded-full bg-black/45" />
+            예약
           </span>
         </div>
 
@@ -648,7 +716,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             ))}
           </div>
 
-          <div className="grid grid-cols-7 auto-rows-[minmax(88px,_auto)] md:auto-rows-[minmax(220px,_auto)]">
+          <div className="grid grid-cols-7 auto-rows-[minmax(82px,_auto)] md:auto-rows-[minmax(145px,_auto)]">
             {calendar.cells.map((cell, index) => {
               const isToday = cell.dateString === todayString;
               const isSunday = index % 7 === 0;
@@ -667,18 +735,20 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 >
                   {cell.day ? (
                     <>
-                      {/* 모바일용 */}
+                      {/* 모바일 */}
                       <Link
-                        href={buildSelectedDateLink(
-                          cell.dateString!,
-                          selectedYear,
-                          selectedMonth,
+                        href={buildSelectedDateLink({
+                          targetDate: cell.dateString!,
+                          year: selectedYear,
+                          month: selectedMonth,
                           keyword,
                           phone,
-                          date,
-                          status
-                        )}
-                        className={`flex h-full min-h-[88px] flex-col justify-between p-2 md:hidden ${
+                          status,
+                          searchYear: searchYearInput,
+                          searchMonth: searchMonthInput,
+                          searchDay: searchDayInput,
+                        })}
+                        className={`flex h-full min-h-[82px] flex-col justify-between p-2 md:hidden ${
                           isSelected ? "bg-black/[0.04]" : ""
                         }`}
                       >
@@ -699,43 +769,47 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
                           {(externalItems.length > 0 || cell.items.length > 0) && (
                             <span className="text-[10px] text-black/35">
-                              {externalItems.length + cell.items.length}건
+                              {externalItems.length + cell.items.length}
                             </span>
                           )}
                         </div>
 
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex items-center gap-1.5">
                           {externalItems.length > 0 && (
-                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f2ede7] px-1.5 text-[10px] text-[#8a5a2b]">
-                              기{externalItems.length}
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[#f2ede7] px-2 py-1 text-[10px] text-[#8a5a2b]">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#c7a77a]" />
+                              {externalItems.length}
                             </span>
                           )}
                           {cell.items.length > 0 && (
-                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f7f5f2] px-1.5 text-[10px] text-black/70">
-                              예{cell.items.length}
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[#f7f5f2] px-2 py-1 text-[10px] text-black/65">
+                              <span className="h-1.5 w-1.5 rounded-full bg-black/45" />
+                              {cell.items.length}
                             </span>
                           )}
                         </div>
                       </Link>
 
-                      {/* 데스크톱용 */}
+                      {/* PC */}
                       <div
-                        className={`hidden min-h-[220px] p-3 md:block ${
+                        className={`hidden min-h-[145px] p-2.5 md:block ${
                           isSelected ? "bg-black/[0.02]" : ""
                         }`}
                       >
-                        <div className="mb-3 flex items-center justify-between">
+                        <div className="mb-2 flex items-center justify-between">
                           <Link
-                            href={buildSelectedDateLink(
-                              cell.dateString!,
-                              selectedYear,
-                              selectedMonth,
+                            href={buildSelectedDateLink({
+                              targetDate: cell.dateString!,
+                              year: selectedYear,
+                              month: selectedMonth,
                               keyword,
                               phone,
-                              date,
-                              status
-                            )}
-                            className={`inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-semibold transition hover:bg-black/5 ${
+                              status,
+                              searchYear: searchYearInput,
+                              searchMonth: searchMonthInput,
+                              searchDay: searchDayInput,
+                            })}
+                            className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-xs font-semibold transition hover:bg-black/5 ${
                               isToday
                                 ? "bg-black text-white"
                                 : isSunday
@@ -749,76 +823,60 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                           </Link>
                         </div>
 
-                        <div className="space-y-2">
-                          {externalItems.map((item) => (
+                        <div className="space-y-1.5">
+                          {externalItems.slice(0, 3).map((item) => (
                             <Link
                               key={item.id}
                               href={`/admin/booking/calendar/${item.id}`}
-                              className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-2.5 transition hover:bg-[#efe4d6]"
+                              className="block rounded-xl border border-[#eadfce] bg-[#f6efe5] px-2 py-1.5 transition hover:bg-[#efe4d6]"
                             >
-                              <div className="mb-1.5 flex flex-wrap items-center gap-1">
-                                <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#8a5a2b]">
-                                  기존 일정
-                                </span>
-                                {formatCalendarEventTime(item.start_at) ? (
-                                  <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-black/65">
-                                    {formatCalendarEventTime(item.start_at)}
+                              <div className="mb-1 flex items-center gap-1">
+                                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#c7a77a]" />
+                                {getKSTTimeStringFromISO(item.start_at) ? (
+                                  <span className="text-[10px] text-black/55">
+                                    {getKSTTimeStringFromISO(item.start_at)}
                                   </span>
                                 ) : null}
                               </div>
 
-                              <div className="truncate text-xs font-semibold text-black">
+                              <div className="truncate text-[10px] font-medium text-black/75">
                                 {item.title ?? "제목 없음"}
-                              </div>
-                              <div className="truncate text-[11px] text-black/50">
-                                {item.location ?? "-"}
                               </div>
                             </Link>
                           ))}
 
-                          {cell.items.slice(0, 4).map((item) => (
+                          {cell.items.slice(0, 3).map((item) => (
                             <Link
                               key={item.id}
                               href={`/admin/booking/${item.id}`}
-                              className="block rounded-2xl border border-black/5 bg-[#f7f5f2] p-2.5 transition hover:bg-[#efebe5]"
+                              className="block rounded-xl border border-black/5 bg-[#f7f5f2] px-2 py-1.5 transition hover:bg-[#efebe5]"
                             >
-                              <div className="mb-1.5 flex flex-wrap items-center gap-1">
+                              <div className="mb-1 flex flex-wrap items-center gap-1">
                                 <span
-                                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(
+                                  className={`rounded-full px-1.5 py-0.5 text-[9px] font-medium ${getTimeSlotBadgeClass(
                                     item.time
                                   )}`}
                                 >
                                   {formatTimeSlot(item.time)}
                                 </span>
-
-                                <span
-                                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(
-                                    item.status
-                                  )}`}
-                                >
-                                  {getStatusText(item.status)}
-                                </span>
                               </div>
 
-                              <div className="truncate text-xs font-semibold text-black">
+                              <div className="truncate text-[10px] font-medium text-black/75">
                                 {item.name ?? "-"}
-                              </div>
-                              <div className="truncate text-[11px] text-black/50">
-                                {item.location ?? "-"}
                               </div>
                             </Link>
                           ))}
 
-                          {cell.items.length > 4 && (
-                            <div className="px-1 text-xs text-black/45">
-                              예약 + {cell.items.length - 4}건 더 있음
+                          {externalItems.length + cell.items.length > 6 && (
+                            <div className="px-1 text-[10px] text-black/35">
+                              + {externalItems.length + cell.items.length - 6}
                             </div>
                           )}
                         </div>
                       </div>
                     </>
                   ) : (
-                    <div className="min-h-[88px] md:min-h-[220px]" />
+                    <div className="min-h-[82px] md:min-h-[145px]" />
                   )}
                 </div>
               );
@@ -826,7 +884,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        {/* 모바일 날짜 선택 리스트 */}
+        {/* 모바일 선택 날짜 리스트 */}
         <div className="mt-5 rounded-[24px] border border-black/10 bg-white p-4 shadow-sm md:hidden">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-base font-semibold">
@@ -834,14 +892,16 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             </h3>
             {selectedDate ? (
               <Link
-                href={buildMonthLink(
-                  selectedYear,
-                  selectedMonth,
+                href={buildMonthLink({
+                  year: selectedYear,
+                  month: selectedMonth,
                   keyword,
                   phone,
-                  date,
-                  status
-                )}
+                  status,
+                  searchYear: searchYearInput,
+                  searchMonth: searchMonthInput,
+                  searchDay: searchDayInput,
+                })}
                 className="text-xs text-black/45"
               >
                 선택 해제
@@ -851,7 +911,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
           {!selectedDate ? (
             <p className="text-sm text-black/45">
-              캘린더에서 날짜를 누르면 아래에 해당 일정이 표시됩니다.
+              날짜를 누르면 아래에 해당 날짜 일정이 표시됩니다.
             </p>
           ) : selectedDateExternalItems.length === 0 &&
             selectedDateBookingItems.length === 0 ? (
@@ -865,12 +925,10 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                   className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-3"
                 >
                   <div className="mb-1 flex items-center gap-2">
-                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#8a5a2b]">
-                      기존 일정
-                    </span>
-                    {formatCalendarEventTime(item.start_at) ? (
+                    <span className="inline-flex h-2 w-2 rounded-full bg-[#c7a77a]" />
+                    {getKSTTimeStringFromISO(item.start_at) ? (
                       <span className="text-xs text-black/55">
-                        {formatCalendarEventTime(item.start_at)}
+                        {getKSTTimeStringFromISO(item.start_at)}
                       </span>
                     ) : null}
                   </div>
