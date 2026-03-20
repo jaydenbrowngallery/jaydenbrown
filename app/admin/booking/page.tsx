@@ -705,6 +705,78 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           )}
         </div>
 
+        {/* PC 선택 날짜 리스트 - 캘린더 위에 표시 */}
+        {selectedDate && (
+          <div id="date-result" className="mb-4 hidden rounded-[24px] border border-black/8 bg-white p-4 shadow-sm md:block">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-base font-semibold">{selectedDate} 일정</h3>
+              <Link
+                href={buildMonthLink({
+                  year: selectedYear,
+                  month: selectedMonth,
+                  keyword,
+                  phone,
+                  status,
+                  searchYear: searchYearInput,
+                  searchMonth: searchMonthInput,
+                  searchDay: searchDayInput,
+                })}
+                className="text-xs text-black/45 hover:text-black"
+              >
+                선택 해제
+              </Link>
+            </div>
+
+            {selectedDateExternalItems.length === 0 && selectedDateBookingItems.length === 0 ? (
+              <p className="text-sm text-black/45">해당 날짜 일정이 없습니다.</p>
+            ) : (
+              <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                {selectedDateExternalItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/admin/booking/calendar/${item.id}`}
+                    className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-3 transition hover:bg-[#efe4d6]"
+                  >
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="inline-flex h-2 w-2 rounded-full bg-[#c7a77a]" />
+                      {getKSTTimeStringFromISO(item.start_at) && (
+                        <span className="text-xs text-black/55">
+                          {getKSTTimeStringFromISO(item.start_at)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm font-semibold text-black">
+                      {item.title ?? "제목 없음"}
+                    </div>
+                    <div className="mt-1 text-xs text-black/50">{item.location ?? "-"}</div>
+                  </Link>
+                ))}
+
+                {selectedDateBookingItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/admin/booking/${item.id}`}
+                    className="block rounded-2xl border border-black/8 bg-[#f7f5f2] p-3 transition hover:bg-[#efebe5]"
+                  >
+                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(item.time)}`}>
+                        {formatTimeSlot(item.time)}
+                      </span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(item.status)}`}>
+                        {getStatusText(item.status)}
+                      </span>
+                    </div>
+                    <div className="text-sm font-semibold text-black">
+                      {item.name ?? item.title ?? "-"}
+                    </div>
+                    <div className="mt-1 text-xs text-black/50">{item.location ?? "-"}</div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
           <span className="inline-flex items-center gap-1 rounded-full bg-[#f2ede7] px-3 py-1 text-black/70">
             <span className="inline-block h-2 w-2 rounded-full bg-[#c7a77a]" />
