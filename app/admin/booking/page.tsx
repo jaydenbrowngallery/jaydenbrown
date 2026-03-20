@@ -350,12 +350,13 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     { data: requests, error },
     { data: calendarEvents, error: calendarError },
   ] = await Promise.all([
-    supabase.from("booking_requests").select("*").order("created_at", {
-      ascending: false,
-    }),
+    supabase
+      .from("booking_requests")
+      .select("id, created_at, title, name, phone, date, time, location, status")
+      .order("created_at", { ascending: false }),
     supabase
       .from("calendar_events")
-      .select("*")
+      .select("id, created_at, external_id, title, location, start_at, end_at, source")
       .gte("start_at", monthStart.toISOString())
       .lt("start_at", monthEnd.toISOString())
       .order("start_at", { ascending: true }),
@@ -761,7 +762,8 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                           searchYear: searchYearInput,
                           searchMonth: searchMonthInput,
                           searchDay: searchDayInput,
-                        })}
+                        }) + "#selected-date"}
+                        scroll={false}
                         className={`flex h-full min-h-[82px] flex-col justify-between p-2 md:hidden ${
                           isSelected ? "bg-black/[0.04]" : ""
                         }`}
@@ -822,7 +824,8 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                               searchYear: searchYearInput,
                               searchMonth: searchMonthInput,
                               searchDay: searchDayInput,
-                            })}
+                            }) + "#date-result"}
+                            scroll={false}
                             className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-xs font-semibold transition hover:bg-black/5 ${
                               isToday
                                 ? "bg-black text-white"
@@ -899,7 +902,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
 
         {/* 모바일 선택 날짜 리스트 */}
-        <div className="mt-5 rounded-[24px] border border-black/10 bg-white p-4 shadow-sm md:hidden">
+        <div id="selected-date" className="mt-5 rounded-[24px] border border-black/10 bg-white p-4 shadow-sm md:hidden">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-base font-semibold">
               {selectedDate ? `${selectedDate} 일정` : "날짜를 선택하세요"}

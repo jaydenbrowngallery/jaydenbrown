@@ -2,8 +2,6 @@ import "./globals.css";
 import Script from "next/script";
 import ConditionalHeader from "./ConditionalHeader";
 import QuickLinks from "./QuickLinks";
-import { Suspense } from "react";
-import ScrollToAnchor from "./ScrollToAnchor";
 
 export default function RootLayout({
   children,
@@ -18,14 +16,11 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
 
-        <Suspense fallback={null}>
-          <ScrollToAnchor />
-        </Suspense>
-
         <ConditionalHeader />
 
         {children}
 
+        {/* 👇 여기 추가 */}
         <QuickLinks />
 
         <footer className="border-t border-black/5">
