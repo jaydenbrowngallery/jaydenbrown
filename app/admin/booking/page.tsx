@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/admin";
-import BookingListTable from "./BookingListTable";
 import CalendarNavForm from "./CalendarNavForm";
-import DepositMatcher from "./DepositMatcher";
+import BookingClientSection from "./BookingClientSection";
 
 export const dynamic = "force-dynamic";
 
@@ -976,63 +975,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         )}
       </section>
 
-      <DepositMatcher bookings={allRequests.map((r) => ({
-        id: r.id,
-        depositor_name: r.depositor_name ?? null,
-        name: r.name ?? null,
-        date: r.date ?? null,
-        status: r.status ?? null,
-      }))} />
-
-      <div className="mb-4 rounded-[24px] bg-white p-4 shadow-sm md:p-5">
-        <form action="/admin/booking" method="get" className="space-y-3">
-          <input type="hidden" name="year" value={selectedYear} />
-          <input type="hidden" name="month" value={selectedMonth} />
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-            <input
-              type="text"
-              name="keyword"
-              defaultValue={keyword}
-              placeholder="이름 검색"
-              className="h-11 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
-            />
-            <input
-              type="text"
-              name="phone"
-              defaultValue={phone}
-              placeholder="연락처 검색"
-              className="h-11 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
-            />
-            <select
-              name="status"
-              defaultValue={status}
-              className="h-11 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
-            >
-              <option value="">상태 전체</option>
-              <option value="pending">대기</option>
-              <option value="confirmed">확정</option>
-              <option value="cancelled">취소</option>
-            </select>
-            <div className="md:col-span-2 flex gap-2">
-              <button
-                type="submit"
-                className="h-11 rounded-full bg-black px-5 text-sm font-medium text-white transition hover:opacity-90"
-              >
-                검색
-              </button>
-              <Link
-                href={`/admin/booking?year=${selectedYear}&month=${selectedMonth}`}
-                className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5"
-              >
-                초기화
-              </Link>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <BookingListTable items={mergedListItems} />
+      <BookingClientSection items={mergedListItems} />
 
       <div className="mt-6 flex justify-center">
         <Link
