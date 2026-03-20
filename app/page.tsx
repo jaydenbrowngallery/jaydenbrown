@@ -1,10 +1,38 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+
 export default function HomePage() {
+  const router = useRouter();
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handlePressStart = () => {
+    pressTimer.current = setTimeout(() => {
+      router.push("/login");
+    }, 1500); // 1.5초 길게 누르기
+  };
+
+  const handlePressEnd = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
   return (
     <main className="bg-[#f7f5f2] text-[#111111]">
       <section className="mx-auto max-w-7xl px-6 pb-4 pt-6 md:px-10 md:pb-24 md:pt-20">
         <div className="grid items-center gap-6 md:grid-cols-[1.05fr_0.95fr] md:gap-16">
           <div className="order-2 md:order-1">
-            <p className="mb-3 text-[11px] uppercase tracking-[0.32em] text-black/30">
+            <p
+              className="mb-3 text-[11px] uppercase tracking-[0.32em] text-black/30 select-none cursor-default"
+              onMouseDown={handlePressStart}
+              onMouseUp={handlePressEnd}
+              onMouseLeave={handlePressEnd}
+              onTouchStart={handlePressStart}
+              onTouchEnd={handlePressEnd}
+            >
               Jayden Brown Studio
             </p>
 
