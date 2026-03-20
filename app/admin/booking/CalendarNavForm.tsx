@@ -150,7 +150,7 @@ export default function CalendarNavForm({
         ref={yearRef}
         type="number"
         name="searchYear"
-        defaultValue={searchYearInput || ""}
+        defaultValue={searchYearInput || String(todayYear)}
         min={2020}
         max={2100}
         placeholder="년도"
