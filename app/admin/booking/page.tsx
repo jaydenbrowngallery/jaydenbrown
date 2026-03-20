@@ -42,6 +42,7 @@ type BookingListItem = {
   time?: string | null;
   location?: string | null;
   status?: string | null;
+  depositor_name?: string | null;
   source?: "booking" | "calendar";
   detailHref?: string | null;
 };
@@ -425,6 +426,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     time: item.time,
     location: item.location,
     status: item.status,
+    depositor_name: item.depositor_name,
     source: "booking",
     detailHref: `/admin/booking/${item.id}`,
   }));
