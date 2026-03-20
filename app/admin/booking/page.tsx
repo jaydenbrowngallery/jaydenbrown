@@ -467,23 +467,8 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
-      <div className="mb-8 rounded-[28px] bg-white p-5 shadow-sm md:p-7">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">
-            예약 신청서 관리
-          </h1>
-          <p className="mt-2 text-sm text-black/45">
-            검색 결과 {filteredRequests.length}건 / 전체 {allRequests.length}건
-          </p>
-        </div>
-      </div>
 
       <section className="mb-10">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">대기 중 예약</h2>
-          <p className="text-sm text-black/45">{pendingRequests.length}건</p>
-        </div>
-
         <div className="overflow-hidden rounded-[28px] border border-black/10 bg-white shadow-sm">
           <div className="divide-y divide-black/5">
             {pendingRequests.length ? (
@@ -527,15 +512,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
       <section className="mb-10">
         <div className="mb-4 flex flex-col gap-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight">
-                예약 스케줄 캘린더
-              </h2>
-              <p className="mt-1 hidden text-sm text-black/45 md:block">
-                예약 신청과 기존 구글 캘린더 일정을 함께 확인할 수 있습니다.
-              </p>
-            </div>
-
             {/* 이전달 / 년월 / 다음달 + 날짜 검색 + Today */}
             <CalendarNavForm
               selectedYear={selectedYear}
@@ -913,36 +889,28 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
 
         {/* 모바일 선택 날짜 리스트 */}
+        {selectedDate && (
         <div id="selected-date" className="mt-5 rounded-[24px] border border-black/10 bg-white p-4 shadow-sm md:hidden">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-base font-semibold">
-              {selectedDate ? `${selectedDate} 일정` : "날짜를 선택하세요"}
-            </h3>
-            {selectedDate ? (
-              <Link
-                href={buildMonthLink({
-                  year: selectedYear,
-                  month: selectedMonth,
-                  keyword,
-                  phone,
-                  status,
-                  searchYear: searchYearInput,
-                  searchMonth: searchMonthInput,
-                  searchDay: searchDayInput,
-                })}
-                className="text-xs text-black/45"
-              >
-                선택 해제
-              </Link>
-            ) : null}
+            <h3 className="text-base font-semibold">{selectedDate} 일정</h3>
+            <Link
+              href={buildMonthLink({
+                year: selectedYear,
+                month: selectedMonth,
+                keyword,
+                phone,
+                status,
+                searchYear: searchYearInput,
+                searchMonth: searchMonthInput,
+                searchDay: searchDayInput,
+              })}
+              className="text-xs text-black/45"
+            >
+              선택 해제
+            </Link>
           </div>
 
-          {!selectedDate ? (
-            <p className="text-sm text-black/45">
-              날짜를 누르면 아래에 해당 날짜 일정이 표시됩니다.
-            </p>
-          ) : selectedDateExternalItems.length === 0 &&
-            selectedDateBookingItems.length === 0 ? (
+          {selectedDateExternalItems.length === 0 && selectedDateBookingItems.length === 0 ? (
             <p className="text-sm text-black/45">해당 날짜 일정이 없습니다.</p>
           ) : (
             <div className="space-y-2">
@@ -1003,6 +971,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             </div>
           )}
         </div>
+        )}
       </section>
 
       <div className="mb-4 rounded-[24px] bg-white p-4 shadow-sm md:p-5">
