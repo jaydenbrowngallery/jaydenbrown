@@ -533,63 +533,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             </div>
           </div>
 
-          <div className="rounded-[24px] border border-black/8 bg-[#fbfaf8] p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-semibold text-black/70">날짜 검색</p>
-              <Link
-                href={buildMonthLink({
-                  year: Number(todayParts.year),
-                  month: Number(todayParts.month),
-                  keyword,
-                  phone,
-                  status,
-                  selectedDate: todayString,
-                  searchYear: todayParts.year,
-                  searchMonth: todayParts.month,
-                  searchDay: todayParts.day,
-                })}
-                className="inline-flex h-10 items-center rounded-full bg-white px-4 text-sm font-medium text-black shadow-sm ring-1 ring-black/8 transition hover:bg-black/5"
-              >
-                Today
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 md:grid-cols-[1fr_1fr_1fr_auto]">
-              <input
-                type="number"
-                name="searchYear"
-                defaultValue={searchYearInput}
-                min={2020}
-                max={2100}
-                placeholder="년도"
-                className="h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:ring-2 focus:ring-black/5"
-              />
-              <input
-                type="number"
-                name="searchMonth"
-                defaultValue={searchMonthInput}
-                min={1}
-                max={12}
-                placeholder="월"
-                className="h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:ring-2 focus:ring-black/5"
-              />
-              <input
-                type="number"
-                name="searchDay"
-                defaultValue={searchDayInput}
-                min={1}
-                max={31}
-                placeholder="일"
-                className="h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:ring-2 focus:ring-black/5"
-              />
-              <button
-                type="submit"
-                className="col-span-3 md:col-span-1 h-12 rounded-full bg-[#111] px-5 text-sm font-medium text-white transition hover:opacity-90"
-              >
-                날짜 적용
-              </button>
-            </div>
-          </div>
         </form>
       </div>
 
@@ -640,55 +583,202 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
       </section>
 
       <section className="mb-10">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight">
-              예약 스케줄 캘린더
-            </h2>
-            <p className="mt-1 hidden text-sm text-black/45 md:block">
-              예약 신청과 기존 구글 캘린더 일정을 함께 확인할 수 있습니다.
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between gap-2">
-            <Link
-              href={buildMonthLink({
-                year: prev.year,
-                month: prev.month,
-                keyword,
-                phone,
-                status,
-                selectedDate,
-                searchYear: searchYearInput,
-                searchMonth: searchMonthInput,
-                searchDay: searchDayInput,
-              })}
-              className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
-            >
-              이전달
-            </Link>
-
-            <div className="min-w-[130px] text-center text-sm font-semibold text-black/70 md:min-w-[150px]">
-              {calendar.year}년 {calendar.month}월
+        <div className="mb-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                예약 스케줄 캘린더
+              </h2>
+              <p className="mt-1 hidden text-sm text-black/45 md:block">
+                예약 신청과 기존 구글 캘린더 일정을 함께 확인할 수 있습니다.
+              </p>
             </div>
 
-            <Link
-              href={buildMonthLink({
-                year: next.year,
-                month: next.month,
-                keyword,
-                phone,
-                status,
-                selectedDate,
-                searchYear: searchYearInput,
-                searchMonth: searchMonthInput,
-                searchDay: searchDayInput,
-              })}
-              className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
-            >
-              다음달
-            </Link>
+            {/* 이전달 / 년월 / 다음달 + 날짜 검색 + Today */}
+            <form action="/admin/booking" method="get" className="flex flex-wrap items-center gap-2">
+              <input type="hidden" name="year" value={selectedYear} />
+              <input type="hidden" name="month" value={selectedMonth} />
+              <input type="hidden" name="keyword" value={keyword} />
+              <input type="hidden" name="phone" value={phone} />
+              <input type="hidden" name="status" value={status} />
+
+              <Link
+                href={buildMonthLink({
+                  year: prev.year,
+                  month: prev.month,
+                  keyword,
+                  phone,
+                  status,
+                  selectedDate,
+                  searchYear: searchYearInput,
+                  searchMonth: searchMonthInput,
+                  searchDay: searchDayInput,
+                })}
+                className="inline-flex h-10 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
+              >
+                이전달
+              </Link>
+
+              <div className="min-w-[120px] text-center text-sm font-semibold text-black/70">
+                {calendar.year}년 {calendar.month}월
+              </div>
+
+              <Link
+                href={buildMonthLink({
+                  year: next.year,
+                  month: next.month,
+                  keyword,
+                  phone,
+                  status,
+                  selectedDate,
+                  searchYear: searchYearInput,
+                  searchMonth: searchMonthInput,
+                  searchDay: searchDayInput,
+                })}
+                className="inline-flex h-10 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
+              >
+                다음달
+              </Link>
+
+              <div className="h-6 w-px bg-black/10 mx-1 hidden md:block" />
+
+              {/* 날짜 검색 인풋 */}
+              <input
+                type="number"
+                name="searchYear"
+                defaultValue={searchYearInput}
+                min={2020}
+                max={2100}
+                placeholder="년도"
+                className="h-10 w-20 rounded-2xl border border-black/10 bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-black/5"
+              />
+              <input
+                type="number"
+                name="searchMonth"
+                defaultValue={searchMonthInput}
+                min={1}
+                max={12}
+                placeholder="월"
+                className="h-10 w-14 rounded-2xl border border-black/10 bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-black/5"
+              />
+              <input
+                type="number"
+                name="searchDay"
+                defaultValue={searchDayInput}
+                min={1}
+                max={31}
+                placeholder="일"
+                className="h-10 w-14 rounded-2xl border border-black/10 bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-black/5"
+              />
+              <button
+                type="submit"
+                className="h-10 rounded-full bg-black px-4 text-sm font-medium text-white transition hover:opacity-90"
+              >
+                적용
+              </button>
+
+              <Link
+                href={buildMonthLink({
+                  year: Number(todayParts.year),
+                  month: Number(todayParts.month),
+                  keyword,
+                  phone,
+                  status,
+                  selectedDate: todayString,
+                  searchYear: todayParts.year,
+                  searchMonth: todayParts.month,
+                  searchDay: todayParts.day,
+                })}
+                className="inline-flex h-10 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-medium transition hover:bg-black/5"
+              >
+                Today
+              </Link>
+            </form>
           </div>
+
+          {/* 날짜 검색 결과 리스트 - 캘린더 위에 표시 */}
+          {hasExplicitDateFilter && exactFilterDate && (
+            <div className="rounded-[24px] border border-black/8 bg-white p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-base font-semibold">
+                  {exactFilterDate} 일정
+                </h3>
+                <Link
+                  href={buildMonthLink({
+                    year: selectedYear,
+                    month: selectedMonth,
+                    keyword,
+                    phone,
+                    status,
+                  })}
+                  className="text-xs text-black/45 hover:text-black"
+                >
+                  검색 초기화
+                </Link>
+              </div>
+
+              {(() => {
+                const dateExternal = externalEventsMap.get(exactFilterDate) ?? [];
+                const dateBooking = filteredRequests.filter((item) => item.date === exactFilterDate);
+
+                if (dateExternal.length === 0 && dateBooking.length === 0) {
+                  return (
+                    <p className="text-sm text-black/45">해당 날짜 일정이 없습니다.</p>
+                  );
+                }
+
+                return (
+                  <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                    {dateExternal.map((item) => (
+                      <Link
+                        key={item.id}
+                        href={`/admin/booking/calendar/${item.id}`}
+                        className="block rounded-2xl border border-[#eadfce] bg-[#f6efe5] p-3 transition hover:bg-[#efe4d6]"
+                      >
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="inline-flex h-2 w-2 rounded-full bg-[#c7a77a]" />
+                          {getKSTTimeStringFromISO(item.start_at) ? (
+                            <span className="text-xs text-black/55">
+                              {getKSTTimeStringFromISO(item.start_at)}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="text-sm font-semibold text-black">
+                          {item.title ?? "제목 없음"}
+                        </div>
+                        <div className="mt-1 text-xs text-black/50">
+                          {item.location ?? "-"}
+                        </div>
+                      </Link>
+                    ))}
+
+                    {dateBooking.map((item) => (
+                      <Link
+                        key={item.id}
+                        href={`/admin/booking/${item.id}`}
+                        className="block rounded-2xl border border-black/8 bg-[#f7f5f2] p-3 transition hover:bg-[#efebe5]"
+                      >
+                        <div className="mb-1 flex flex-wrap items-center gap-2">
+                          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getTimeSlotBadgeClass(item.time)}`}>
+                            {formatTimeSlot(item.time)}
+                          </span>
+                          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getStatusBadgeClass(item.status)}`}>
+                            {getStatusText(item.status)}
+                          </span>
+                        </div>
+                        <div className="text-sm font-semibold text-black">
+                          {item.name ?? item.title ?? "-"}
+                        </div>
+                        <div className="mt-1 text-xs text-black/50">
+                          {item.location ?? "-"}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
