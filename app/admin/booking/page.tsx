@@ -468,74 +468,14 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
       <div className="mb-8 rounded-[28px] bg-white p-5 shadow-sm md:p-7">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              예약 신청서 관리
-            </h1>
-            <p className="mt-2 text-sm text-black/45">
-              검색 결과 {filteredRequests.length}건 / 전체 {allRequests.length}건
-            </p>
-          </div>
-
-          <Link
-            href="/booking-private-jb2026"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold !text-white shadow-sm hover:opacity-90"
-          >
-            신청서 작성
-          </Link>
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            예약 신청서 관리
+          </h1>
+          <p className="mt-2 text-sm text-black/45">
+            검색 결과 {filteredRequests.length}건 / 전체 {allRequests.length}건
+          </p>
         </div>
-
-        <form action="/admin/booking" method="get" className="mt-6 space-y-4">
-          <input type="hidden" name="year" value={selectedYear} />
-          <input type="hidden" name="month" value={selectedMonth} />
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-            <input
-              type="text"
-              name="keyword"
-              defaultValue={keyword}
-              placeholder="이름 검색"
-              className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
-            />
-
-            <input
-              type="text"
-              name="phone"
-              defaultValue={phone}
-              placeholder="연락처 검색"
-              className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
-            />
-
-            <select
-              name="status"
-              defaultValue={status}
-              className="h-12 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
-            >
-              <option value="">상태 전체</option>
-              <option value="pending">대기</option>
-              <option value="confirmed">확정</option>
-              <option value="cancelled">취소</option>
-            </select>
-
-            <div className="md:col-span-2 flex gap-2">
-              <button
-                type="submit"
-                className="h-12 rounded-full bg-black px-5 text-sm font-medium text-white transition hover:opacity-90"
-              >
-                검색
-              </button>
-
-              <Link
-                href={`/admin/booking?year=${selectedYear}&month=${selectedMonth}`}
-                className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5"
-              >
-                초기화
-              </Link>
-            </div>
-          </div>
-
-        </form>
       </div>
 
       <section className="mb-10">
@@ -1065,7 +1005,64 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
         </div>
       </section>
 
+      <div className="mb-4 rounded-[24px] bg-white p-4 shadow-sm md:p-5">
+        <form action="/admin/booking" method="get" className="space-y-3">
+          <input type="hidden" name="year" value={selectedYear} />
+          <input type="hidden" name="month" value={selectedMonth} />
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+            <input
+              type="text"
+              name="keyword"
+              defaultValue={keyword}
+              placeholder="이름 검색"
+              className="h-11 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
+            />
+            <input
+              type="text"
+              name="phone"
+              defaultValue={phone}
+              placeholder="연락처 검색"
+              className="h-11 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
+            />
+            <select
+              name="status"
+              defaultValue={status}
+              className="h-11 rounded-2xl border border-black/10 bg-[#f7f5f2] px-4 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-black/5"
+            >
+              <option value="">상태 전체</option>
+              <option value="pending">대기</option>
+              <option value="confirmed">확정</option>
+              <option value="cancelled">취소</option>
+            </select>
+            <div className="md:col-span-2 flex gap-2">
+              <button
+                type="submit"
+                className="h-11 rounded-full bg-black px-5 text-sm font-medium text-white transition hover:opacity-90"
+              >
+                검색
+              </button>
+              <Link
+                href={`/admin/booking?year=${selectedYear}&month=${selectedMonth}`}
+                className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5"
+              >
+                초기화
+              </Link>
+            </div>
+          </div>
+        </form>
+      </div>
+
       <BookingListTable items={mergedListItems} />
+
+      <div className="mt-6 flex justify-center">
+        <Link
+          href="/booking-private-jb2026"
+          className="inline-flex h-12 items-center justify-center rounded-full bg-black px-8 text-sm font-semibold !text-white shadow-sm hover:opacity-90"
+        >
+          신청서 작성
+        </Link>
+      </div>
     </main>
   );
 }

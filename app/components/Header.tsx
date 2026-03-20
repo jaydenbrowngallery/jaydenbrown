@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const [ready, setReady] = useState(false);
   const pathname = usePathname();
 
   const publicMenus = [
@@ -27,15 +28,16 @@ export default function Header() {
   const menus = admin ? [...publicMenus, ...adminMenus] : publicMenus;
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setAdmin(isAdmin(user?.email));
-    };
-
-    checkUser();
-
+    // onAuthStateChange를 먼저 등록해서 세션 변경을 즉시 감지
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAdmin(isAdmin(session?.user?.email));
+      setReady(true);
+    });
+
+    // 현재 세션도 바로 확인
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAdmin(isAdmin(session?.user?.email));
+      setReady(true);
     });
 
     return () => { subscription.unsubscribe(); };
@@ -67,7 +69,7 @@ export default function Header() {
               </Link>
             ))}
 
-            {admin && (
+            {admin && ready && (
               <>
                 <Link href="/admin/gallery" className="text-black">
                   Admin
@@ -115,7 +117,7 @@ export default function Header() {
             </Link>
           ))}
 
-          {admin && (
+          {admin && ready && (
             <>
               <hr className="border-white/20" />
               <Link href="/admin/gallery" onClick={() => setOpen(false)}>
