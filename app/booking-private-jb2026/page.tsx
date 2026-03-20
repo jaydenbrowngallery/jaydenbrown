@@ -39,7 +39,7 @@ export default function BookingPrivatePage() {
   const [email, setEmail] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("도동산방");
   const [address, setAddress] = useState("");
   const [addressDetail, setAddressDetail] = useState("");
   const [depositorName, setDepositorName] = useState("");
@@ -157,7 +157,7 @@ export default function BookingPrivatePage() {
             <Item label="문의 내용" value={submittedData.message} multiline />
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap gap-3">
             <button
               type="button"
               onClick={() => {
@@ -196,6 +196,24 @@ export default function BookingPrivatePage() {
             >
               문자로 내용 받기
             </button>
+
+            <a
+              href="https://www.jaydenbrown.kr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-6 text-sm font-medium text-black transition hover:bg-black/5"
+            >
+              홈페이지
+            </a>
+
+            <a
+              href="https://www.instagram.com/jaydenbrown_yeonhu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-6 text-sm font-medium text-black transition hover:bg-black/5"
+            >
+              인스타그램
+            </a>
           </div>
         </div>
       </main>
