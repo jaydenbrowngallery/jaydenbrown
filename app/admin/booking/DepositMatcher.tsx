@@ -83,7 +83,9 @@ export default function DepositMatcher({
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const text = ev.target?.result as string;
+      const buffer = ev.target?.result as ArrayBuffer;
+      const decoder = new TextDecoder("euc-kr");
+      const text = decoder.decode(buffer);
       const rows = parseTxt(text);
       setDeposits(rows);
 
@@ -111,7 +113,7 @@ export default function DepositMatcher({
       setDone(false);
     };
 
-    reader.readAsText(file, "euc-kr");
+    reader.readAsArrayBuffer(file);
   };
 
   const handleConfirm = async () => {
