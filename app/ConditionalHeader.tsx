@@ -6,8 +6,9 @@ import Header from "./components/Header";
 export default function ConditionalHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isGalleryDetail = pathname.startsWith("/portfolio/") && pathname !== "/portfolio";
 
-  if (isHome) return null;
+  if (isHome || isGalleryDetail) return null;
 
   return <Header />;
 }
