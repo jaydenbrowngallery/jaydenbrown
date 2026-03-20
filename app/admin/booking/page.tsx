@@ -350,13 +350,12 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     { data: requests, error },
     { data: calendarEvents, error: calendarError },
   ] = await Promise.all([
-    supabase
-      .from("booking_requests")
-      .select("id, created_at, title, name, phone, date, time, location, status")
-      .order("created_at", { ascending: false }),
+    supabase.from("booking_requests").select("*").order("created_at", {
+      ascending: false,
+    }),
     supabase
       .from("calendar_events")
-      .select("id, created_at, external_id, title, location, start_at, end_at, source")
+      .select("*")
       .gte("start_at", monthStart.toISOString())
       .lt("start_at", monthEnd.toISOString())
       .order("start_at", { ascending: true }),
