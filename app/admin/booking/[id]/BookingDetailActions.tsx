@@ -1,7 +1,17 @@
-"use client";
+import Link from "next/link";
+import { requireAdmin } from "@/lib/supabase/admin";
+import ActionButtons from "../calendar/[id]/ActionButtons";
 
-type BookingItem = {
+type PageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+type BookingRequest = {
   id: string;
+  created_at?: string | null;
+  title?: string | null;
   name?: string | null;
   phone?: string | null;
   email?: string | null;
@@ -14,166 +24,138 @@ type BookingItem = {
   product?: string | null;
   message?: string | null;
   status?: string | null;
+  content?: string | null;
 };
+
+function formatDateTime(value?: string | null) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const period = hours >= 12 ? "오후" : "오전";
+  const displayHours = hours % 12 || 12;
+  return `${year}. ${month}. ${day}. ${period} ${displayHours}:${minutes}:${seconds}`;
+}
 
 function formatTimeSlot(slot?: string | null) {
   switch (slot) {
-    case "1부":
-      return "1부(12시)";
-    case "2부":
-      return "2부(14시30분)";
-    case "3부":
-      return "3부(16시)";
-    default:
-      return slot || "-";
+    case "1부": return "1부(12시)";
+    case "2부": return "2부(14시30분)";
+    case "3부": return "3부(16시)";
+    default: return slot || "-";
   }
 }
 
-function getTimeRange(slot?: string | null) {
-  switch (slot) {
-    case "1부":
-      return { startHour: 12, startMinute: 0, endHour: 13, endMinute: 0 };
-    case "2부":
-      return { startHour: 14, startMinute: 30, endHour: 15, endMinute: 30 };
-    case "3부":
-      return { startHour: 16, startMinute: 0, endHour: 17, endMinute: 0 };
-    default:
-      return { startHour: 12, startMinute: 0, endHour: 13, endMinute: 0 };
+function formatStatus(status?: string | null) {
+  switch (status) {
+    case "confirmed": return "확정";
+    case "cancelled": return "취소";
+    default: return "대기";
   }
 }
 
-function toGoogleCalendarDate(date: Date) {
-  const yyyy = date.getUTCFullYear();
-  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(date.getUTCDate()).padStart(2, "0");
-  const hh = String(date.getUTCHours()).padStart(2, "0");
-  const mi = String(date.getUTCMinutes()).padStart(2, "0");
-  const ss = String(date.getUTCSeconds()).padStart(2, "0");
-  return `${yyyy}${mm}${dd}T${hh}${mi}${ss}Z`;
+function getStatusBadgeClass(status?: string | null) {
+  switch (status) {
+    case "confirmed": return "bg-green-100 text-green-700";
+    case "cancelled": return "bg-red-100 text-red-700";
+    default: return "bg-gray-100 text-gray-600";
+  }
 }
 
-function buildGoogleCalendarUrl(item: BookingItem) {
-  if (!item.date) return "";
-
-  const [year, month, day] = item.date.split("-").map(Number);
-  if (!year || !month || !day) return "";
-
-  const range = getTimeRange(item.time);
-
-  const startLocal = new Date(
-    year,
-    month - 1,
-    day,
-    range.startHour,
-    range.startMinute
+function Row({ label, value, multiline = false }: { label: string; value?: string | null; multiline?: boolean }) {
+  return (
+    <div className="grid grid-cols-1 gap-2 p-5 md:grid-cols-[140px_1fr]">
+      <div className="text-sm font-semibold text-black/55">{label}</div>
+      <div className={`text-sm text-black ${multiline ? "whitespace-pre-wrap break-words" : ""}`}>
+        {value || "-"}
+      </div>
+    </div>
   );
-  const endLocal = new Date(
-    year,
-    month - 1,
-    day,
-    range.endHour,
-    range.endMinute
-  );
-
-  const title = `${formatTimeSlot(item.time)} ${item.name || "-"} ${item.location || "-"}`;
-
-  const details = [
-    `이름: ${item.name || "-"}`,
-    `연락처: ${item.phone || "-"}`,
-    `이메일: ${item.email || "-"}`,
-    `날짜: ${item.date || "-"}`,
-    `시간: ${formatTimeSlot(item.time)}`,
-    `장소: ${item.location || "-"}`,
-    `주소: ${item.address || "-"}`,
-    `상세주소: ${item.address_detail || "-"}`,
-    `입금자명: ${item.depositor_name || "-"}`,
-    `상품: ${item.product || "-"}`,
-    `문의 내용: ${item.message || "-"}`,
-  ].join("\n");
-
-  const location = [item.location || "", item.address || "", item.address_detail || ""]
-    .filter(Boolean)
-    .join(" / ");
-
-  const params = new URLSearchParams({
-    text: title,
-    dates: `${toGoogleCalendarDate(startLocal)}/${toGoogleCalendarDate(endLocal)}`,
-    details,
-    location,
-  });
-
-  return `https://calendar.google.com/calendar/u/0/r/eventedit?${params.toString()}`;
 }
 
-function buildSmsBody() {
-  return `안녕하세요^^ 제이든브라운 입니다.
-신청서 접수 되었습니다.
-다음 계좌번호로 예약금 5만원 입금해주시면 됩니다.
-입금 후 따로 연락은 주지 않으셔도 됩니다.^^
-계좌는 신한110-343-765507 예금주 박이용입니다. 감사합니다.`;
-}
+export default async function AdminBookingDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  const { supabase } = await requireAdmin();
 
-export default function BookingDetailActions({ item }: { item: BookingItem }) {
-  const handleCalendarClick = async () => {
-    const calendarUrl = buildGoogleCalendarUrl(item);
+  const { data: booking, error } = await supabase
+    .from("booking_requests")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-    if (!calendarUrl) {
-      alert("날짜 정보가 없어 구글 캘린더를 열 수 없습니다.");
-      return;
-    }
+  if (error || !booking) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 md:px-8">
+        <div className="rounded-[28px] bg-white p-6 shadow-sm">
+          <h1 className="text-2xl font-semibold">예약 상세</h1>
+          <p className="mt-4 text-red-500">예약 정보를 불러오지 못했습니다.</p>
+          <Link href="/admin/booking" className="mt-6 inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5">
+            목록으로 돌아가기
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
-    try {
-      const res = await fetch("/api/booking/confirm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: item.id }),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok || !result.ok) {
-        alert(result.message || "상태를 확정으로 변경하지 못했습니다.");
-        return;
-      }
-    } catch (error) {
-      alert("상태 변경 중 오류가 발생했습니다.");
-      return;
-    }
-
-    window.open(calendarUrl, "_blank", "noopener,noreferrer");
-
-    const phone = item.phone?.trim();
-    if (!phone) {
-      window.location.reload();
-      return;
-    }
-
-    const smsBody = buildSmsBody();
-    const cleanedPhone = phone.replace(/[^\d+]/g, "");
-    const encodedBody = encodeURIComponent(smsBody);
-
-    const smsUrl = `sms:${cleanedPhone}&body=${encodedBody}`;
-
-    setTimeout(() => {
-      window.location.href = smsUrl;
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 800);
-    }, 500);
-  };
+  const item = booking as BookingRequest;
+  const email = item.email || "-";
+  const phone = item.phone || "-";
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <button
-        type="button"
-        onClick={handleCalendarClick}
-        className="rounded-xl bg-black px-5 py-3 text-sm text-white hover:opacity-90"
-      >
-        구글 캘린더 추가
-      </button>
-    </div>
+    <main className="mx-auto max-w-3xl px-4 py-10 md:px-8">
+      <div className="rounded-[28px] bg-white p-6 shadow-sm md:p-8">
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className={`mb-2 inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusBadgeClass(item.status)}`}>
+              {formatStatus(item.status)}
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {item.title || item.name || "예약 상세"}
+            </h1>
+          </div>
+          <Link href="/admin/booking" className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5">
+            목록으로
+          </Link>
+        </div>
+
+        <div className="overflow-hidden rounded-[24px] border border-black/10">
+          <div className="grid grid-cols-1 divide-y divide-black/10">
+            <Row label="신청일" value={formatDateTime(item.created_at)} />
+            <Row label="제목" value={item.title} />
+            <Row label="이름" value={item.name} />
+            <Row label="연락처" value={item.phone} />
+            <Row label="이메일" value={item.email} />
+            <Row label="촬영날짜" value={item.date} />
+            <Row label="시간" value={formatTimeSlot(item.time)} />
+            <Row label="장소" value={item.location} />
+            <Row label="주소" value={item.address} />
+            <Row label="상세주소" value={item.address_detail} />
+            <Row label="예약금입금자명" value={item.depositor_name} />
+            <Row label="스냅상품구성" value={item.product} />
+            <Row label="내용" value={item.message || item.content} multiline />
+          </div>
+        </div>
+
+        <ActionButtons
+          email={email}
+          phone={phone}
+          name={item.name}
+          date={item.date}
+          time={item.time}
+          location={item.location}
+          address={item.address}
+          address_detail={item.address_detail}
+          depositor_name={item.depositor_name}
+          product={item.product}
+          message={item.message || item.content}
+          title={item.title}
+        />
+      </div>
+    </main>
   );
 }

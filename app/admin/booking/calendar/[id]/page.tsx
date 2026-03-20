@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/admin";
-import ActionButtons from "../calendar/[id]/ActionButtons";
+import ActionButtons from "./ActionButtons";
 
 type PageProps = {
   params: Promise<{
@@ -8,7 +8,7 @@ type PageProps = {
   }>;
 };
 
-type BookingRequest = {
+type CalendarEvent = {
   id: string;
   created_at?: string | null;
   title?: string | null;
@@ -25,6 +25,9 @@ type BookingRequest = {
   message?: string | null;
   status?: string | null;
   content?: string | null;
+  start_at?: string | null;
+  end_at?: string | null;
+  description?: string | null;
 };
 
 function formatDateTime(value?: string | null) {
@@ -51,22 +54,6 @@ function formatTimeSlot(slot?: string | null) {
   }
 }
 
-function formatStatus(status?: string | null) {
-  switch (status) {
-    case "confirmed": return "확정";
-    case "cancelled": return "취소";
-    default: return "대기";
-  }
-}
-
-function getStatusBadgeClass(status?: string | null) {
-  switch (status) {
-    case "confirmed": return "bg-green-100 text-green-700";
-    case "cancelled": return "bg-red-100 text-red-700";
-    default: return "bg-gray-100 text-gray-600";
-  }
-}
-
 function Row({ label, value, multiline = false }: { label: string; value?: string | null; multiline?: boolean }) {
   return (
     <div className="grid grid-cols-1 gap-2 p-5 md:grid-cols-[140px_1fr]">
@@ -78,22 +65,22 @@ function Row({ label, value, multiline = false }: { label: string; value?: strin
   );
 }
 
-export default async function AdminBookingDetailPage({ params }: PageProps) {
+export default async function CalendarDetailPage({ params }: PageProps) {
   const { id } = await params;
   const { supabase } = await requireAdmin();
 
-  const { data: booking, error } = await supabase
-    .from("booking_requests")
+  const { data: event, error } = await supabase
+    .from("calendar_events")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (error || !booking) {
+  if (error || !event) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-10 md:px-8">
         <div className="rounded-[28px] bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold">예약 상세</h1>
-          <p className="mt-4 text-red-500">예약 정보를 불러오지 못했습니다.</p>
+          <h1 className="text-2xl font-semibold">일정 상세</h1>
+          <p className="mt-4 text-red-500">일정 정보를 불러오지 못했습니다.</p>
           <Link href="/admin/booking" className="mt-6 inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5">
             목록으로 돌아가기
           </Link>
@@ -102,7 +89,7 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
     );
   }
 
-  const item = booking as BookingRequest;
+  const item = event as CalendarEvent;
   const email = item.email || "-";
   const phone = item.phone || "-";
 
@@ -110,14 +97,9 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
     <main className="mx-auto max-w-3xl px-4 py-10 md:px-8">
       <div className="rounded-[28px] bg-white p-6 shadow-sm md:p-8">
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className={`mb-2 inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusBadgeClass(item.status)}`}>
-              {formatStatus(item.status)}
-            </p>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {item.title || item.name || "예약 상세"}
-            </h1>
-          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {item.title || "일정 상세"}
+          </h1>
           <Link href="/admin/booking" className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5">
             목록으로
           </Link>
@@ -125,19 +107,11 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
 
         <div className="overflow-hidden rounded-[24px] border border-black/10">
           <div className="grid grid-cols-1 divide-y divide-black/10">
-            <Row label="신청일" value={formatDateTime(item.created_at)} />
             <Row label="제목" value={item.title} />
-            <Row label="이름" value={item.name} />
-            <Row label="연락처" value={item.phone} />
-            <Row label="이메일" value={item.email} />
-            <Row label="촬영날짜" value={item.date} />
-            <Row label="시간" value={formatTimeSlot(item.time)} />
+            <Row label="시작" value={formatDateTime(item.start_at)} />
+            <Row label="종료" value={formatDateTime(item.end_at)} />
             <Row label="장소" value={item.location} />
-            <Row label="주소" value={item.address} />
-            <Row label="상세주소" value={item.address_detail} />
-            <Row label="예약금입금자명" value={item.depositor_name} />
-            <Row label="스냅상품구성(웨딩, 돌잔치)" value={item.product} />
-            <Row label="내용" value={item.message || item.content} multiline />
+            <Row label="내용" value={item.description || item.message || item.content} multiline />
           </div>
         </div>
 
@@ -152,7 +126,7 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
           address_detail={item.address_detail}
           depositor_name={item.depositor_name}
           product={item.product}
-          message={item.message || item.content}
+          message={item.description || item.message || item.content}
           title={item.title}
         />
       </div>
