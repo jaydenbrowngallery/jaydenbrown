@@ -28,23 +28,17 @@ export default function Header() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       setAdmin(isAdmin(user?.email));
     };
 
     checkUser();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAdmin(isAdmin(session?.user?.email));
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => { subscription.unsubscribe(); };
   }, []);
 
   const handleLogout = async () => {
@@ -56,10 +50,7 @@ export default function Header() {
     <>
       <header className="sticky top-0 z-50 border-b border-black/5 bg-[#f7f5f2]/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-10">
-          <Link
-            href="/"
-            className="text-sm font-semibold uppercase tracking-[0.28em]"
-          >
+          <Link href="/" className="text-sm font-semibold uppercase tracking-[0.28em]">
             Jayden Brown
           </Link>
 
@@ -69,20 +60,14 @@ export default function Header() {
                 key={menu.href}
                 href={menu.href}
                 className={`transition ${
-                  pathname === menu.href
-                    ? "text-black"
-                    : "text-black/60 hover:text-black"
+                  pathname === menu.href ? "text-black" : "text-black/60 hover:text-black"
                 }`}
               >
                 {menu.label}
               </Link>
             ))}
 
-            {!admin ? (
-              <Link href="/login" className="text-black">
-                Login
-              </Link>
-            ) : (
+            {admin && (
               <>
                 <Link href="/admin/gallery" className="text-black">
                   Admin
@@ -130,14 +115,9 @@ export default function Header() {
             </Link>
           ))}
 
-          <hr className="border-white/20" />
-
-          {!admin ? (
-            <Link href="/login" onClick={() => setOpen(false)}>
-              Login
-            </Link>
-          ) : (
+          {admin && (
             <>
+              <hr className="border-white/20" />
               <Link href="/admin/gallery" onClick={() => setOpen(false)}>
                 Admin
               </Link>

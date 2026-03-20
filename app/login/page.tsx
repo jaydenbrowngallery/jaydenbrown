@@ -1,81 +1,83 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleLogin = async () => {
-    if (!email.trim()) {
-      alert("이메일을 입력해주세요.");
-      return;
-    }
-
+    if (!email.trim() || !password.trim()) return;
     setLoading(true);
 
-    const isLocalhost =
-      typeof window !== "undefined" &&
-      window.location.origin.includes("localhost");
-
-    const redirectUrl = isLocalhost
-      ? "http://localhost:3000"
-      : "https://www.jaydenbrown.kr";
-
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
+      password: password.trim(),
     });
+
+    if (!error && remember) {
+      // 로그인 유지: 세션 만료를 길게 설정 (Supabase 기본 1주일)
+      localStorage.setItem("sb-remember", "true");
+    }
 
     setLoading(false);
 
     if (error) {
-      alert(`로그인 링크 발송 실패: ${error.message}`);
+      alert("아이디 또는 비밀번호가 올바르지 않습니다.");
       return;
     }
 
-    alert("이메일로 로그인 링크를 보냈습니다.");
+    router.replace("/admin/booking");
   };
 
   return (
-    <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-      <div className="mx-auto max-w-xl rounded-[2rem] bg-white p-8 shadow-sm">
-        <p className="text-xs uppercase tracking-[0.35em] text-black/45">
-          Admin Login
+    <main className="min-h-screen bg-[#f7f5f2] flex items-center justify-center px-6">
+      <div className="w-full max-w-sm rounded-[2rem] bg-white p-8 shadow-sm space-y-3">
+        <p className="text-xs uppercase tracking-[0.3em] text-black/30 text-center mb-6">
+          Jayden Brown
         </p>
 
-        <h1 className="mt-4 text-3xl font-semibold md:text-5xl">
-          관리자 로그인
-        </h1>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="아이디"
+          className="w-full rounded-xl border border-black/10 bg-[#f7f5f2] px-4 py-3 text-sm outline-none focus:border-black/30"
+          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+        />
 
-        <p className="mt-4 text-black/60">
-          관리자 이메일로 로그인 링크를 받아 접속합니다.
-        </p>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="비밀번호"
+          className="w-full rounded-xl border border-black/10 bg-[#f7f5f2] px-4 py-3 text-sm outline-none focus:border-black/30"
+          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+        />
 
-        <div className="mt-10 space-y-6">
-          <div>
-            <label className="mb-2 block text-sm text-black/60">이메일</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@email.com"
-              className="w-full rounded-xl border border-black/10 bg-[#f7f5f2] px-4 py-3 outline-none"
-            />
-          </div>
+        <label className="flex items-center gap-2 px-1 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+            className="w-4 h-4 accent-black rounded"
+          />
+          <span className="text-sm text-black/50">로그인 유지</span>
+        </label>
 
-          <button
-            type="button"
-            onClick={handleLogin}
-            disabled={loading}
-            className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm text-white disabled:opacity-50"
-          >
-            {loading ? "전송 중..." : "로그인 링크 보내기"}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full rounded-full bg-black py-3 text-sm text-white disabled:opacity-50 mt-1"
+        >
+          {loading ? "..." : "로그인"}
+        </button>
       </div>
     </main>
   );
