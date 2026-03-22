@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -22,18 +21,13 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
+      const { data: { user } } = await supabase.auth.getUser();
       setAdmin(isAdmin(user?.email));
-
       const { data, error } = await supabase
         .from("gallery_posts")
         .select("id, title, slug, cover_image, created_at")
         .not("cover_image", "is", null)
         .order("created_at", { ascending: false });
-
       if (error) {
         setErrorMessage(error.message);
         setPosts([]);
@@ -41,10 +35,8 @@ export default function PortfolioPage() {
         setErrorMessage("");
         setPosts(data ?? []);
       }
-
       setLoading(false);
     };
-
     fetchData();
   }, []);
 
@@ -54,10 +46,7 @@ export default function PortfolioPage() {
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-[4/5] w-full animate-pulse rounded-sm bg-[#ece7e2]"
-              />
+              <div key={i} className="aspect-[4/5] w-full animate-pulse rounded-sm bg-[#ece7e2]" />
             ))}
           </div>
         </div>
@@ -69,9 +58,6 @@ export default function PortfolioPage() {
     return (
       <main className="min-h-screen bg-[#f7f5f2] px-6 py-16">
         <p className="text-sm text-red-500">갤러리 불러오기 실패</p>
-        <pre className="mt-4 whitespace-pre-wrap text-xs text-black/60">
-          {errorMessage}
-        </pre>
       </main>
     );
   }
@@ -91,29 +77,39 @@ export default function PortfolioPage() {
         )}
 
         {posts.length === 0 ? (
-          <div className="py-20 text-center text-black/40">
-            갤러리가 없습니다.
+          <div className="flex flex-col items-center justify-center py-40 text-center">
+            <p className="text-[13px] uppercase tracking-[0.3em] text-black/30 mb-4">Gallery</p>
+            <p className="text-black/40 text-sm">준비 중입니다.</p>
+            <Link
+              href="/contact"
+              className="mt-8 inline-flex items-center rounded-full bg-black px-6 py-3 text-sm text-white transition hover:bg-black/80"
+            >
+              촬영 문의하기
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
-            {posts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/portfolio/${post.slug}`}
-                className="group block"
-              >
-                <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-[#ece7e2]">
-                  <Image
-                    src={post.cover_image as string}
-                    alt={post.title}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                    className="object-cover transition duration-700 group-hover:scale-[1.03] group-hover:brightness-95"
-                  />
-                </div>
-              </Link>
-            ))}
-          </div>
+          <>
+            <div className="mb-10">
+              <p className="text-[11px] uppercase tracking-[0.32em] text-black/30">Gallery</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+              {posts.map((post) => (
+                <Link key={post.id} href={`/portfolio/${post.slug}`} className="group block">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-[#ece7e2]">
+                    <Image
+                      src={post.cover_image as string}
+                      alt={post.title}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover transition duration-700 group-hover:scale-[1.03] group-hover:brightness-95"
+                    />
+                    <div className="absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/10" />
+                  </div>
+                  <p className="mt-2 px-1 text-[12px] text-black/40 truncate">{post.title}</p>
+                </Link>
+              ))}
+            </div>
+          </>
         )}
       </section>
     </main>
