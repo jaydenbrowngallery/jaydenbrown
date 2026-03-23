@@ -1,3 +1,4 @@
+cat > app/portfolio/page.tsx << 'EOF'
 "use client";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,14 +21,22 @@ export default function PortfolioPage() {
   const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setAdmin(isAdmin(user?.email));
+    // 세션 실시간 감지
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAdmin(isAdmin(session?.user?.email));
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAdmin(isAdmin(session?.user?.email));
+    });
+
+    const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("gallery_posts")
         .select("id, title, slug, cover_image, created_at")
         .not("cover_image", "is", null)
         .order("created_at", { ascending: false });
+
       if (error) {
         setErrorMessage(error.message);
         setPosts([]);
@@ -37,7 +46,10 @@ export default function PortfolioPage() {
       }
       setLoading(false);
     };
-    fetchData();
+
+    fetchPosts();
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (loading) {
@@ -75,14 +87,21 @@ export default function PortfolioPage() {
             </Link>
           </div>
         )}
-
         {posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-40 text-center">
             <p className="text-[13px] uppercase tracking-[0.3em] text-black/30 mb-4">Gallery</p>
             <p className="text-black/40 text-sm">준비 중입니다.</p>
+            {admin && (
+              <Link
+                href="/admin/gallery"
+                className="mt-6 inline-flex items-center rounded-full bg-black px-6 py-3 text-sm text-white transition hover:bg-black/80"
+              >
+                이미지 업로드하기
+              </Link>
+            )}
             <Link
               href="/contact"
-              className="mt-8 inline-flex items-center rounded-full bg-black px-6 py-3 text-sm text-white transition hover:bg-black/80"
+              className="mt-4 inline-flex items-center rounded-full border border-black/20 px-6 py-3 text-sm text-black/60 transition hover:bg-black/5"
             >
               촬영 문의하기
             </Link>
@@ -115,3 +134,4 @@ export default function PortfolioPage() {
     </main>
   );
 }
+EOF
