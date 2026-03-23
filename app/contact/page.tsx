@@ -1,3 +1,4 @@
+cat > app/contact/page.tsx << 'EOF'
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -58,3 +59,4 @@ export default function ContactPage() {
     </main>
   );
 }
+EOF
