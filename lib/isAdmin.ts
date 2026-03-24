@@ -1,5 +1,8 @@
 export function isAdmin(email?: string | null) {
   if (!email) return false;
-  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "thethethe33@gmail.com";
-  return email === adminEmail;
+  const adminEmails = [
+    "thethethe33@gmail.com",
+    "jaydenbrown@naver.com",
+  ];
+  return adminEmails.includes(email);
 }
