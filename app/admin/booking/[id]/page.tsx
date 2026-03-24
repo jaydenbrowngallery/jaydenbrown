@@ -141,7 +141,7 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <ActionButtons email={email} phone={phone} />
+        <ActionButtons email={email} phone={phone} name={item.name} date={item.date} time={item.time} location={item.location} address={item.address} address_detail={item.address_detail} depositor_name={item.depositor_name} product={item.product} message={item.message || item.content} title={item.title} bookingId={item.id} />
       </div>
     </main>
   );
