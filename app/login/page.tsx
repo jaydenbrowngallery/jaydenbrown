@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,17 +11,18 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // 마운트 즉시 stale 세션 제거 → refresh_token 자동 시도 차단
+  useEffect(() => {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))
+      .forEach((k) => localStorage.removeItem(k));
+  }, []);
+
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) return;
     setLoading(true);
 
     const supabase = createClient();
-
-    // 이전 세션이 남아있으면 refresh 루프에 빠지므로 먼저 제거
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))
-      .forEach((k) => localStorage.removeItem(k));
-    await supabase.auth.signOut();
 
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
