@@ -21,7 +21,6 @@ export default function LoginPage() {
     });
 
     if (!error && remember) {
-      // 로그인 유지: 세션 만료를 길게 설정 (Supabase 기본 1주일)
       localStorage.setItem("sb-remember", "true");
     }
 
@@ -32,7 +31,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace("/admin/booking");
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) router.replace("/admin/booking");
   };
 
   return (
