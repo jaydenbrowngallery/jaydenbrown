@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import crypto from "crypto";
 
-// ─── SOLAPI 문자 발송 ───
-async function sendSMS(phone: string, text: string) {
+// ─── SOLAPI 문자 발송 (LMS 장문) ───
+async function sendLMS(phone: string, text: string) {
   const apiKey = process.env.SOLAPI_API_KEY;
   const apiSecret = process.env.SOLAPI_API_SECRET;
   const senderPhone = process.env.SOLAPI_SENDER_PHONE;
@@ -32,6 +32,7 @@ async function sendSMS(phone: string, text: string) {
           to: phone.replace(/[^0-9]/g, ""),
           from: senderPhone,
           text,
+          type: "LMS",
         },
       }),
     });
@@ -67,7 +68,6 @@ async function createCalendarEvent(data: {
   try {
     const serviceAccount = JSON.parse(serviceAccountJson);
 
-    // JWT 토큰 생성
     const now = Math.floor(Date.now() / 1000);
     const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
     const payload = Buffer.from(
@@ -86,7 +86,6 @@ async function createCalendarEvent(data: {
     const signature = sign.sign(serviceAccount.private_key, "base64url");
     const jwt = `${signInput}.${signature}`;
 
-    // Access Token 획득
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -101,7 +100,6 @@ async function createCalendarEvent(data: {
 
     const { access_token } = await tokenRes.json();
 
-    // 이벤트 생성
     const eventRes = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
       {
@@ -114,14 +112,8 @@ async function createCalendarEvent(data: {
           summary: data.title,
           location: data.location || "",
           description: data.description || "",
-          start: {
-            date: data.date,
-            timeZone: "Asia/Seoul",
-          },
-          end: {
-            date: data.date,
-            timeZone: "Asia/Seoul",
-          },
+          start: { date: data.date, timeZone: "Asia/Seoul" },
+          end: { date: data.date, timeZone: "Asia/Seoul" },
         }),
       }
     );
@@ -139,27 +131,60 @@ async function createCalendarEvent(data: {
   }
 }
 
+// ─── 문자 내용 생성 ───
+function buildSMSText(data: {
+  name?: string;
+  date?: string;
+  time?: string;
+  location?: string;
+  phone?: string;
+  depositor_name?: string;
+}) {
+  const timeText = data.time === "1부" ? "1부(12시)" : data.time === "2부" ? "2부(14시30분)" : data.time === "3부" ? "3부(18시)" : data.time || "-";
+
+  return `안녕하세요, ${data.name || "-"}님 
+촬영 예약 신청이 접수되었습니다.
+━━━━  예약 내용 ━━━━
+촬영 종류 : ${timeText}
+행사 날짜 : ${data.date || "-"}
+장      소 : ${data.location || "도동산방"}
+연 락 처 : ${data.phone || "-"}
+촬  영  자 : ${data.name || "-"}
+입 금 자 명 : ${data.depositor_name || "-"}
+━━━━━━━━━━━━━━━━━
+안녕하세요. 예약 진행에 앞서 예약금 및 환불 규정을 안내드립니다.
+예약금은 입금일 기준 3주 이내 취소 시 전액 환불이 가능하며, 이후에는 환불이 불가합니다.
+또한, 촬영일 기준 3주 이내에 예약금을 입금하신 경우에는 환불이 불가한 점 안내드립니다.
+행사 촬영(돌잔치 등)의 특성상, 예약이 확정되면 해당 날짜에 대한 다른 문의 및 예약을 모두 제한하게 되며, 그로 인해 해당 일정은 제3자에게 제공되지 못하고 사실상 재예약이 어려운 상태가 됩니다. 이에 따라 일정 확보에 따른 손해가 발생할 수 있어, 위와 같은 환불 규정을 적용하고 있습니다.
+위 내용을 충분히 확인하시고 동의하시는 경우에 한하여 예약금 입금을 부탁드리며, 예약금 입금 시 본 환불 규정에 동의하신 것으로 간주됩니다.
+━━━━  입금 계좌 ━━━━
+신 한 은 행
+1 1 0 - 3 4 3 - 7 6 5 5 0 7
+예 금 주 : 박 이 용
+━━━━━━━━━━━━━━━━━
+입금이 확인되면 확정 문자를 드립니다. 
+제이든 브라운과 함께해 주셔서 감사합니다.`;
+}
+
 // ─── 메인 API ───
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { bookingId, phone, name, date, time, location, depositor_name, title } = body;
+    const { bookingId, phone, name, date, time, location, depositor_name } = body;
 
     const results = { sms: false, calendar: false, status: false };
 
-    // 1. 문자 발송 (즉시)
+    // 1. LMS 문자 발송 (즉시)
     if (phone && phone !== "-") {
-      const timeText = time === "1부" ? "1부(12시)" : time === "2부" ? "2부(14시30분)" : time === "3부" ? "3부(18시)" : time || "";
-      const smsText = `[제이든브라운 스튜디오]\n\n예약이 접수되었습니다.\n\n▸ 이름: ${name || "-"}\n▸ 날짜: ${date || "-"}\n▸ 시간: ${timeText}\n▸ 장소: ${location || "도동산방"}\n\n감사합니다 😊`;
-
-      const smsResult = await sendSMS(phone, smsText);
+      const smsText = buildSMSText({ name, date, time, location, phone, depositor_name });
+      const smsResult = await sendLMS(phone, smsText);
       results.sms = smsResult.ok;
     }
 
     // 2. 구글 캘린더 등록 (즉시)
     if (date) {
-      const timeText = time === "1부" ? "1200" : time === "2부" ? "1430" : time === "3부" ? "1800" : time || "";
-      const eventTitle = `${timeText} ${name || ""} ${location || "도동산방"}`.trim();
+      const timeCode = time === "1부" ? "1200" : time === "2부" ? "1430" : time === "3부" ? "1800" : time || "";
+      const eventTitle = `${timeCode} ${name || ""} ${location || "도동산방"}`.trim();
       const eventDescription = `이름: ${name || "-"} / 연락처: ${phone || "-"} / 입금자: ${depositor_name || "-"}`;
 
       const calResult = await createCalendarEvent({
