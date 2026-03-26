@@ -1,5 +1,8 @@
+// app/api/google-calendar-webhook/route.ts
+// Google Calendar Push Notification → Supabase 실시간 동기화
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getGoogleAccessToken } from "@/lib/google-calendar";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,7 +10,6 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  // Google Calendar Push Notification 헤더 확인
   const channelId = req.headers.get("x-goog-channel-id");
   const resourceState = req.headers.get("x-goog-resource-state");
   const resourceId = req.headers.get("x-goog-resource-id");
@@ -19,14 +21,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // 변경된 이벤트 목록 가져오기
   if (resourceState === "exists" || resourceState === "not_exists") {
     try {
-      const accessToken = await getGoogleAccessToken();
+      const accessToken = await getGoogleAccessToken("https://www.googleapis.com/auth/calendar.readonly");
       const calendarId = process.env.GOOGLE_CALENDAR_ID!;
 
-      // 최근 변경된 이벤트 조회 (updatedMin: 1분 전)
-      const updatedMin = new Date(Date.now() - 60 * 1000).toISOString();
+      // 최근 변경된 이벤트 조회 (updatedMin: 2분 전, 여유 확보)
+      const updatedMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
       const eventsRes = await fetch(
         `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?updatedMin=${updatedMin}&showDeleted=true&singleEvents=true`,
         { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -39,64 +40,43 @@ export async function POST(req: NextRequest) {
         const status = event.status; // "confirmed" | "cancelled"
 
         if (status === "cancelled") {
-          // 취소된 경우 → Supabase에서 status를 "cancelled"로 업데이트
+          // Google Calendar에서 삭제됨 → booking_requests status 업데이트
           await supabase
-            .from("calendar_events")
+            .from("booking_requests")
             .update({ status: "cancelled" })
             .eq("google_event_id", googleEventId);
         } else {
-          // 날짜/시간 변경된 경우 → Supabase 업데이트
-          const startDate = event.start?.date || event.start?.dateTime?.split("T")[0];
-          const startTime = event.start?.dateTime;
+          // 날짜/시간/제목 변경됨 → booking_requests 업데이트
+          const startDate =
+            event.start?.date || event.start?.dateTime?.split("T")[0];
+          const startTime = event.start?.dateTime
+            ? new Date(event.start.dateTime).toLocaleTimeString("ko-KR", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+                timeZone: "Asia/Seoul",
+              })
+            : undefined;
+
+          const updatePayload: Record<string, any> = { date: startDate };
+          if (startTime) updatePayload.time = startTime;
+          if (event.summary) updatePayload.title = event.summary;
 
           await supabase
-            .from("calendar_events")
-            .update({
-              date: startDate,
-              start_time: startTime,
-              updated_at: new Date().toISOString(),
-            })
+            .from("booking_requests")
+            .update(updatePayload)
             .eq("google_event_id", googleEventId);
         }
       }
     } catch (err) {
-      console.error("Calendar sync error:", err);
+      console.error("Calendar webhook sync error:", err);
     }
   }
 
   return NextResponse.json({ ok: true });
 }
 
-// GET: Google Channel 구독 갱신용
+// GET: Google Channel 구독 확인용
 export async function GET() {
   return NextResponse.json({ ok: true, message: "Google Calendar webhook endpoint" });
-}
-
-async function getGoogleAccessToken(): Promise<string> {
-  const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON!);
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
-    iss: serviceAccount.client_email,
-    scope: "https://www.googleapis.com/auth/calendar.readonly",
-    aud: "https://oauth2.googleapis.com/token",
-    exp: now + 3600,
-    iat: now,
-  };
-
-  // JWT 생성 (간단한 방식)
-  const { SignJWT } = await import("jose");
-  const privateKey = await import("jose").then(({ importPKCS8 }) =>
-    importPKCS8(serviceAccount.private_key, "RS256")
-  );
-  const jwt = await new SignJWT(payload)
-    .setProtectedHeader({ alg: "RS256" })
-    .sign(privateKey);
-
-  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
-  });
-  const tokenData = await tokenRes.json();
-  return tokenData.access_token;
 }
