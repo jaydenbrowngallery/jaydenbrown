@@ -28,7 +28,7 @@ type BookingRequest = {
   google_event_id?: string | null;
 };
 
-// calendar_events description을 파싱하여 BookingRequest 형태로 변환
+// calendar_events description을 파싱
 function parseCalendarDescription(description: string | null | undefined): Record<string, string> {
   const result: Record<string, string> = {};
   if (!description) return result;
@@ -44,6 +44,40 @@ function parseCalendarDescription(description: string | null | undefined): Recor
     }
   }
   return result;
+}
+
+// title에서 정보 파싱: "[입금대기] 1200 배강민 도동산방" 또는 "1200 배강민 도동산방"
+function parseTitleInfo(title: string | null | undefined) {
+  if (!title) return { name: null, time: null, location: null };
+
+  // [입금대기], [확정] 등 상태 태그 제거
+  let clean = title.replace(/^\[.*?\]\s*/, "").trim();
+
+  // 시간 코드 추출
+  let time: string | null = null;
+  const timeMatch = clean.match(/^(\d{3,4})\s+/);
+  if (timeMatch) {
+    const code = timeMatch[1];
+    if (code === "1200") time = "1부(12시)";
+    else if (code === "1430") time = "2부(14시30분)";
+    else if (code === "1800") time = "3부(18시)";
+    else time = code;
+    clean = clean.replace(/^\d{3,4}\s+/, "");
+  }
+
+  // 나머지에서 이름과 장소 분리 (마지막 단어가 장소)
+  const parts = clean.split(/\s+/);
+  let name: string | null = null;
+  let location: string | null = null;
+
+  if (parts.length >= 2) {
+    location = parts[parts.length - 1];
+    name = parts.slice(0, -1).join(" ");
+  } else if (parts.length === 1) {
+    name = parts[0];
+  }
+
+  return { name, time, location };
 }
 
 function formatDateTime(value?: string | null) {
@@ -134,10 +168,26 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
       );
     }
 
-    // calendar_events의 description을 파싱
+    // description이 있으면 파싱, 없으면 title에서 파싱
     const parsed = parseCalendarDescription(calEvent.description);
+    const titleInfo = parseTitleInfo(calEvent.title);
     const startDate = calEvent.start_at ? new Date(calEvent.start_at) : null;
-    const dateStr = startDate ? `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}` : null;
+    const dateStr = startDate
+      ? `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`
+      : null;
+
+    // description 파싱 결과 또는 title 파싱 결과 사용
+    const displayName = parsed["글쓴이"] || parsed["촬영자명"] || titleInfo.name;
+    const displayPhone = parsed["연락처"];
+    const displayEmail = parsed["이메일 주소"];
+    const displayDate = parsed["촬영날짜"] || dateStr;
+    const displayTime = parsed["시간"] || titleInfo.time;
+    const displayLocation = parsed["촬영장소"] || titleInfo.location || calEvent.location;
+    const displayAddress = parsed["주소"];
+    const displayDepositor = parsed["예약금입금자명"];
+    const displayProduct = parsed["스냅상품구성(웨딩, 돌잔치)"];
+    const displayMessage = parsed["내용"];
+    const displayTitle = parsed["제목"] || calEvent.title;
 
     return (
       <main className="mx-auto max-w-3xl px-4 py-10 md:px-8">
@@ -159,31 +209,31 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
           <div className="overflow-hidden rounded-[24px] border border-black/10">
             <div className="grid grid-cols-1 divide-y divide-black/10">
               <Row label="신청일" value={formatDateTime(calEvent.created_at)} />
-              <Row label="제목" value={parsed["제목"] || calEvent.title} />
-              <Row label="이름" value={parsed["글쓴이"] || parsed["촬영자명"]} />
-              <Row label="연락처" value={parsed["연락처"]} />
-              <Row label="이메일" value={parsed["이메일 주소"]} />
-              <Row label="촬영날짜" value={parsed["촬영날짜"] || dateStr} />
-              <Row label="시간" value={parsed["시간"]} />
-              <Row label="장소" value={parsed["촬영장소"] || calEvent.location} />
-              <Row label="주소" value={parsed["주소"]} />
-              <Row label="예약금입금자명" value={parsed["예약금입금자명"]} />
-              <Row label="스냅상품구성(웨딩, 돌잔치)" value={parsed["스냅상품구성(웨딩, 돌잔치)"]} />
-              <Row label="내용" value={parsed["내용"]} multiline />
+              <Row label="제목" value={displayTitle} />
+              <Row label="이름" value={displayName} />
+              <Row label="연락처" value={displayPhone} />
+              <Row label="이메일" value={displayEmail} />
+              <Row label="촬영날짜" value={displayDate} />
+              <Row label="시간" value={displayTime} />
+              <Row label="장소" value={displayLocation} />
+              <Row label="주소" value={displayAddress} />
+              <Row label="예약금입금자명" value={displayDepositor} />
+              <Row label="스냅상품구성(웨딩, 돌잔치)" value={displayProduct} />
+              <Row label="내용" value={displayMessage} multiline />
             </div>
           </div>
 
           <ActionButtons
-            email={parsed["이메일 주소"]}
-            phone={parsed["연락처"]}
-            name={parsed["글쓴이"] || parsed["촬영자명"]}
-            date={parsed["촬영날짜"] || dateStr}
-            time={parsed["시간"]}
-            location={parsed["촬영장소"] || calEvent.location}
-            address={parsed["주소"]}
-            depositor_name={parsed["예약금입금자명"]}
-            product={parsed["스냅상품구성(웨딩, 돌잔치)"]}
-            message={parsed["내용"]}
+            email={displayEmail}
+            phone={displayPhone}
+            name={displayName}
+            date={displayDate}
+            time={displayTime}
+            location={displayLocation}
+            address={displayAddress}
+            depositor_name={displayDepositor}
+            product={displayProduct}
+            message={displayMessage}
             title={calEvent.title}
             bookingId={null}
             status="calendar"
@@ -194,7 +244,7 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
     );
   }
 
-  // booking_requests 데이터가 있는 경우 (기존 로직)
+  // booking_requests 데이터가 있는 경우
   const item = booking as BookingRequest;
   const email = item.email || "-";
   const phone = item.phone || "-";
