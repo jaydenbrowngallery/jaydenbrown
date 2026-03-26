@@ -252,7 +252,7 @@ export async function POST(req: NextRequest) {
 
     // 3. 확정 문자 발송
     const confirmMsg = [
-      `[제이든브라운 스튜디오] 예약 확정 안내`,
+      `제이든 브라운 예약 확정 안내`,
       ``,
       `${matchedBooking.name}님, 입금이 확인되어`,
       `예약이 확정되었습니다.`,
