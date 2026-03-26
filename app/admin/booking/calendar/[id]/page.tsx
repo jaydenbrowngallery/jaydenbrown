@@ -28,21 +28,71 @@ type BookingRequest = {
   google_event_id?: string | null;
 };
 
-// calendar_events description을 파싱
+// calendar_events description 파싱 (HTML 테이블 + 텍스트 형식 모두 지원)
 function parseCalendarDescription(description: string | null | undefined): Record<string, string> {
   const result: Record<string, string> = {};
   if (!description) return result;
 
+  // 1. HTML 테이블 형식: <th>key</th><td>value</td>
+  if (description.includes("<table") || description.includes("<th>")) {
+    const thTdRegex = /<th[^>]*>(.*?)<\/th>\s*<td[^>]*>(.*?)<\/td>/gi;
+    let match;
+    while ((match = thTdRegex.exec(description)) !== null) {
+      const key = match[1].replace(/<[^>]+>/g, "").trim();
+      const value = match[2].replace(/<[^>]+>/g, "").trim();
+      if (key) {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  // 2. 텍스트 형식: "key: value" (줄바꿈 구분)
   const lines = description.split("\n");
   for (const line of lines) {
+    // "키: 값" 또는 "키값" (공백 없이 붙어있는 경우도 처리)
     const colonIdx = line.indexOf(":");
-    if (colonIdx === -1) continue;
-    const key = line.slice(0, colonIdx).trim();
-    const value = line.slice(colonIdx + 1).trim();
-    if (key && value) {
-      result[key] = value;
+    if (colonIdx > 0) {
+      const key = line.slice(0, colonIdx).trim();
+      const value = line.slice(colonIdx + 1).trim();
+      if (key && value) {
+        result[key] = value;
+      }
     }
   }
+
+  // 3. 구형 형식: "촬영자명이현서" (키와 값이 붙어있는 경우)
+  if (Object.keys(result).length === 0) {
+    const knownKeys = [
+      "촬영자명", "연락처", "연락처A", "연락처B", "촬영일자", "촬영날짜",
+      "행사시작시간", "시간", "행사장소", "촬영장소", "촬영종류",
+      "상품선택", "예약금입금자명", "주소", "예약확인사항",
+      "글쓴이", "이메일 주소", "제목", "스냅상품구성", "내용",
+    ];
+    for (const key of knownKeys) {
+      const idx = description.indexOf(key);
+      if (idx !== -1) {
+        const afterKey = description.slice(idx + key.length);
+        // 다음 키까지 또는 줄바꿈까지
+        let endIdx = afterKey.length;
+        for (const nextKey of knownKeys) {
+          const nextIdx = afterKey.indexOf(nextKey);
+          if (nextIdx > 0 && nextIdx < endIdx) {
+            endIdx = nextIdx;
+          }
+        }
+        const newlineIdx = afterKey.indexOf("\n");
+        if (newlineIdx > 0 && newlineIdx < endIdx) {
+          endIdx = newlineIdx;
+        }
+        const value = afterKey.slice(0, endIdx).trim();
+        if (value) {
+          result[key] = value;
+        }
+      }
+    }
+  }
+
   return result;
 }
 
@@ -50,10 +100,8 @@ function parseCalendarDescription(description: string | null | undefined): Recor
 function parseTitleInfo(title: string | null | undefined) {
   if (!title) return { name: null, time: null, location: null };
 
-  // [입금대기], [확정] 등 상태 태그 제거
   let clean = title.replace(/^\[.*?\]\s*/, "").trim();
 
-  // 시간 코드 추출
   let time: string | null = null;
   const timeMatch = clean.match(/^(\d{3,4})\s+/);
   if (timeMatch) {
@@ -65,7 +113,6 @@ function parseTitleInfo(title: string | null | undefined) {
     clean = clean.replace(/^\d{3,4}\s+/, "");
   }
 
-  // 나머지에서 이름과 장소 분리 (마지막 단어가 장소)
   const parts = clean.split(/\s+/);
   let name: string | null = null;
   let location: string | null = null;
@@ -168,7 +215,7 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
       );
     }
 
-    // description이 있으면 파싱, 없으면 title에서 파싱
+    // description 파싱 (HTML 테이블 + 텍스트 + 구형 형식)
     const parsed = parseCalendarDescription(calEvent.description);
     const titleInfo = parseTitleInfo(calEvent.title);
     const startDate = calEvent.start_at ? new Date(calEvent.start_at) : null;
@@ -176,16 +223,16 @@ export default async function AdminBookingDetailPage({ params }: PageProps) {
       ? `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`
       : null;
 
-    // description 파싱 결과 또는 title 파싱 결과 사용
+    // description 파싱 결과 → title 파싱 결과 → 기본값 순으로 사용
     const displayName = parsed["글쓴이"] || parsed["촬영자명"] || titleInfo.name;
-    const displayPhone = parsed["연락처"];
+    const displayPhone = parsed["연락처"] || parsed["연락처A"];
     const displayEmail = parsed["이메일 주소"];
-    const displayDate = parsed["촬영날짜"] || dateStr;
-    const displayTime = parsed["시간"] || titleInfo.time;
-    const displayLocation = parsed["촬영장소"] || titleInfo.location || calEvent.location;
+    const displayDate = parsed["촬영날짜"] || parsed["촬영일자"] || dateStr;
+    const displayTime = parsed["시간"] || parsed["행사시작시간"] || titleInfo.time;
+    const displayLocation = parsed["촬영장소"] || parsed["행사장소"] || titleInfo.location || calEvent.location;
     const displayAddress = parsed["주소"];
     const displayDepositor = parsed["예약금입금자명"];
-    const displayProduct = parsed["스냅상품구성(웨딩, 돌잔치)"];
+    const displayProduct = parsed["스냅상품구성(웨딩, 돌잔치)"] || parsed["촬영종류"] || parsed["상품선택"];
     const displayMessage = parsed["내용"];
     const displayTitle = parsed["제목"] || calEvent.title;
 
