@@ -29,10 +29,6 @@ export default function LoginPage() {
       password: password.trim(),
     });
 
-    if (!error && remember) {
-      localStorage.setItem("sb-remember", "true");
-    }
-
     setLoading(false);
 
     if (error) {
@@ -40,8 +36,8 @@ export default function LoginPage() {
       return;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) router.replace("/admin/booking");
+    router.replace("/admin/booking");
+    router.refresh();
   };
 
   return (

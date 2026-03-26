@@ -2,6 +2,7 @@ import "./globals.css";
 import Script from "next/script";
 import ConditionalHeader from "./ConditionalHeader";
 import ConditionalFooter from "./ConditionalFooter";
+import AuthProvider from "./components/AuthProvider";
 import { Suspense } from "react";
 import ScrollToAnchor from "./ScrollToAnchor";
 import type { Metadata } from "next";
@@ -37,12 +38,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
           strategy="beforeInteractive"
         />
-        <Suspense fallback={null}>
-          <ScrollToAnchor />
-        </Suspense>
-        <ConditionalHeader />
-        {children}
-        <ConditionalFooter />
+        <AuthProvider>
+          <Suspense fallback={null}>
+            <ScrollToAnchor />
+          </Suspense>
+          <ConditionalHeader />
+          {children}
+          <ConditionalFooter />
+        </AuthProvider>
       </body>
     </html>
   );

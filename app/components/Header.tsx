@@ -2,15 +2,13 @@
 
 import { Menu } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { isAdmin } from "@/lib/isAdmin";
+import { useState } from "react";
+import { useAuth } from "./AuthProvider";
 import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [admin, setAdmin] = useState(false);
-  const [ready, setReady] = useState(false);
+  const { admin, ready, logout } = useAuth();
   const pathname = usePathname();
 
   const publicMenus = [
@@ -26,27 +24,6 @@ export default function Header() {
   ];
 
   const menus = admin ? [...publicMenus, ...adminMenus] : publicMenus;
-
-  useEffect(() => {
-    // onAuthStateChange를 먼저 등록해서 세션 변경을 즉시 감지
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAdmin(isAdmin(session?.user?.email));
-      setReady(true);
-    });
-
-    // 현재 세션도 바로 확인
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAdmin(isAdmin(session?.user?.email));
-      setReady(true);
-    });
-
-    return () => { subscription.unsubscribe(); };
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    location.reload();
-  };
 
   return (
     <>
@@ -74,7 +51,7 @@ export default function Header() {
                 <Link href="/admin/gallery" className="text-black">
                   Admin
                 </Link>
-                <button onClick={handleLogout} className="text-black">
+                <button onClick={logout} className="text-black">
                   Logout
                 </button>
               </>
@@ -123,7 +100,7 @@ export default function Header() {
               <Link href="/admin/gallery" onClick={() => setOpen(false)}>
                 Admin
               </Link>
-              <button onClick={handleLogout} className="block text-left">
+              <button onClick={logout} className="block text-left">
                 Logout
               </button>
             </>
