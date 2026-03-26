@@ -208,6 +208,8 @@ function getStatusText(status?: string | null) {
   switch (status) {
     case "confirmed":
       return "확정";
+    case "deposit_pending":
+      return "입금대기";
     case "cancelled":
       return "취소";
     default:
@@ -219,6 +221,8 @@ function getStatusBadgeClass(status?: string | null) {
   switch (status) {
     case "confirmed":
       return "bg-green-100 text-green-700";
+    case "deposit_pending":
+      return "입금대기";
     case "cancelled":
       return "bg-red-100 text-red-700";
     default:

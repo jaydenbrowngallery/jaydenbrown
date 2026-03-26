@@ -89,10 +89,16 @@ export async function POST(req: NextRequest) {
     let skipped = 0;
 
     for (const event of events) {
-      if (!event.id || event.status === "cancelled") {
+      if (!event.id) {
         skipped++;
         continue;
       }
+
+      if (event.status === "cancelled") {
+        await supabase.from("calendar_events").delete().eq("external_id", event.id);
+        await supabase.from("booking_requests").delete().eq("google_event_id", event.id);
+        skipped++;
+        continue;
 
       const startDateTime = event.start?.dateTime || null;
       const startDate = event.start?.date || (startDateTime ? startDateTime.split("T")[0] : null);

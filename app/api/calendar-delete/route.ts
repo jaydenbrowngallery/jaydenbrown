@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     if (bookingId) {
       await supabaseAdmin
         .from("booking_requests")
-        .update({ google_event_id: null, status: "cancelled" })
+        .delete()
         .eq("id", bookingId);
     }
 
