@@ -202,9 +202,17 @@ export async function POST(req: NextRequest) {
     const { bookingId, phone, name, date, time, location, depositor_name } =
       body;
 
+    // date만 필수, time은 없어도 OK
+    if (!bookingId || !date) {
+      return NextResponse.json(
+        { ok: false, message: "bookingId와 date는 필수입니다." },
+        { status: 400 }
+      );
+    }
+
     const results = { sms: false, calendar: false, status: false };
 
-    // 1. LMS 문자 발송 (즉시)
+    // 1. LMS 문자 발송
     if (phone && phone !== "-") {
       const smsText = buildSMSText({
         name,
