@@ -39,7 +39,6 @@ export async function createCalendarEvent(eventData: {
   startDateTime: string;
   endDateTime: string;
   location?: string;
-  colorId?: string;
 }) {
   const accessToken = await getGoogleAccessToken();
   const calendarId = process.env.GOOGLE_CALENDAR_ID!;
@@ -51,7 +50,6 @@ export async function createCalendarEvent(eventData: {
   };
   if (eventData.description) body.description = eventData.description;
   if (eventData.location) body.location = eventData.location;
-  if (eventData.colorId) body.colorId = eventData.colorId;
 
   const res = await fetch(`${calendarBaseUrl(calendarId)}/events`, {
     method: "POST",
@@ -77,7 +75,6 @@ export async function updateCalendarEvent(
     startDateTime?: string;
     endDateTime?: string;
     location?: string;
-    colorId?: string;
   }
 ) {
   const accessToken = await getGoogleAccessToken();
@@ -95,7 +92,6 @@ export async function updateCalendarEvent(
   if (updateData.summary) updated.summary = updateData.summary;
   if (updateData.description !== undefined) updated.description = updateData.description;
   if (updateData.location) updated.location = updateData.location;
-  if (updateData.colorId) updated.colorId = updateData.colorId;
   if (updateData.startDateTime) {
     updated.start = { dateTime: updateData.startDateTime, timeZone: "Asia/Seoul" };
   }
@@ -160,3 +156,4 @@ export async function listCalendarEvents(options?: {
   const data = await res.json();
   return data.items || [];
 }
+// trigger #오후
