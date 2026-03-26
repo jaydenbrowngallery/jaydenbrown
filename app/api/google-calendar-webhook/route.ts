@@ -43,8 +43,14 @@ export async function POST(req: NextRequest) {
           // Google Calendar에서 삭제됨 → booking_requests status 업데이트
           await supabase
             .from("booking_requests")
-            .update({ status: "cancelled" })
+            .delete()
             .eq("google_event_id", googleEventId);
+
+          // calendar_events에서도 삭제
+          await supabase
+            .from("calendar_events")
+            .delete()
+            .eq("external_id", googleEventId);
         } else {
           // 날짜/시간/제목 변경됨 → booking_requests 업데이트
           const startDate =
