@@ -3,6 +3,10 @@
     {
       "path": "/api/calendar-sync",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/google-calendar-subscribe",
+      "schedule": "0 0 */6 * *"
     }
   ]
 }
