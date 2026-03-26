@@ -400,6 +400,9 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     return matchKeyword && matchPhone && matchDate && matchStatus;
   });
 
+  const depositPendingRequests = filteredRequests.filter(
+    (item) => item.status === "deposit_pending"
+  );
   const pendingRequests = filteredRequests.filter(
     (item) => (item.status || "pending") === "pending"
   );
@@ -506,6 +509,38 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             ) : (
               <div className="px-5 py-8 text-center text-sm text-black/45">
                 대기 중 예약이 없습니다.
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <div className="overflow-hidden rounded-[28px] border border-black/10 bg-white shadow-sm">
+          <div className="divide-y divide-black/5">
+            {depositPendingRequests.length ? (
+              depositPendingRequests.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/admin/booking/${item.id}`}
+                  className="flex flex-col gap-2 px-5 py-4 transition hover:bg-black/[0.02] md:flex-row md:items-center md:justify-between"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-700">
+                      입금대기
+                    </span>
+                    <span className={`rounded-full px-3 py-1 text-xs ${getTimeSlotBadgeClass(item.time)}`}>
+                      {item.date ?? "-"} / {formatTimeSlot(item.time)}
+                    </span>
+                    <span className="font-medium">{item.name ?? "-"}</span>
+                    <span className="text-sm text-black/50">{item.phone ?? "-"}</span>
+                  </div>
+                  <div className="text-sm text-black/55">{item.location ?? "-"}</div>
+                </Link>
+              ))
+            ) : (
+              <div className="px-5 py-8 text-center text-sm text-black/45">
+                입금 대기 중인 예약이 없습니다.
               </div>
             )}
           </div>
