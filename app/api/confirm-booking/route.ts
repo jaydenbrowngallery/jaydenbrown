@@ -199,7 +199,7 @@ function buildSMSText(data: {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { bookingId, phone, name, date, time, location, depositor_name } =
+    const { bookingId, phone, name, date, time, location, depositor_name, email, address, address_detail, product, message, title: formTitle } =
       body;
 
     // date만 필수, time은 없어도 OK
@@ -239,7 +239,20 @@ export async function POST(req: NextRequest) {
               : time || "";
       const eventTitle =
         `[입금대기] ${timeCode} ${name || ""} ${location || "도동산방"}`.trim();
-      const eventDescription = `이름: ${name || "-"} / 연락처: ${phone || "-"} / 입금자: ${depositor_name || "-"} / 상태: 입금대기`;
+      const eventDescription = [
+        `제목: ${formTitle || ""}`,
+        `글쓴이: ${name || "-"}`,
+        `이메일 주소: ${email || "-"}`,
+        `촬영자명: ${name || "-"}`,
+        `연락처: ${phone || "-"}`,
+        `촬영날짜: ${date || "-"}`,
+        `시간: ${time || "-"}`,
+        `촬영장소: ${location || "도동산방"}`,
+        `주소: ${address || "-"} ${address_detail || ""}`,
+        `예약금입금자명: ${depositor_name || "-"}`,
+        `스냅상품구성(웨딩, 돌잔치): ${product || "-"}`,
+        `내용: ${message || ""}`,
+      ].join("\n");
 
       const calResult = await createCalendarEvent({
         title: eventTitle,
