@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   email?: string | null;
@@ -20,6 +21,7 @@ type Props = {
 export default function ActionButtons({ email, phone, name, date, time, location, address, address_detail, depositor_name, product, message, title, bookingId }: Props) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const router = useRouter();
 
   const handleCopyEmail = async () => {
     if (!email || email === "-") { alert("복사할 이메일이 없습니다."); return; }
@@ -36,11 +38,12 @@ export default function ActionButtons({ email, phone, name, date, time, location
       const res = await fetch("/api/confirm-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, name, date, time, location, depositor_name, title, email, address, address_detail, product, message }),
+        body: JSON.stringify({ bookingId, phone, name, date, time, location, depositor_name, title, email, address, address_detail, product, message }),
       });
       if (!res.ok) throw new Error("failed");
       setSent(true);
       alert("✅ 예약 접수 문자 발송 완료!");
+      router.refresh();
     } catch {
       alert("❌ 오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
