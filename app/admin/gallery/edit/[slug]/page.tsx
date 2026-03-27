@@ -6,33 +6,18 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { isAdmin } from "@/lib/isAdmin";
 
-type GalleryPost = {
-  id: string;
-  title: string;
-  slug: string;
-  cover_image: string | null;
-  created_at: string;
-};
-
-type GalleryImage = {
-  id: string;
-  image_url: string;
-  sort_order: number;
-};
+type GalleryPost = { id: string; title: string; slug: string; cover_image: string | null; created_at: string };
+type GalleryImage = { id: string; image_url: string; sort_order: number };
 
 function slugify(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-가-힣]/g, "");
+  const raw = value.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^\w-가-힣]/g, "");
+  return raw || `gallery-${Date.now()}`;
 }
 
-function getStoragePathFromPublicUrl(imageUrl: string) {
+function getStoragePath(url: string) {
   const marker = "/storage/v1/object/public/gallery/";
-  const idx = imageUrl.indexOf(marker);
-  if (idx === -1) return null;
-  return decodeURIComponent(imageUrl.substring(idx + marker.length));
+  const idx = url.indexOf(marker);
+  return idx === -1 ? null : decodeURIComponent(url.substring(idx + marker.length));
 }
 
 export default function EditGalleryPage() {
@@ -40,411 +25,215 @@ export default function EditGalleryPage() {
   const router = useRouter();
   const slug = useMemo(() => String(params.slug ?? ""), [params.slug]);
 
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const [authorized, setAuthorized] = useState(false);
-
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [post, setPost] = useState<GalleryPost | null>(null);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [title, setTitle] = useState("");
-  const [newFiles, setNewFiles] = useState<FileList | null>(null);
-
   const [loading, setLoading] = useState(true);
   const [savingTitle, setSavingTitle] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.replace("/login");
-        return;
-      }
-
-      if (!isAdmin(user.email)) {
-        setAuthorized(false);
-        setCheckingAuth(false);
-        return;
-      }
-
-      setAuthorized(true);
-      setCheckingAuth(false);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.replace("/login"); return; }
+      if (!isAdmin(user.email)) { setAuthorized(false); setCheckingAuth(false); return; }
+      setAuthorized(true); setCheckingAuth(false);
     };
-
     checkAuth();
   }, [router]);
 
   useEffect(() => {
     if (!authorized || !slug) return;
-
     const fetchData = async () => {
       setLoading(true);
-
-      const { data: postData, error: postError } = await supabase
-        .from("gallery_posts")
-        .select("id, title, slug, cover_image, created_at")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (postError || !postData) {
-        alert(`갤러리 조회 실패: ${postError?.message ?? "존재하지 않음"}`);
-        router.replace("/portfolio");
-        return;
-      }
-
-      const { data: imageData, error: imageError } = await supabase
-        .from("gallery_images")
-        .select("id, image_url, sort_order")
-        .eq("post_id", postData.id)
-        .order("sort_order", { ascending: true });
-
-      if (imageError) {
-        alert(`이미지 조회 실패: ${imageError.message}`);
-        router.replace("/portfolio");
-        return;
-      }
-
-      setPost(postData);
-      setTitle(postData.title);
-      setImages(imageData ?? []);
-      setLoading(false);
+      const { data: postData, error: postError } = await supabase.from("gallery_posts").select("*").eq("slug", slug).maybeSingle();
+      if (postError || !postData) { alert("갤러리 조회 실패"); router.replace("/portfolio"); return; }
+      const { data: imageData } = await supabase.from("gallery_images").select("id, image_url, sort_order").eq("post_id", postData.id).order("sort_order", { ascending: true });
+      setPost(postData); setTitle(postData.title); setImages(imageData ?? []); setLoading(false);
     };
-
     fetchData();
   }, [authorized, slug, router]);
 
   const refreshImages = async (postId: string) => {
-    const { data, error } = await supabase
-      .from("gallery_images")
-      .select("id, image_url, sort_order")
-      .eq("post_id", postId)
-      .order("sort_order", { ascending: true });
-
-    if (error) {
-      alert(`이미지 새로고침 실패: ${error.message}`);
-      return null;
-    }
-
+    const { data } = await supabase.from("gallery_images").select("id, image_url, sort_order").eq("post_id", postId).order("sort_order", { ascending: true });
     setImages(data ?? []);
     return data ?? [];
   };
 
-  const updateCoverImage = async (postId: string, imageList?: GalleryImage[]) => {
-    const currentImages =
-      imageList ??
-      (await supabase
-        .from("gallery_images")
-        .select("id, image_url, sort_order")
-        .eq("post_id", postId)
-        .order("sort_order", { ascending: true }))
-        .data ??
-      [];
-
-    const nextCover = currentImages.length > 0 ? currentImages[0].image_url : null;
-
-    const { error } = await supabase
-      .from("gallery_posts")
-      .update({ cover_image: nextCover })
-      .eq("id", postId);
-
-    if (error) {
-      alert(`대표 이미지 갱신 실패: ${error.message}`);
-    }
+  const updateCover = async (postId: string, imgs?: GalleryImage[]) => {
+    const list = imgs ?? (await supabase.from("gallery_images").select("id, image_url, sort_order").eq("post_id", postId).order("sort_order", { ascending: true })).data ?? [];
+    const cover = list.length > 0 ? list[0].image_url : null;
+    await supabase.from("gallery_posts").update({ cover_image: cover }).eq("id", postId);
   };
 
   const handleSaveTitle = async () => {
-    if (!post) return;
-
-    const nextTitle = title.trim();
-    if (!nextTitle) {
-      alert("제목을 입력해주세요.");
-      return;
-    }
-
-    const nextSlug = slugify(nextTitle);
-
+    if (!post || !title.trim()) return;
     setSavingTitle(true);
-
-    const { error } = await supabase
-      .from("gallery_posts")
-      .update({
-        title: nextTitle,
-        slug: nextSlug,
-      })
-      .eq("id", post.id);
-
+    const nextSlug = slugify(title);
+    const { error } = await supabase.from("gallery_posts").update({ title: title.trim(), slug: nextSlug }).eq("id", post.id);
     setSavingTitle(false);
-
-    if (error) {
-      alert(`제목 수정 실패: ${error.message}`);
-      return;
-    }
-
+    if (error) { alert("제목 수정 실패: " + error.message); return; }
     alert("제목 수정 완료");
     router.replace(`/admin/gallery/edit/${nextSlug}`);
   };
 
-  const handleUploadNewImages = async () => {
-    if (!post) return;
-    if (!newFiles || newFiles.length === 0) {
-      alert("추가할 사진을 선택해주세요.");
-      return;
-    }
-
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!post || !e.target.files?.length) return;
     setUploading(true);
-
     try {
-      const currentImages = [...images];
-      let startOrder = currentImages.length;
-
-      for (let i = 0; i < newFiles.length; i++) {
-        const file = newFiles[i];
-        const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-        const safeFileName = `${Date.now()}-${startOrder + i}.${extension}`;
-        const filePath = `${post.id}/${safeFileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("gallery")
-          .upload(filePath, file);
-
-        if (uploadError) {
-          alert(`파일 업로드 실패: ${uploadError.message}`);
-          setUploading(false);
-          return;
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from("gallery")
-          .getPublicUrl(filePath);
-
-        const imageUrl = publicUrlData.publicUrl;
-
-        const { error: insertError } = await supabase
-          .from("gallery_images")
-          .insert({
-            post_id: post.id,
-            image_url: imageUrl,
-            sort_order: startOrder + i,
-          });
-
-        if (insertError) {
-          alert(`이미지 DB 저장 실패: ${insertError.message}`);
-          setUploading(false);
-          return;
-        }
+      const files = e.target.files;
+      let startOrder = images.length;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const filePath = `${post.id}/${Date.now()}-${startOrder + i}.${ext}`;
+        const { error: uploadErr } = await supabase.storage.from("gallery").upload(filePath, file);
+        if (uploadErr) { alert("업로드 실패: " + uploadErr.message); break; }
+        const { data } = supabase.storage.from("gallery").getPublicUrl(filePath);
+        await supabase.from("gallery_images").insert({ post_id: post.id, image_url: data.publicUrl, sort_order: startOrder + i });
       }
-
       const refreshed = await refreshImages(post.id);
-      if (refreshed) {
-        await updateCoverImage(post.id, refreshed);
-      }
-
-      setNewFiles(null);
-      const fileInput = document.getElementById("new-images") as HTMLInputElement | null;
-      if (fileInput) fileInput.value = "";
-
+      await updateCover(post.id, refreshed);
+      e.target.value = "";
       alert("이미지 추가 완료");
-    } finally {
-      setUploading(false);
-    }
+    } catch (err: any) { alert("오류: " + err.message); } finally { setUploading(false); }
   };
 
-  const handleDeleteImage = async (image: GalleryImage) => {
-    if (!post) return;
-    const ok = confirm("이 이미지를 삭제하시겠습니까?");
-    if (!ok) return;
-
-    setDeletingImageId(image.id);
-
+  const handleDelete = async (image: GalleryImage) => {
+    if (!post || !confirm("이 이미지를 삭제하시겠습니까?")) return;
+    setDeletingId(image.id);
     try {
-      const filePath = getStoragePathFromPublicUrl(image.image_url);
-
-      if (filePath) {
-        const { error: storageDeleteError } = await supabase.storage
-          .from("gallery")
-          .remove([filePath]);
-
-        if (storageDeleteError) {
-          alert(`스토리지 삭제 실패: ${storageDeleteError.message}`);
-          setDeletingImageId(null);
-          return;
-        }
-      }
-
-      const { error: deleteRowError } = await supabase
-        .from("gallery_images")
-        .delete()
-        .eq("id", image.id);
-
-      if (deleteRowError) {
-        alert(`이미지 DB 삭제 실패: ${deleteRowError.message}`);
-        setDeletingImageId(null);
-        return;
-      }
-
+      const path = getStoragePath(image.image_url);
+      if (path) await supabase.storage.from("gallery").remove([path]);
+      await supabase.from("gallery_images").delete().eq("id", image.id);
       const refreshed = await refreshImages(post.id);
-      if (refreshed) {
-        await updateCoverImage(post.id, refreshed);
-      }
-
-      alert("이미지 삭제 완료");
-    } finally {
-      setDeletingImageId(null);
-    }
+      await updateCover(post.id, refreshed);
+    } catch (err: any) { alert("삭제 실패: " + err.message); } finally { setDeletingId(null); }
   };
 
-  if (checkingAuth) {
-    return (
-      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-        <div className="mx-auto max-w-5xl rounded-[2rem] bg-white p-8 shadow-sm">
-          <p className="text-sm text-black/50">관리자 권한 확인 중...</p>
-        </div>
-      </main>
-    );
-  }
+  const moveImage = (index: number, direction: -1 | 1) => {
+    const newIdx = index + direction;
+    if (newIdx < 0 || newIdx >= images.length) return;
+    const next = [...images];
+    [next[index], next[newIdx]] = [next[newIdx], next[index]];
+    setImages(next);
+  };
 
-  if (!authorized) {
-    return (
-      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-        <div className="mx-auto max-w-5xl rounded-[2rem] bg-white p-8 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.35em] text-black/45">
-            Access Denied
-          </p>
-          <h1 className="mt-4 text-3xl font-semibold md:text-5xl">
-            접근 권한이 없습니다
-          </h1>
-          <p className="mt-4 text-black/60">
-            관리자 계정으로 로그인한 경우에만 수정 페이지를 사용할 수 있습니다.
-          </p>
-        </div>
-      </main>
-    );
-  }
+  const handleSaveOrder = async () => {
+    if (!post) return;
+    setSavingOrder(true);
+    try {
+      for (let i = 0; i < images.length; i++) {
+        await supabase.from("gallery_images").update({ sort_order: i }).eq("id", images[i].id);
+      }
+      await updateCover(post.id, images);
+      alert("순서 저장 완료");
+    } catch (err: any) { alert("순서 저장 실패: " + err.message); } finally { setSavingOrder(false); }
+  };
 
-  if (loading || !post) {
-    return (
-      <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
-        <div className="mx-auto max-w-5xl rounded-[2rem] bg-white p-8 shadow-sm">
-          <p className="text-sm text-black/50">불러오는 중...</p>
-        </div>
-      </main>
-    );
-  }
+  if (checkingAuth || loading) return (
+    <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
+      <div className="mx-auto max-w-5xl rounded-[2rem] bg-white p-8 shadow-sm">
+        <p className="text-sm text-black/50">{checkingAuth ? "권한 확인 중..." : "불러오는 중..."}</p>
+      </div>
+    </main>
+  );
+
+  if (!authorized) return (
+    <main className="min-h-screen bg-[#f7f5f2] px-6 py-20 md:px-10">
+      <div className="mx-auto max-w-5xl rounded-[2rem] bg-white p-8 shadow-sm">
+        <h1 className="text-3xl font-semibold">접근 권한이 없습니다</h1>
+      </div>
+    </main>
+  );
+
+  if (!post) return null;
 
   return (
-    <main className="min-h-screen bg-[#f7f5f2] px-6 py-16 md:px-10">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <div className="rounded-[2rem] bg-white p-8 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <main className="min-h-screen bg-[#f7f5f2] px-6 py-12 md:px-10">
+      <div className="mx-auto max-w-5xl space-y-6">
+        {/* 헤더 */}
+        <div className="rounded-[24px] bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-black/45">
-                Admin Edit
-              </p>
-              <h1 className="mt-4 text-3xl font-semibold md:text-5xl">
-                갤러리 수정
-              </h1>
+              <p className="text-xs uppercase tracking-[0.3em] text-black/35">Admin Edit</p>
+              <h1 className="mt-2 text-2xl font-semibold">갤러리 수정</h1>
             </div>
-
-            <div className="flex gap-3">
-              <Link
-                href={`/portfolio/${post.slug}`}
-                className="inline-flex rounded-full border border-black/10 px-5 py-3 text-sm text-black/70"
-              >
-                상세 보기
-              </Link>
-              <Link
-                href="/portfolio"
-                className="inline-flex rounded-full border border-black/10 px-5 py-3 text-sm text-black/70"
-              >
-                목록 가기
-              </Link>
+            <div className="flex gap-2">
+              <Link href={`/portfolio/${post.slug}`} className="inline-flex h-10 items-center rounded-full border border-black/10 px-5 text-sm hover:bg-black/5">상세 보기</Link>
+              <Link href="/portfolio" className="inline-flex h-10 items-center rounded-full border border-black/10 px-5 text-sm hover:bg-black/5">목록</Link>
             </div>
           </div>
         </div>
 
-        <div className="rounded-[2rem] bg-white p-8 shadow-sm">
-          <p className="text-lg font-semibold">제목 수정</p>
-
-          <div className="mt-6 flex flex-col gap-4 md:flex-row">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-xl border border-black/10 bg-[#f7f5f2] px-4 py-3 outline-none"
-            />
-
-            <button
-              type="button"
-              onClick={handleSaveTitle}
-              disabled={savingTitle}
-              className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm text-white disabled:opacity-50"
-            >
-              {savingTitle ? "저장 중..." : "제목 저장"}
+        {/* 제목 수정 */}
+        <div className="rounded-[24px] bg-white p-6 shadow-sm">
+          <p className="mb-4 text-base font-semibold">제목 수정</p>
+          <div className="flex gap-3">
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="flex-1 rounded-xl border border-black/10 bg-[#f7f5f2] px-4 py-3 text-sm outline-none" />
+            <button type="button" onClick={handleSaveTitle} disabled={savingTitle} className="inline-flex h-11 items-center rounded-full bg-black px-5 text-sm text-white disabled:opacity-50">
+              {savingTitle ? "저장 중..." : "저장"}
             </button>
           </div>
         </div>
 
-        <div className="rounded-[2rem] bg-white p-8 shadow-sm">
-          <p className="text-lg font-semibold">이미지 추가</p>
-
-          <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center">
-            <input
-              id="new-images"
-              type="file"
-              multiple
-              onChange={(e) => setNewFiles(e.target.files)}
-              className="w-full rounded-xl border border-black/10 bg-[#f7f5f2] px-4 py-3"
-            />
-
-            <button
-              type="button"
-              onClick={handleUploadNewImages}
-              disabled={uploading}
-              className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm text-white disabled:opacity-50"
-            >
-              {uploading ? "업로드 중..." : "이미지 추가"}
-            </button>
-          </div>
+        {/* 이미지 추가 */}
+        <div className="rounded-[24px] bg-white p-6 shadow-sm">
+          <p className="mb-4 text-base font-semibold">이미지 추가</p>
+          <label className="inline-flex h-11 cursor-pointer items-center rounded-full border border-black/10 px-5 text-sm hover:bg-black/5">
+            {uploading ? "업로드 중..." : "📁 사진 추가하기"}
+            <input type="file" multiple accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+          </label>
         </div>
 
-        <div className="rounded-[2rem] bg-white p-8 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-lg font-semibold">현재 이미지</p>
-            <p className="text-sm text-black/45">{images.length}장</p>
+        {/* 현재 이미지 - 썸네일 + 순서 변경 */}
+        <div className="rounded-[24px] bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-base font-semibold">이미지 순서 ({images.length}장)</p>
+            <button type="button" onClick={handleSaveOrder} disabled={savingOrder} className="inline-flex h-9 items-center rounded-full bg-black px-4 text-xs text-white disabled:opacity-50">
+              {savingOrder ? "저장 중..." : "순서 저장"}
+            </button>
           </div>
 
           {images.length === 0 ? (
-            <p className="mt-6 text-sm text-black/45">등록된 이미지가 없습니다.</p>
+            <p className="text-sm text-black/40">등록된 이미지가 없습니다.</p>
           ) : (
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {images.map((image, index) => (
-                <div
-                  key={image.id}
-                  className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-[#f7f5f2]"
-                >
-                  <div className="aspect-[4/5] overflow-hidden">
-                    <img
-                      src={image.image_url}
-                      alt={`${post.title} ${index + 1}`}
-                      className="h-full w-full object-cover"
-                    />
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+              {images.map((img, idx) => (
+                <div key={img.id} className="relative group">
+                  <div className="aspect-[4/5] overflow-hidden rounded-xl bg-[#ece7e2]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.image_url} alt={`#${idx + 1}`} className="h-full w-full object-cover" />
                   </div>
 
-                  <div className="flex items-center justify-between px-4 py-4">
-                    <p className="text-sm text-black/60">#{index + 1}</p>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteImage(image)}
-                      disabled={deletingImageId === image.id}
-                      className="rounded-full border border-black/10 px-4 py-2 text-xs text-black/70 disabled:opacity-50"
-                    >
-                      {deletingImageId === image.id ? "삭제 중..." : "이미지 삭제"}
-                    </button>
+                  {/* 순서 번호 */}
+                  <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[10px] font-bold text-white">
+                    {idx + 1}
                   </div>
+
+                  {/* 순서 이동 버튼 */}
+                  <div className="absolute right-1 top-1 flex gap-0.5 opacity-0 transition group-hover:opacity-100">
+                    {idx > 0 && (
+                      <button type="button" onClick={() => moveImage(idx, -1)} className="flex h-5 w-5 items-center justify-center rounded bg-white/90 text-[10px] shadow hover:bg-white">←</button>
+                    )}
+                    {idx < images.length - 1 && (
+                      <button type="button" onClick={() => moveImage(idx, 1)} className="flex h-5 w-5 items-center justify-center rounded bg-white/90 text-[10px] shadow hover:bg-white">→</button>
+                    )}
+                  </div>
+
+                  {/* 삭제 버튼 */}
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(img)}
+                    disabled={deletingId === img.id}
+                    className="absolute bottom-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-[10px] text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
                 </div>
               ))}
             </div>
