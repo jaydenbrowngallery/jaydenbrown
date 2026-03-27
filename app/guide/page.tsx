@@ -84,7 +84,6 @@ export default function GuidePage() {
           촬영 문의하기
         </a>
       </div>
-      </div>
     </main>
   );
 }
