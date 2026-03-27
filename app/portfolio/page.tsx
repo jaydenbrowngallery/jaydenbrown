@@ -87,7 +87,6 @@ export default function PortfolioPage() {
                       className="object-cover transition duration-700 group-hover:scale-[1.03]"
                     />
                   </div>
-                  <p className="mt-2 px-1 text-[12px] text-black/40 truncate">{post.title}</p>
                 </Link>
               ))}
             </div>

@@ -52,11 +52,12 @@ export default function AdminGalleryPage() {
     setLoading(true);
 
     try {
-      const slugValue = title
+      const rawSlug = title
         .trim()
         .toLowerCase()
         .replace(/\s+/g, "-")
         .replace(/[^\w-가-힣]/g, "");
+      const slugValue = rawSlug || `gallery-${Date.now()}`;
 
       const titleValue = title.trim();
 
