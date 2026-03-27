@@ -24,7 +24,15 @@ function ImageCropper({
   const FW = 320;
   const FH = 400;
 
-  const onLoad = useCallback(() => {
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) {
+      const scale = Math.max(FW / img.naturalWidth, FH / img.naturalHeight);
+      setImgDim({ w: img.naturalWidth * scale, h: img.naturalHeight * scale });
+      setPos({ x: (FW - img.naturalWidth * scale) / 2, y: (FH - img.naturalHeight * scale) / 2 });
+    }
+  }, [imageSrc]);
+  const calcSize = () => {
     const img = imgRef.current;
     if (!img) return;
     const scale = Math.max(FW / img.naturalWidth, FH / img.naturalHeight);
@@ -32,7 +40,7 @@ function ImageCropper({
     const h = img.naturalHeight * scale;
     setImgDim({ w, h });
     setPos({ x: (FW - w) / 2, y: (FH - h) / 2 });
-  }, []);
+  };
 
   const clamp = useCallback((nx: number, ny: number) => ({
     x: Math.min(0, Math.max(FW - imgDim.w, nx)),
@@ -86,7 +94,7 @@ function ImageCropper({
             ref={imgRef}
             src={imageSrc}
             alt=""
-            onLoad={onLoad}
+            onLoad={calcSize}
             draggable={false}
             
             className="pointer-events-none select-none"
@@ -128,7 +136,7 @@ export default function HomeImageEditor({ initialImage }: { initialImage: string
     supabase.auth.getSession().then(({ data: { session } }) => setAdmin(isAdmin(session?.user?.email)));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setAdmin(isAdmin(session?.user?.email)));
     return () => subscription.unsubscribe();
-  }, []);
+  };
 
   const openModal = async () => {
     if (!admin) return;
