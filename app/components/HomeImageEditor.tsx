@@ -137,7 +137,7 @@ export default function HomeImageEditor({ initialImage }: { initialImage: string
     supabase.auth.getSession().then(({ data: { session } }) => setAdmin(isAdmin(session?.user?.email)));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setAdmin(isAdmin(session?.user?.email)));
     return () => subscription.unsubscribe();
-  };
+  }, []);
 
   const openModal = async () => {
     if (!admin) return;
