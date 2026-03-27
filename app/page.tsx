@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import HomeImageEditor from "./components/HomeImageEditor";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const metadata: Metadata = {
   title: "Jayden Brown Studio | 도동산방 돌스냅 · 고희연 · 웨딩 스냅",
   description:
