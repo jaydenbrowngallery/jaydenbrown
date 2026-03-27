@@ -99,6 +99,7 @@ export async function POST(req: NextRequest) {
         await supabase.from("booking_requests").delete().eq("google_event_id", event.id);
         skipped++;
         continue;
+      }
 
       const startDateTime = event.start?.dateTime || null;
       const startDate = event.start?.date || (startDateTime ? startDateTime.split("T")[0] : null);
