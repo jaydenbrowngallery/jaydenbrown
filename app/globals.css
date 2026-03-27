@@ -210,3 +210,18 @@ select {
     bottom: 8px;
   }
 }
+/* 페이지 페이드인 애니메이션 */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+main {
+  animation: pageFadeIn 0.8s ease-out forwards;
+}
