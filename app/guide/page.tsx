@@ -138,10 +138,10 @@ export default function GuidePage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-full bg-[#3a3a3a] px-8 py-4 text-sm font-medium text-white transition hover:bg-[#222]"
+            className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm font-medium transition" style={{ backgroundColor: "#3a3a3a", color: "#ffffff" }}
           >
             촬영 문의하기
-            <span className="text-white/40">→</span>
+            <span style={{ color: "rgba(255,255,255,0.5)" }}>→</span>
           </Link>
         </div>
 
