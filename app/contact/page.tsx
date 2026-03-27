@@ -15,7 +15,6 @@ export default function ContactPage() {
     if (time) lines.push(`희망 시간: ${time}`);
     if (location) lines.push(`촬영 장소: ${location}`);
     if (type) lines.push(`촬영 종류: ${type}`);
-    if (type) lines.push(`촬영 종류: ${type}`);
     if (message) lines.push(`문의 내용: ${message}`);
 
     const body = encodeURIComponent(lines.join("\n"));
@@ -92,6 +91,21 @@ export default function ContactPage() {
             />
           </div>
 
+
+          <div>
+            <label className="mb-1.5 block text-[13px] text-black/50">촬영 종류</label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-[14px] text-black outline-none transition focus:border-black/25"
+            >
+              <option value="">선택해주세요</option>
+              <option value="돌스냅">돌스냅</option>
+              <option value="웨딩스냅">웨딩스냅</option>
+              <option value="고희연">고희연</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
           <div>
             <label className="mb-1.5 block text-[13px] text-black/50">문의 내용 <span className="text-black/25">(선택)</span></label>
             <textarea
