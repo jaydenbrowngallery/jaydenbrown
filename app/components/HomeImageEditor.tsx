@@ -14,63 +14,74 @@ function ImageCropper({
   onComplete: (blob: Blob) => void;
   onCancel: () => void;
 }) {
-  const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dragging, setDragging] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [start, setStart] = useState({ x: 0, y: 0 });
-  const [imgDim, setImgDim] = useState({ w: 0, h: 0 });
+  const [imgEl, setImgEl] = useState<HTMLImageElement | null>(null);
+  const [imgW, setImgW] = useState(0);
+  const [imgH, setImgH] = useState(0);
   const [processing, setProcessing] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const FW = 320;
   const FH = 400;
 
   useEffect(() => {
-    const img = imgRef.current;
-    if (img && img.complete && img.naturalWidth > 0) {
-      const scale = Math.max(FW / img.naturalWidth, FH / img.naturalHeight);
-      setImgDim({ w: img.naturalWidth * scale, h: img.naturalHeight * scale });
-      setPos({ x: (FW - img.naturalWidth * scale) / 2, y: (FH - img.naturalHeight * scale) / 2 });
-    }
+    const img = new Image();
+    img.onload = () => {
+      const nw = img.naturalWidth;
+      const nh = img.naturalHeight;
+      const scale = Math.max(FW / nw, FH / nh);
+      const w = Math.ceil(nw * scale);
+      const h = Math.ceil(nh * scale);
+      setImgW(w);
+      setImgH(h);
+      setPos({ x: Math.round((FW - w) / 2), y: Math.round((FH - h) / 2) });
+      setImgEl(img);
+      setReady(true);
+    };
+    img.src = imageSrc;
   }, [imageSrc]);
-  const calcSize = () => {
-    const img = imgRef.current;
-    if (!img) return;
-    const scale = Math.max(FW / img.naturalWidth, FH / img.naturalHeight);
-    const w = img.naturalWidth * scale;
-    const h = img.naturalHeight * scale;
-    setImgDim({ w, h });
-    setPos({ x: (FW - w) / 2, y: (FH - h) / 2 });
-  };
 
-  const clamp = useCallback((nx: number, ny: number) => ({
-    x: Math.min(0, Math.max(FW - imgDim.w, nx)),
-    y: Math.min(0, Math.max(FH - imgDim.h, ny)),
-  }), [imgDim]);
+  useEffect(() => {
+    if (!ready || !imgEl) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, FW, FH);
+    ctx.drawImage(imgEl, pos.x, pos.y, imgW, imgH);
+  }, [pos, imgEl, imgW, imgH, ready]);
+
+  const clamp = (nx: number, ny: number) => ({
+    x: Math.min(0, Math.max(FW - imgW, nx)),
+    y: Math.min(0, Math.max(FH - imgH, ny)),
+  });
 
   const onDown = (cx: number, cy: number) => {
     setDragging(true);
     setStart({ x: cx - pos.x, y: cy - pos.y });
   };
-  const onMove = useCallback((cx: number, cy: number) => {
+  const onMove = (cx: number, cy: number) => {
     if (!dragging) return;
     setPos(clamp(cx - start.x, cy - start.y));
-  }, [dragging, start, clamp]);
+  };
   const onUp = () => setDragging(false);
 
   const doCrop = async () => {
-    const img = imgRef.current;
-    if (!img) return;
+    if (!imgEl) return;
     setProcessing(true);
-    const canvas = document.createElement("canvas");
-    canvas.width = FW * 3;
-    canvas.height = FH * 3;
-    const ctx = canvas.getContext("2d")!;
-    const sx = (-pos.x / imgDim.w) * img.naturalWidth;
-    const sy = (-pos.y / imgDim.h) * img.naturalHeight;
-    const sw = (FW / imgDim.w) * img.naturalWidth;
-    const sh = (FH / imgDim.h) * img.naturalHeight;
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((b) => { if (b) onComplete(b); setProcessing(false); }, "image/jpeg", 0.92);
+    const out = document.createElement("canvas");
+    out.width = FW * 3;
+    out.height = FH * 3;
+    const ctx = out.getContext("2d")!;
+    const sx = (-pos.x / imgW) * imgEl.naturalWidth;
+    const sy = (-pos.y / imgH) * imgEl.naturalHeight;
+    const sw = (FW / imgW) * imgEl.naturalWidth;
+    const sh = (FH / imgH) * imgEl.naturalHeight;
+    ctx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, out.width, out.height);
+    out.toBlob((b) => { if (b) onComplete(b); setProcessing(false); }, "image/jpeg", 0.92);
   };
 
   return (
@@ -80,7 +91,7 @@ function ImageCropper({
         <p className="mb-4 text-xs text-black/45">드래그하여 보여질 영역을 선택하세요</p>
         <div
           className="relative mx-auto cursor-grab overflow-hidden rounded-2xl bg-black active:cursor-grabbing"
-          style={{ width: FW, height: FH, maxWidth: "100%", touchAction: "none" }}
+          style={{ width: FW, height: FH, touchAction: "none" }}
           onMouseDown={(e) => { e.preventDefault(); onDown(e.clientX, e.clientY); }}
           onMouseMove={(e) => onMove(e.clientX, e.clientY)}
           onMouseUp={onUp}
@@ -89,17 +100,7 @@ function ImageCropper({
           onTouchMove={(e) => { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }}
           onTouchEnd={onUp}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imgRef}
-            src={imageSrc}
-            alt=""
-            onLoad={calcSize}
-            draggable={false}
-            
-            className="pointer-events-none select-none"
-            style={{ position: "absolute", left: pos.x, top: pos.y, width: imgDim.w, height: imgDim.h }}
-          />
+          <canvas ref={canvasRef} width={FW} height={FH} style={{ width: FW, height: FH }} />
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute left-1/3 top-0 h-full w-px bg-white/20" />
             <div className="absolute left-2/3 top-0 h-full w-px bg-white/20" />
@@ -108,7 +109,7 @@ function ImageCropper({
           </div>
         </div>
         <div className="mt-4 flex gap-2">
-          <button type="button" onClick={doCrop} disabled={processing}
+          <button type="button" onClick={doCrop} disabled={processing || !ready}
             className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-black text-sm text-white disabled:opacity-50">
             {processing ? "처리 중..." : "적용하기"}
           </button>
