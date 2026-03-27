@@ -131,55 +131,14 @@ export default function GuidePage() {
         </section>
 
         {/* ── 부수별 시간 ── */}
-        <section className="mt-20">
-          <p className="mb-6 text-[11px] uppercase tracking-[0.3em] text-black/30">Time Schedule</p>
-          <div className="space-y-3">
-            {[
-              { label: "1부", shoot: "10:00", meal: "12:00" },
-              { label: "2부", shoot: "12:30", meal: "14:30" },
-              { label: "3부", shoot: "16:00", meal: "18:00" },
-            ].map((s) => (
-              <div key={s.label} className="flex items-center gap-5 rounded-2xl border border-black/6 bg-white px-6 py-5">
-                <span className="text-xs font-semibold tracking-widest text-black/25 w-7">{s.label}</span>
-                <div className="flex gap-8 text-sm">
-                  <div>
-                    <span className="text-black/30 text-[11px]">촬영</span>
-                    <p className="font-semibold text-black/70">{s.shoot}</p>
-                  </div>
-                  <div>
-                    <span className="text-black/30 text-[11px]">식사</span>
-                    <p className="font-semibold text-black/70">{s.meal}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
-        {/* ── 안내 사항 ── */}
-        <section className="mt-16">
-          <p className="mb-6 text-[11px] uppercase tracking-[0.3em] text-black/30">Notice</p>
-          <div className="rounded-2xl border border-black/6 bg-white px-6 py-7 space-y-5 text-[13.5px] text-black/50 leading-[1.9] md:text-[14.5px]">
-            <p>촬영 장소는 <span className="font-medium text-black/65">울산 도동산방</span>입니다.</p>
-            <p>한복은 도동산방 측에서 제공됩니다.
-              <br />
-              <span className="text-black/35">별도로 준비하실 것은 없습니다.</span>
-            </p>
-            <p>아기의 컨디션이 가장 중요합니다.
-              <br />
-              <span className="text-black/35">충분한 수면 후 방문해 주시면 좋습니다.</span>
-            </p>
-          </div>
-        </section>
-
-        {/* ── 촬영 문의 버튼 ── */}
         <div className="mt-20 text-center">
           <p className="mb-5 text-[13.5px] text-black/40 md:text-[14.5px]">
             궁금한 점이 있으시면 편하게 문의해 주세요.
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-8 py-4 text-sm font-medium text-black transition hover:bg-black hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full bg-black/80 px-8 py-4 text-sm font-medium text-white transition hover:bg-black"
           >
             촬영 문의하기
             <span className="text-white/40">→</span>
