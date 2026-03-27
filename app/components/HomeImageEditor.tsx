@@ -88,7 +88,7 @@ function ImageCropper({
             alt=""
             onLoad={onLoad}
             draggable={false}
-            crossOrigin="anonymous"
+            
             className="pointer-events-none select-none"
             style={{ position: "absolute", left: pos.x, top: pos.y, width: imgDim.w, height: imgDim.h }}
           />
