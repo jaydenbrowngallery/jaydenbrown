@@ -15,6 +15,7 @@ export default function ContactPage() {
     if (time) lines.push(`희망 시간: ${time}`);
     if (location) lines.push(`촬영 장소: ${location}`);
     if (type) lines.push(`촬영 종류: ${type}`);
+    if (type) lines.push(`촬영 종류: ${type}`);
     if (message) lines.push(`문의 내용: ${message}`);
 
     const body = encodeURIComponent(lines.join("\n"));
