@@ -77,6 +77,14 @@ export default function GuidePage() {
           </div>
         </section>
       </div>
+
+      {/* 촬영 문의 버튼 */}
+      <div className="mt-16 text-center">
+        <a href="/contact" className="inline-flex items-center rounded-full bg-black px-8 py-4 text-sm font-medium text-white transition hover:bg-black/80">
+          촬영 문의하기
+        </a>
+      </div>
+      </div>
     </main>
   );
 }
