@@ -138,7 +138,7 @@ export default function GuidePage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-full bg-black/80 px-8 py-4 text-sm font-medium text-white transition hover:bg-black"
+            className="inline-flex items-center gap-2 rounded-full bg-[#3a3a3a] px-8 py-4 text-sm font-medium text-white transition hover:bg-[#222]"
           >
             촬영 문의하기
             <span className="text-white/40">→</span>
