@@ -7,12 +7,14 @@ export default function ContactPage() {
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
   const [message, setMessage] = useState("");
+  const [type, setType] = useState("");
 
   const handleSendSMS = () => {
     const lines = ["안녕하세요, 촬영 문의드립니다."];
     if (date) lines.push(`희망 날짜: ${date}`);
     if (time) lines.push(`희망 시간: ${time}`);
     if (location) lines.push(`촬영 장소: ${location}`);
+    if (type) lines.push(`촬영 종류: ${type}`);
     if (message) lines.push(`문의 내용: ${message}`);
 
     const body = encodeURIComponent(lines.join("\n"));
@@ -45,9 +47,9 @@ export default function ContactPage() {
             문자로만 문의를 받고 있습니다.
           </p>
           <p className="mt-3">
-            아래 내용을 입력하시고
+            아래 내용을 입력하신 후
             <br />
-            <span className="text-black/60">문자 보내기</span> 버튼을 눌러주세요.
+            <span className="text-black/60">문자 보내기</span> 버튼을 눌러주세요.<br />문자 창이 뜨면 <span className="text-black/60">보내기</span>를 눌러 발송해주세요.
           </p>
         </div>
 
