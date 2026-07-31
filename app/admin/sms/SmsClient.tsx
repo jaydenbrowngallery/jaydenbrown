@@ -50,6 +50,16 @@ function formatPhone(p: string) {
   return p.replace(/^(\d{3})(\d{3,4})(\d{4})$/, "$1-$2-$3");
 }
 
+/* 세션이 만료되면 API가 /login 으로 리다이렉트되어 HTML이 돌아온다.
+   그때 JSON 파싱 오류가 뜨지 않게 미리 걸러낸다. */
+async function readJson(res: Response) {
+  const ct = res.headers.get("content-type") || "";
+  if (res.redirected || !ct.includes("application/json")) {
+    throw new Error("로그인이 필요합니다. 관리자로 로그인한 뒤 다시 열어주세요.");
+  }
+  return res.json();
+}
+
 /** 카카오·문자앱 프리필: iOS는 &body=, 안드로이드는 ?body= */
 function smsHref(phone: string, body: string) {
   const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
@@ -78,7 +88,7 @@ export default function SmsClient() {
     setError("");
     try {
       const res = await fetch(`/api/admin/sms-campaign?months=${m}`, { cache: "no-store" });
-      const json = await res.json();
+      const json = await readJson(res);
       if (!res.ok) throw new Error(json.error || "명단을 불러오지 못했습니다.");
       setItems(json.items);
       setMonths(json.months);
@@ -121,7 +131,7 @@ export default function SmsClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, action }),
       });
-      const json = await res.json();
+      const json = await readJson(res);
       if (!res.ok) throw new Error(json.error || "저장 실패");
       setItems((prev) =>
         prev.map((i) =>
