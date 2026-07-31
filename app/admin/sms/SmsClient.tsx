@@ -12,7 +12,7 @@ type Target = {
   at?: string;
 };
 
-const TEMPLATE_KEY = "sms_campaign_template_v3";
+const TEMPLATE_KEY = "sms_campaign_template_v4";
 
 const DEFAULT_TEMPLATE = `(광고) 제이든브라운
 
@@ -20,7 +20,7 @@ const DEFAULT_TEMPLATE = `(광고) 제이든브라운
 
 그동안 잘 지내셨는지요.
 제가 10년째 운영해온 셀프 스튜디오 '연후'를
-조용히 알려드리려 연락드렸습니다.
+알려드리려 문자드려요^^
 
 자세한 내용은 아래 링크 확인부탁드려요^^
 
