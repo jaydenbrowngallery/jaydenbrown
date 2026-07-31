@@ -12,11 +12,9 @@ type Target = {
   at?: string;
 };
 
-const TEMPLATE_KEY = "sms_campaign_template_v4";
+const TEMPLATE_KEY = "sms_campaign_template_v5";
 
-const DEFAULT_TEMPLATE = `(광고) 제이든브라운
-
-안녕하세요? {아기이름} 돌잔치 함께한 제이든 브라운입니다.
+const DEFAULT_TEMPLATE = `안녕하세요? {아기이름} 돌잔치 함께한 제이든 브라운입니다.
 
 그동안 잘 지내셨는지요.
 제가 10년째 운영해온 셀프 스튜디오 '연후'를
