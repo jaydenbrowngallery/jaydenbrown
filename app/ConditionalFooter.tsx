@@ -9,8 +9,9 @@ export default function ConditionalFooter() {
   const isBookingForm = pathname.startsWith("/booking-private-jb2026");
   const isGalleryDetail = pathname.startsWith("/portfolio/") && pathname !== "/portfolio";
   const isSwingDiary = pathname.startsWith("/swingdiary");
+  const isEvent = pathname.startsWith("/event");
 
-  if (isBookingForm || isGalleryDetail || isSwingDiary) return null;
+  if (isBookingForm || isGalleryDetail || isSwingDiary || isEvent) return null;
 
   return (
     <>
