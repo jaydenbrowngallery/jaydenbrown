@@ -12,12 +12,11 @@ type Target = {
   at?: string;
 };
 
-const TEMPLATE_KEY = "sms_campaign_template_v1";
+const TEMPLATE_KEY = "sms_campaign_template_v2";
 
 const DEFAULT_TEMPLATE = `(광고) 제이든브라운
 
-{보호자님} 안녕하세요.
-{촬영월} {아기} 돌스냅 촬영을 맡았던 제이든 브라운입니다.
+안녕하세요? {아기이름} 돌잔치 함께한 제이든 브라운입니다.
 
 그동안 잘 지내셨는지요.
 제가 10년째 운영해온 셀프 스튜디오 '연후'를
@@ -30,6 +29,12 @@ https://jaydenbrown.kr/event
 
 무료수신거부 : '거부' 회신`;
 
+/** "안소이" → "소이" (성을 뗀 이름). 쌍둥이 등 5자 이상은 그대로 둔다. */
+function givenName(full: string) {
+  const s = (full || "").trim();
+  return /^[가-힣]{2,3}$/.test(s) ? s.slice(1) : s;
+}
+
 function fillTemplate(tpl: string, t: Target) {
   const month = t.date ? `${Number(t.date.slice(5, 7))}월` : "";
   // 보호자명이 비어 있는 일정이 몇 건 있어, 그때는 "○○ 보호자님"으로 부른다.
@@ -41,6 +46,7 @@ function fillTemplate(tpl: string, t: Target) {
   return tpl
     .replaceAll("{보호자님}", honorific)
     .replaceAll("{보호자}", t.parent || t.baby || "")
+    .replaceAll("{아기이름}", givenName(t.baby))
     .replaceAll("{아기}", t.baby || "")
     .replaceAll("{촬영월}", month)
     .replaceAll("{촬영일}", t.date || "");
@@ -289,7 +295,7 @@ export default function SmsClient() {
               className="mt-3 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-[13px] leading-[1.8] text-black outline-none focus:border-black/25"
             />
             <p className="mt-2 text-[12px] leading-[1.8] text-black/35">
-              사용 가능: {"{보호자}"} {"{아기}"} {"{촬영월}"} {"{촬영일}"}
+              사용 가능: {"{아기이름}"}(성 뗀 이름) {"{아기}"} {"{보호자님}"} {"{촬영월}"} {"{촬영일}"}
               <br />
               (광고) 표기와 수신거부 문구는 법적 의무라 지우지 않는 편이 안전합니다.
             </p>
