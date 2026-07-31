@@ -12,14 +12,21 @@ const EVENT = {
   period: "",
 };
 
+/* 링크 미리보기(카톡·문자)에는 이 한 줄만 나오게 합니다.
+   description을 빈 값으로 두는 것은 상위 layout의 긴 설명이 상속되는 걸 막기 위함입니다. */
+const PREVIEW_TEXT = "제이든브라운스튜디오 입니다.";
+
 export const metadata: Metadata = {
-  title: "셀프 스튜디오 촬영 안내 | Jayden Brown Studio",
-  description:
-    "직접 찍어도 스튜디오 퀄리티. 가족사진 · 만삭 · 부모님 사진. 1인 30,000원 (20분 촬영 / 최소 2인 이상). 촬영된 모든 사진 원본 제공 + 보정본 4장.",
+  title: PREVIEW_TEXT,
+  description: "",
   openGraph: {
-    title: "직접 찍는데, 스튜디오 퀄리티로 남습니다 | Jayden Brown Studio",
-    description: "셀프 촬영 · 가족사진 · 만삭 · 부모님 사진 · 1인 30,000원 (20분 / 최소 2인 이상)",
+    title: PREVIEW_TEXT,
     images: [{ url: "/img/event/family.jpg" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PREVIEW_TEXT,
+    images: ["/img/event/family.jpg"],
   },
   robots: { index: false, follow: false },
 };
