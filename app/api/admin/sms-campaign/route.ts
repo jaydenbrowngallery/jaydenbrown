@@ -148,7 +148,8 @@ async function fetchTargets(months: number) {
     }
   }
 
-  return Array.from(byPhone.values()).sort((a, b) => (a.date < b.date ? 1 : -1));
+  // 오래된 촬영부터 보낸다. (6개월 기한을 먼저 넘기는 분들이 앞에 오도록)
+  return Array.from(byPhone.values()).sort((a, b) => (a.date > b.date ? 1 : -1));
 }
 
 async function loadProgress() {
