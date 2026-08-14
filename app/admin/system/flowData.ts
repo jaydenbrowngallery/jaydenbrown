@@ -10,6 +10,7 @@ export type Step = {
   items: { actor: Actor; text: string }[];
   where?: string; // 어디서 하는지 (화면/폴더)
   code?: string; // 관련 코드 위치
+  folders?: string[]; // 실제 폴더 경로 (클릭하면 복사)
   warn?: string; // 주의점
 };
 
@@ -60,6 +61,10 @@ export const STEPS: Step[] = [
     ],
     where: "Promise Pegasus / 맥미니메인",
     warn: "원본이 이동되면 셀렉 프로젝트의 원본 링크가 끊깁니다. 추출 단계에서 자동으로 다시 연결하므로 조치는 필요 없습니다.",
+    folders: [
+      "/Volumes/Promise Pegasus/맥미니메인/구글동기화 원본",
+      "/Volumes/Promise Pegasus/맥미니메인/원본백업",
+    ],
   },
   {
     no: 5,
@@ -72,6 +77,9 @@ export const STEPS: Step[] = [
     ],
     where: "/admin/booking → select.jaydenbrown.kr/admin",
     code: "app/api/work-ready/route.ts",
+    folders: [
+      "/Volumes/Promise Pegasus/맥미니메인/구글동기화 작업본",
+    ],
   },
   {
     no: 6,
@@ -122,6 +130,9 @@ export const STEPS: Step[] = [
     ],
     where: "작업할 사진 / <날짜 이름> 셀렉",
     code: "PhotoForge server.py · export_project()",
+    folders: [
+      "/Volumes/Promise Pegasus/작업할 사진",
+    ],
   },
   {
     no: 10,
@@ -134,6 +145,9 @@ export const STEPS: Step[] = [
     ],
     where: "/confirm-address/… → PNP주문/제이든브라운",
     code: "app/api/confirm-address",
+    folders: [
+      "/Volumes/Promise Pegasus/맥미니메인/구글동기화 작업본/PNP주문/제이든브라운",
+    ],
   },
   {
     no: 11,
@@ -145,6 +159,10 @@ export const STEPS: Step[] = [
     ],
     where: "구글동기화 작업본 / PNP주문 / 제이든브라운",
     warn: "발주가 끝난 파일을 정리하는 자동화가 없습니다. 업체 폴더에 예전 출고분이 남아 혼선이 생긴 적이 있습니다.",
+    folders: [
+      "/Volumes/Promise Pegasus/맥미니메인/구글동기화 작업본/PNP주문/제이든브라운/앨범",
+      "/Volumes/Promise Pegasus/맥미니메인/구글동기화 작업본/PNP주문/제이든브라운/액자",
+    ],
   },
   {
     no: 12,

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { STEPS, DAEMONS, TODO, INFRA, type Actor } from "./flowData";
+import StepMap from "./StepMap";
+import PathChips from "./PathChips";
 
 const ACTOR_STYLE: Record<Actor, string> = {
   자동: "bg-[#0f7a37] text-white",
@@ -12,12 +14,18 @@ const ACTOR_STYLE: Record<Actor, string> = {
 export default function FlowSections() {
   return (
     <>
+        <StepMap />
+
         {/* ── 작업 흐름 ── */}
         <section className="mt-16">
           <h2 className="text-[1.05rem] font-medium text-black/75">작업 순서</h2>
           <div className="mt-5 space-y-3">
             {STEPS.map((s) => (
-              <div key={s.no} className="rounded-2xl border border-black/10 bg-white px-5 py-5">
+              <div
+                key={s.no}
+                id={`step-${s.no}`}
+                className="scroll-mt-6 rounded-2xl border border-black/10 bg-white px-5 py-5"
+              >
                 <div className="flex items-baseline gap-3">
                   <span className="text-[12px] font-semibold tracking-[0.06em] text-black/25">
                     {String(s.no).padStart(2, "0")}
@@ -45,6 +53,8 @@ export default function FlowSections() {
                     {s.code && <p>코드 · {s.code}</p>}
                   </div>
                 )}
+
+                {s.folders && <PathChips paths={s.folders} />}
 
                 {s.warn && (
                   <p className="mt-3.5 ml-[30px] rounded-xl bg-[#fdf3e7] px-4 py-3 text-[12.5px] leading-[1.8] text-[#8a5a1a]">
