@@ -2,6 +2,7 @@ import Link from "next/link";
 import { STEPS, DAEMONS, TODO, INFRA, type Actor } from "./flowData";
 import StepMap from "./StepMap";
 import PathChips from "./PathChips";
+import { readFolderStats } from "./folders";
 
 const ACTOR_STYLE: Record<Actor, string> = {
   자동: "bg-[#0f7a37] text-white",
@@ -61,6 +62,47 @@ export default function FlowSections() {
                     {s.warn}
                   </p>
                 )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── 원본·작업 폴더 지도 ── */}
+        <section className="mt-16">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-[1.05rem] font-medium text-black/75">사진 원본 · 작업 폴더</h2>
+            <p className="text-[12px] text-black/35">개수는 지금 실제 폴더를 읽은 값</p>
+          </div>
+          <p className="mt-2 text-[13px] leading-[1.85] text-black/45">
+            원본이 어디로 들어와서 어디로 옮겨지는지, 각 폴더가 무슨 역할인지 정리했습니다.
+          </p>
+
+          <div className="mt-5 space-y-2.5">
+            {readFolderStats().map((f) => (
+              <div key={f.path} className="rounded-2xl border border-black/10 bg-white px-5 py-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-[14.5px] font-medium text-black/75">{f.name}</h3>
+                  <span className="shrink-0 text-[12px] text-black/40">
+                    {f.dirs === null ? (
+                      <span className="text-[#9b2c2c]">읽기 실패</span>
+                    ) : (
+                      <>
+                        {f.dirs}개 폴더
+                        {f.files ? ` · 파일 ${f.files}` : ""}
+                      </>
+                    )}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-[13px] leading-[1.8] text-black/55">{f.role}</p>
+                {f.rule && (
+                  <p className="mt-1.5 text-[12.5px] leading-[1.75] text-black/40">{f.rule}</p>
+                )}
+                {f.latest && (
+                  <p className="mt-1.5 text-[11.5px] text-black/30">최근 · {f.latest}</p>
+                )}
+                <div className="-ml-[30px]">
+                  <PathChips paths={[f.path]} />
+                </div>
               </div>
             ))}
           </div>
