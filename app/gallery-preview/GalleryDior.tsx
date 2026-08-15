@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Story } from "./page";
-import { focalPosition, type Focus } from "./focus";
+import { focalPosition, bestRatio, type Focus } from "./focus";
 
 /* ────────────────────────────────────────────────────────────────
    갤러리 리디자인 — 에디토리얼 톤 + 스크롤 연출
@@ -317,7 +317,7 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
                 src={s.cover.url}
                 focus={s.cover.focus}
                 alt={s.title}
-                ratio="3/4"
+                ratio={bestRatio(s.cover.focus, "3/4")}
                 sizes="(max-width:768px) 74vw, 30vw"
                 onClick={() => openAt(flat.findIndex((f) => f.url === s.cover.url))}
               />
@@ -356,22 +356,23 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
                 src={s.images[0].url}
                 focus={s.images[0].focus}
                 alt={s.title}
-                ratio="4/5"
+                ratio={bestRatio(s.images[0].focus, "4/5")}
                 sizes="(max-width:768px) 100vw, 74vw"
                 onClick={() => openAt(flat.findIndex((f) => f.url === s.images[0].url))}
               />
               {s.images.length > 1 && (
-                <div className="mt-3 grid grid-cols-2 gap-3 px-0 md:mt-5 md:gap-5">
+                <div className="mt-3 columns-2 gap-3 md:mt-5 md:gap-5 [column-fill:balance]">
                   {s.images.slice(1).map((sh, i) => (
-                    <RevealImage
-                      key={sh.url}
-                      src={sh.url}
-                      focus={sh.focus}
-                      alt={`${s.title} ${i + 2}`}
-                      ratio={i % 3 === 0 ? "3/4" : "1/1"}
-                      sizes="(max-width:768px) 50vw, 37vw"
-                      onClick={() => openAt(flat.findIndex((f) => f.url === sh.url))}
-                    />
+                    <div key={sh.url} className="mb-3 break-inside-avoid md:mb-5">
+                      <RevealImage
+                        src={sh.url}
+                        focus={sh.focus}
+                        alt={`${s.title} ${i + 2}`}
+                        ratio={bestRatio(sh.focus, i % 3 === 0 ? "3/4" : "1/1")}
+                        sizes="(max-width:768px) 50vw, 37vw"
+                        onClick={() => openAt(flat.findIndex((f) => f.url === sh.url))}
+                      />
+                    </div>
                   ))}
                 </div>
               )}

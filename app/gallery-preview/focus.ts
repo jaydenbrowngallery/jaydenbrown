@@ -54,3 +54,35 @@ export function focalPosition(f: Focus | undefined, ratio: string): string {
   // 세로 방향은 얼굴이 위쪽에 오도록 살짝 위를 남긴다(인물 사진 관례)
   return horizontal ? `${(pos * 100).toFixed(1)}% 42%` : `50% ${(pos * 100).toFixed(1)}%`;
 }
+
+/* 슬롯 비율 후보 — 좁은(에디토리얼) 것부터. 인물이 다 들어오는 첫 비율을 고른다. */
+const RATIO_LADDER = ["3/4", "4/5", "1/1", "4/3", "3/2", "16/9", "2/1"];
+
+/** 인물이 잘리는 양(0이면 완전 포함) */
+function cutAmount(f: Focus, ratio: string): number {
+  const [rw, rh] = ratio.split("/").map(Number);
+  const ca = rw / rh;
+  const ia = f.iw / f.ih;
+  const horizontal = ia > ca;
+  const v = horizontal ? ca / ia : ia / ca;
+  if (v >= 0.999) return 0;
+  const a0 = horizontal ? f.x0 : f.y0;
+  const a1 = horizontal ? f.x1 : f.y1;
+  if (a1 - a0 + MARGIN * 2 > v) return a1 - a0 + MARGIN * 2 - v; // 애초에 못 담는다
+  return 0;
+}
+
+/** 사진에 맞는 슬롯 비율. 사람이 3명이든 한쪽에 몰려 있든 모두 들어오는 비율을 고른다.
+    preferred 를 주면 그것으로 담을 수 있을 때는 레이아웃 리듬을 위해 그대로 쓴다. */
+export function bestRatio(f: Focus | undefined, preferred?: string): string {
+  if (!f || !f.iw || !f.ih) return preferred || "3/4";
+  if (preferred && cutAmount(f, preferred) === 0) return preferred;
+  let best = RATIO_LADDER[0];
+  let bestCut = Infinity;
+  for (const r of RATIO_LADDER) {
+    const c = cutAmount(f, r);
+    if (c === 0) return r;
+    if (c < bestCut) { bestCut = c; best = r; }
+  }
+  return best;
+}
