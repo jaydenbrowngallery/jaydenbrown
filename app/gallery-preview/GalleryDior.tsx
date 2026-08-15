@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Story } from "./page";
+import { focalPosition, type Focus } from "./focus";
 
 /* ────────────────────────────────────────────────────────────────
    갤러리 리디자인 — 에디토리얼 톤 + 스크롤 연출
@@ -65,6 +66,7 @@ function RevealImage({
   priority = false,
   onClick,
   sizes = "100vw",
+  focus,
 }: {
   src: string;
   alt: string;
@@ -72,6 +74,7 @@ function RevealImage({
   priority?: boolean;
   onClick?: () => void;
   sizes?: string;
+  focus?: Focus;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const [on, setOn] = useState(priority);
@@ -111,6 +114,8 @@ function RevealImage({
         sizes={sizes}
         className="h-full w-full object-cover"
         style={{
+          // 검출된 인물이 모두 들어오도록, 치우친 쪽으로 살짝 더 이동한 위치
+          objectPosition: focalPosition(focus, ratio),
           transform: on ? "scale(1)" : "scale(1.08)",
           filter: on ? "none" : "blur(12px)",
           transition: "transform 1.6s cubic-bezier(.16,1,.3,1), filter 1.2s ease-out",
@@ -158,7 +163,7 @@ function SplitTitle({ text, className = "", delay = 0 }: { text: string; classNa
 
 export default function GalleryDior({ stories }: { stories: Story[] }) {
   const flat = useMemo(
-    () => stories.flatMap((s) => s.images.map((url) => ({ url, title: s.title, date: s.date }))),
+    () => stories.flatMap((s) => s.images.map((sh) => ({ ...sh, title: s.title, date: s.date }))),
     [stories]
   );
   const hero = flat[0];
@@ -247,7 +252,11 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
           src={hero.url}
           alt=""
           className="absolute inset-0 h-[115%] w-full object-cover"
-          style={{ transform: `translate3d(0,${heroShift}px,0) scale(1.02)`, willChange: "transform" }}
+          style={{
+            objectPosition: focalPosition(hero.focus, "9/19"),
+            transform: `translate3d(0,${heroShift}px,0) scale(1.02)`,
+            willChange: "transform",
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/10 to-black/55" />
 
@@ -305,11 +314,12 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
           {stories.map((s, i) => (
             <div key={s.id} className="w-[74vw] shrink-0 snap-center md:w-[30vw]">
               <RevealImage
-                src={s.cover}
+                src={s.cover.url}
+                focus={s.cover.focus}
                 alt={s.title}
                 ratio="3/4"
                 sizes="(max-width:768px) 74vw, 30vw"
-                onClick={() => openAt(flat.findIndex((f) => f.url === s.cover))}
+                onClick={() => openAt(flat.findIndex((f) => f.url === s.cover.url))}
               />
               <div className="mt-3 flex items-baseline justify-between">
                 <p className="text-[12.5px] tracking-[0.02em] text-black/60">{s.title}</p>
@@ -343,22 +353,24 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
             {/* 이미지 — 첫 장은 전면, 이후 2열 */}
             <div className="mt-8 md:mt-0 md:w-[74%]">
               <RevealImage
-                src={s.images[0]}
+                src={s.images[0].url}
+                focus={s.images[0].focus}
                 alt={s.title}
                 ratio="4/5"
                 sizes="(max-width:768px) 100vw, 74vw"
-                onClick={() => openAt(flat.findIndex((f) => f.url === s.images[0]))}
+                onClick={() => openAt(flat.findIndex((f) => f.url === s.images[0].url))}
               />
               {s.images.length > 1 && (
                 <div className="mt-3 grid grid-cols-2 gap-3 px-0 md:mt-5 md:gap-5">
-                  {s.images.slice(1).map((u, i) => (
+                  {s.images.slice(1).map((sh, i) => (
                     <RevealImage
-                      key={u}
-                      src={u}
+                      key={sh.url}
+                      src={sh.url}
+                      focus={sh.focus}
                       alt={`${s.title} ${i + 2}`}
                       ratio={i % 3 === 0 ? "3/4" : "1/1"}
                       sizes="(max-width:768px) 50vw, 37vw"
-                      onClick={() => openAt(flat.findIndex((f) => f.url === u))}
+                      onClick={() => openAt(flat.findIndex((f) => f.url === sh.url))}
                     />
                   ))}
                 </div>

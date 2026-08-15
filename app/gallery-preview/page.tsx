@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import GalleryDior from "./GalleryDior";
+import type { Focus } from "./focus";
 
 /* 갤러리 리디자인 미리보기 (임시 페이지 — 기존 /portfolio 는 그대로 둔다) */
 export const dynamic = "force-dynamic";
@@ -8,13 +9,13 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export type Shot = { url: string; postId: string };
+export type Shot = { url: string; focus?: Focus };
 export type Story = {
   id: string;
   title: string;
   date: string;
-  cover: string;
-  images: string[];
+  cover: Shot;
+  images: Shot[];
 };
 
 function cleanTitle(raw: string | null, i: number) {
@@ -24,8 +25,26 @@ function cleanTitle(raw: string | null, i: number) {
   return `Story ${String(i + 1).padStart(2, "0")}`;
 }
 
+/* Vision 으로 미리 검출해 둔 인물 위치 (site_settings/imgfocus_all).
+   키는 "<postId>/<파일명>" 이고 image_url 은 /api/gallery-file/<postId>/<파일명> 이다. */
+async function getFocusMap(): Promise<Record<string, Focus>> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("id", "imgfocus_all");
+    const raw = ((data || []) as { value: string | null }[])[0]?.value;
+    return raw ? (JSON.parse(raw) as Record<string, Focus>) : {};
+  } catch {
+    return {};
+  }
+}
+
+const focusKey = (url: string) => url.replace(/^\/api\/gallery-file\//, "");
+
 async function getStories(): Promise<Story[]> {
   try {
+    const fmap = await getFocusMap();
     const { data: posts } = await supabaseAdmin
       .from("gallery_posts")
       .select("id, title, slug, cover_image, created_at");
@@ -50,13 +69,17 @@ async function getStories(): Promise<Story[]> {
       .filter((x) => x.images.length > 0)
       .sort((a, b) => (a.p.created_at < b.p.created_at ? 1 : -1));
 
-    return rows.map(({ p, images }, i) => ({
-      id: p.id,
-      title: cleanTitle(p.title, i),
-      date: (p.created_at || "").slice(0, 10).replace(/-/g, "."),
-      cover: images[0],
-      images,
-    }));
+    const toShot = (url: string): Shot => ({ url, focus: fmap[focusKey(url)] });
+    return rows.map(({ p, images }, i) => {
+      const shots = images.map(toShot);
+      return {
+        id: p.id,
+        title: cleanTitle(p.title, i),
+        date: (p.created_at || "").slice(0, 10).replace(/-/g, "."),
+        cover: shots[0],
+        images: shots,
+      };
+    });
   } catch {
     return [];
   }
