@@ -336,7 +336,7 @@ export default function GalleryDior({
     if (!isOpen || flat.length < 2) return;
     const id = setInterval(() => {
       setOpen((v) => (v === null ? v : (v + 1) % flat.length));
-    }, 3000);
+    }, 5000);
     return () => clearInterval(id);
   }, [isOpen, flat.length]);
 
@@ -519,7 +519,7 @@ export default function GalleryDior({
               <img
                 src={flat[out].url}
                 alt=""
-                className="max-h-[86vh] max-w-[94vw] object-contain [animation:xfadeout_1.2s_cubic-bezier(.33,1,.68,1)_forwards]"
+                className="max-h-[86vh] max-w-[94vw] object-contain [animation:xfadeout_2.2s_cubic-bezier(.4,0,.3,1)_forwards]"
               />
             </div>
           )}
@@ -531,7 +531,7 @@ export default function GalleryDior({
               alt=""
               decoding="async"
               style={{ opacity: 1 }}
-              className="max-h-[86vh] max-w-[94vw] object-contain [animation:xfadein_1.2s_cubic-bezier(.33,1,.68,1)_forwards]"
+              className="max-h-[86vh] max-w-[94vw] object-contain [animation:xfadein_2.2s_cubic-bezier(.4,0,.3,1)_forwards]"
             />
           </div>
 
@@ -569,7 +569,7 @@ export default function GalleryDior({
         }
         @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
         @keyframes xfadein {
-          from { opacity: 0; transform: scale(1.045) }
+          from { opacity: 0; transform: scale(1.06) }
           to   { opacity: 1; transform: scale(1) }
         }
         @keyframes xfadeout {

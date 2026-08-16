@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import HomeImageEditor from "./components/HomeImageEditor";
+import { getStories } from "./portfolio/_gallery/data";
+import { focalPosition } from "./portfolio/_gallery/focus";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -28,8 +30,26 @@ async function getHomeImage() {
   }
 }
 
+/* 홈 우측 슬라이드쇼용 사진 — 각 스토리의 대표 컷을 앞에, 이어서 나머지 컷 몇 장.
+   구도는 갤러리와 같은 기준(인물 검출 + 관리자 지정)을 4/5 비율로 계산해 넘긴다. */
+async function getHomeSlides() {
+  try {
+    const stories = await getStories();
+    const toSlide = (sh: { url: string; pos?: string; focus?: Parameters<typeof focalPosition>[0] }) => ({
+      url: sh.url,
+      pos: sh.pos || focalPosition(sh.focus, "4/5"),
+    });
+    const covers = stories.map((st) => toSlide(st.cover));
+    const rest = stories.flatMap((st) => st.images.slice(1, 3).map(toSlide));
+    const seen = new Set<string>();
+    return [...covers, ...rest].filter((s) => !seen.has(s.url) && seen.add(s.url)).slice(0, 14);
+  } catch {
+    return [];
+  }
+}
+
 export default async function HomePage() {
-  const homeImage = await getHomeImage();
+  const [homeImage, slides] = await Promise.all([getHomeImage(), getHomeSlides()]);
 
   return (
     <main className="bg-[#f7f5f2] text-[#111111]">
@@ -78,7 +98,7 @@ export default async function HomePage() {
           </div>
 
           <div className="order-1 md:order-2">
-            <HomeImageEditor initialImage={homeImage} />
+            <HomeImageEditor initialImage={homeImage} slides={slides} />
           </div>
         </div>
       </section>

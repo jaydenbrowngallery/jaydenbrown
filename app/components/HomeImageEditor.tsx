@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { isAdmin } from "@/lib/isAdmin";
 
@@ -124,7 +124,16 @@ function ImageCropper({
 }
 
 // ─── 메인 컴포넌트 ───
-export default function HomeImageEditor({ initialImage }: { initialImage: string }) {
+export default function HomeImageEditor({
+  initialImage,
+  slides = [],
+  interval = 6500,
+}: {
+  initialImage: string;
+  /** 갤러리 사진들 — 관리자 지정 사진 다음으로 이어서 보여준다 */
+  slides?: { url: string; pos?: string }[];
+  interval?: number;
+}) {
   const [admin, setAdmin] = useState(false);
   const [image, setImage] = useState(initialImage);
   const [showModal, setShowModal] = useState(false);
@@ -132,6 +141,44 @@ export default function HomeImageEditor({ initialImage }: { initialImage: string
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [gallery, setGallery] = useState<{ id: string; title: string; cover_image: string }[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // 관리자 지정 사진을 첫 장으로, 이어서 갤러리 사진 (중복 제거)
+  const playlist = useMemo(() => {
+    const list: { url: string; pos?: string }[] = [{ url: image }];
+    for (const s of slides) if (s.url !== image) list.push(s);
+    return list;
+  }, [image, slides]);
+
+  const [idx, setIdx] = useState(0);
+  const [prev, setPrev] = useState<number | null>(null);
+
+  // 관리자가 사진을 바꾸면 처음부터
+  useEffect(() => {
+    setIdx(0);
+    setPrev(null);
+  }, [image]);
+
+  // 다음 사진을 미리 받아 두고, 다 받은 뒤에 교체한다(회색으로 비어 보이지 않게)
+  useEffect(() => {
+    if (playlist.length < 2) return;
+    const t = setTimeout(() => {
+      const next = (idx + 1) % playlist.length;
+      const img = new window.Image();
+      img.src = playlist[next].url;
+      const go = () => {
+        setPrev(idx);
+        setIdx(next);
+        setTimeout(() => setPrev(null), 2600);
+      };
+      if (img.complete) go();
+      else if (typeof img.decode === "function") img.decode().then(go).catch(go);
+      else {
+        img.onload = go;
+        img.onerror = go;
+      }
+    }, interval);
+    return () => clearTimeout(t);
+  }, [idx, playlist, interval]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setAdmin(isAdmin(session?.user?.email)));
@@ -180,7 +227,30 @@ export default function HomeImageEditor({ initialImage }: { initialImage: string
         onClick={openModal}
       >
         <div className="relative">
-          <div className="aspect-[4/3] w-full bg-cover bg-center md:aspect-[4/5]" style={{ backgroundImage: `url('${image}')` }} />
+          <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[4/5]">
+            {/* 빠져나가는 사진 */}
+            {prev !== null && playlist[prev] && (
+              <div
+                key={`p${prev}`}
+                className="absolute inset-0 bg-cover"
+                style={{
+                  backgroundImage: `url('${playlist[prev].url}')`,
+                  backgroundPosition: playlist[prev].pos || "center",
+                  animation: "homeout 2.4s cubic-bezier(.4,0,.3,1) forwards",
+                }}
+              />
+            )}
+            {/* 현재 사진 */}
+            <div
+              key={`c${idx}`}
+              className="absolute inset-0 bg-cover"
+              style={{
+                backgroundImage: `url('${playlist[idx]?.url || image}')`,
+                backgroundPosition: playlist[idx]?.pos || "center",
+                animation: playlist.length > 1 ? "homein 2.4s cubic-bezier(.4,0,.3,1) forwards" : undefined,
+              }}
+            />
+          </div>
           {admin && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition group-hover:bg-black/30">
               <span className="rounded-full bg-white/90 px-4 py-2 text-xs font-medium text-black opacity-0 transition group-hover:opacity-100">이미지 변경</span>
@@ -188,6 +258,17 @@ export default function HomeImageEditor({ initialImage }: { initialImage: string
           )}
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes homein {
+          from { opacity: 0; transform: scale(1.05) }
+          to   { opacity: 1; transform: scale(1) }
+        }
+        @keyframes homeout {
+          from { opacity: 1; transform: scale(1) }
+          to   { opacity: 0; transform: scale(1.02) }
+        }
+      `}</style>
 
       {/* 선택 모달 */}
       {showModal && (
