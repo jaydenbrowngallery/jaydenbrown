@@ -336,7 +336,7 @@ export default function GalleryDior({
     if (!isOpen || flat.length < 2) return;
     const id = setInterval(() => {
       setOpen((v) => (v === null ? v : (v + 1) % flat.length));
-    }, 4500);
+    }, 4300);
     return () => clearInterval(id);
   }, [isOpen, flat.length]);
 
