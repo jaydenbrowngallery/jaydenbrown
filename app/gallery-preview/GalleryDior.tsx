@@ -384,9 +384,12 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
             <br />
             선물처럼 남기고 싶습니다.
           </h2>
+          {/* globals.css 의 a{color:inherit} 가 Tailwind 의 text-white 를 덮어써
+              검정 버튼에서 글자가 안 보였다. 인라인 스타일로 색을 고정한다. */}
           <a
             href="/contact"
-            className="mt-10 inline-block rounded-full bg-black px-9 py-4 text-[13.5px] font-medium text-white transition hover:bg-black/85"
+            style={{ color: "#fff" }}
+            className="mt-10 inline-block rounded-full bg-black px-9 py-4 text-[13.5px] font-medium transition hover:bg-black/85"
           >
             촬영 문의하기
           </a>
