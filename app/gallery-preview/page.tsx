@@ -9,7 +9,7 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export type Shot = { url: string; focus?: Focus; pos?: string; iw?: number; ih?: number };
+export type Shot = { url: string; focus?: Focus; pos?: string; rot?: number; iw?: number; ih?: number };
 export type Story = {
   id: string;
   title: string;
@@ -82,6 +82,20 @@ function seasonOf(iso: string): string {
   return "겨울";
 }
 
+/* 관리자가 맞춘 수평 보정 각도 (site_settings/imgfocus_rot) */
+async function getRotMap(): Promise<Record<string, number>> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("id", "imgfocus_rot");
+    const raw = ((data || []) as { value: string | null }[])[0]?.value;
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
 /* 모든 갤러리 사진의 픽셀 크기 (site_settings/imgdims_all) — 썸네일 리듬 계산에 쓴다. */
 async function getDimsMap(): Promise<Record<string, { iw: number; ih: number }>> {
   try {
@@ -112,11 +126,12 @@ async function getManualMap(): Promise<Record<string, string>> {
 
 async function getStories(): Promise<Story[]> {
   try {
-    const [fmap, mmap, dmap, smap] = await Promise.all([
+    const [fmap, mmap, dmap, smap, rmap] = await Promise.all([
       getFocusMap(),
       getManualMap(),
       getDimsMap(),
       getStoryMeta(),
+      getRotMap(),
     ]);
     const { data: posts } = await supabaseAdmin
       .from("gallery_posts")
@@ -145,7 +160,7 @@ async function getStories(): Promise<Story[]> {
     const toShot = (url: string): Shot => {
       const k = focusKey(url);
       const d = dmap[k] || (fmap[k] ? { iw: fmap[k].iw, ih: fmap[k].ih } : undefined);
-      return { url, focus: fmap[k], pos: mmap[k], iw: d?.iw, ih: d?.ih };
+      return { url, focus: fmap[k], pos: mmap[k], rot: rmap[k], iw: d?.iw, ih: d?.ih };
     };
     return rows.map(({ p, images }, i) => {
       const shots = images.map(toShot);

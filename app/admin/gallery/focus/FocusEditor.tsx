@@ -9,6 +9,7 @@ type Item = {
   postId: string;
   postCreated: string;
   manual?: string;
+  rot?: number;
   auto?: unknown;
 };
 
@@ -30,9 +31,10 @@ function Editor({
 }: {
   item: Item;
   ratio: string;
-  onSaved: (key: string, pos: string | null) => void;
+  onSaved: (key: string, pos: string | null, rot?: number) => void;
 }) {
   const [pos, setPos] = useState(item.manual || "50% 50%");
+  const [rot, setRot] = useState(item.rot ?? 0);
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -40,8 +42,15 @@ function Editor({
 
   useEffect(() => {
     setPos(item.manual || "50% 50%");
+    setRot(item.rot ?? 0);
     setDirty(false);
-  }, [item.manual, item.key]);
+  }, [item.manual, item.rot, item.key]);
+
+  // 기울이면 빈 모서리가 생기므로 그만큼 확대한다
+  const [rw, rh] = ratio.split("/").map(Number);
+  const k = Math.max(rw / rh, rh / rw);
+  const a = (Math.abs(rot) * Math.PI) / 180;
+  const coverScale = rot ? Math.cos(a) + k * Math.sin(a) : 1;
 
   const nums = pos.split(/\s+/).map((v) => parseFloat(v));
   const px = isFinite(nums[0]) ? nums[0] : 50;
@@ -71,13 +80,16 @@ function Editor({
       const res = await fetch("/api/admin/gallery-focus", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reset ? { key: item.key, reset: true } : { key: item.key, pos }),
+        body: JSON.stringify(reset ? { key: item.key, reset: true } : { key: item.key, pos, rot }),
       });
       const json = await readJson(res);
       if (!res.ok) throw new Error(json.error || "저장 실패");
-      onSaved(item.key, json.pos ?? null);
+      onSaved(item.key, json.pos ?? null, reset ? 0 : rot);
       setDirty(false);
-      if (reset) setPos("50% 50%");
+      if (reset) {
+        setPos("50% 50%");
+        setRot(0);
+      }
     } catch (e) {
       alert(e instanceof Error ? e.message : "저장 실패");
     } finally {
@@ -104,7 +116,10 @@ function Editor({
           alt=""
           draggable={false}
           className="h-full w-full object-cover"
-          style={{ objectPosition: pos }}
+          style={{
+            objectPosition: pos,
+            transform: rot ? `rotate(${rot}deg) scale(${coverScale.toFixed(3)})` : undefined,
+          }}
         />
         {/* 3분할 안내선 */}
         <div className="pointer-events-none absolute inset-0 opacity-30">
@@ -115,9 +130,39 @@ function Editor({
         </div>
       </div>
 
+      {/* 수평 보정 */}
+      <div className="mt-2.5 flex items-center gap-2">
+        <span className="shrink-0 text-[11.5px] text-black/40">수평</span>
+        <input
+          type="range"
+          min={-8}
+          max={8}
+          step={0.2}
+          value={rot}
+          onChange={(e) => {
+            setRot(Number(e.target.value));
+            setDirty(true);
+          }}
+          className="min-w-0 flex-1 accent-black"
+        />
+        <span className="w-12 shrink-0 text-right text-[11.5px] tabular-nums text-black/45">
+          {rot > 0 ? "+" : ""}
+          {rot.toFixed(1)}°
+        </span>
+        <button
+          onClick={() => {
+            setRot(0);
+            setDirty(true);
+          }}
+          className="shrink-0 text-[11.5px] text-black/30 underline underline-offset-2"
+        >
+          0
+        </button>
+      </div>
+
       <div className="mt-2.5 flex items-center justify-between gap-2">
         <p className="truncate text-[11.5px] text-black/35">
-          {item.manual ? "직접 지정" : "자동"} · {pos}
+          {item.manual ? "직접 지정" : "자동"} · {pos}{rot ? ` · ${rot.toFixed(1)}°` : ""}
         </p>
         <div className="flex shrink-0 gap-1.5">
           <button
@@ -169,8 +214,12 @@ export default function FocusEditor() {
     load();
   }, [load]);
 
-  const onSaved = (key: string, pos: string | null) =>
-    setItems((prev) => prev.map((i) => (i.key === key ? { ...i, manual: pos ?? undefined } : i)));
+  const onSaved = (key: string, pos: string | null, rot?: number) =>
+    setItems((prev) =>
+      prev.map((i) =>
+        i.key === key ? { ...i, manual: pos ?? undefined, rot: rot || undefined } : i
+      )
+    );
 
   const shown = onlyAuto ? items.filter((i) => !i.manual) : items;
   const manualCount = items.filter((i) => i.manual).length;
@@ -213,7 +262,8 @@ export default function FocusEditor() {
       </div>
 
       <p className="mt-3 text-[12.5px] leading-[1.8] text-black/40">
-        사진을 손가락(또는 마우스)으로 끌어 구도를 맞춘 뒤 <span className="text-black/65">저장</span>을 누르세요.
+        사진을 끌어 위치를 잡고, <span className="text-black/65">수평</span> 슬라이더로 기울기를 맞춘 뒤{" "}
+        <span className="text-black/65">저장</span>을 누르세요.
         저장한 사진은 자동 계산을 무시하고 이 구도로 고정됩니다.
       </p>
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Story } from "./page";
-import { focalPosition, type Focus } from "./focus";
+import { focalPosition, rotationScale, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
 
 /* 계절은 화면에 영문으로 표기한다 (저장값은 한글) */
@@ -78,6 +78,7 @@ function RevealImage({
   sizes = "100vw",
   focus,
   pos,
+  rot = 0,
 }: {
   src: string;
   alt: string;
@@ -87,6 +88,7 @@ function RevealImage({
   sizes?: string;
   focus?: Focus;
   pos?: string; // 관리자가 직접 잡은 구도 (있으면 자동 계산보다 우선)
+  rot?: number; // 수평 보정 각도
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const [on, setOn] = useState(priority);
@@ -128,7 +130,8 @@ function RevealImage({
         style={{
           // 검출된 인물이 모두 들어오도록, 치우친 쪽으로 살짝 더 이동한 위치
           objectPosition: pos || focalPosition(focus, ratio),
-          transform: on ? "scale(1)" : "scale(1.08)",
+          // 수평을 기울이면 빈 모서리가 생기므로 그만큼 확대해서 덮는다
+          transform: `rotate(${rot}deg) scale(${((on ? 1 : 1.08) * rotationScale(rot, ratio)).toFixed(3)})`,
           filter: on ? "none" : "blur(12px)",
           transition: "transform 1.6s cubic-bezier(.16,1,.3,1), filter 1.2s ease-out",
         }}
@@ -275,7 +278,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           className="absolute inset-0 h-[115%] w-full object-cover"
           style={{
             objectPosition: hero.pos || focalPosition(hero.focus, "9/19"),
-            transform: `translate3d(0,${heroShift}px,0) scale(1.02)`,
+            transform: `translate3d(0,${heroShift}px,0) rotate(${hero.rot || 0}deg) scale(${(1.02 * rotationScale(hero.rot || 0, "9/19")).toFixed(3)})`,
             willChange: "transform",
           }}
         />
@@ -357,6 +360,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
                       src={sh.url}
                       focus={sh.focus}
                       pos={sh.pos}
+                      rot={sh.rot}
                       alt={s.title}
                       ratio={row.ratio}
                       priority={ri === 0}

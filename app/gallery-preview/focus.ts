@@ -86,3 +86,14 @@ export function bestRatio(f: Focus | undefined, preferred?: string): string {
   }
   return best;
 }
+
+/** 사진을 deg 만큼 기울였을 때, 잘린 영역에 빈 모서리가 생기지 않도록 필요한 확대율 */
+export function rotationScale(deg: number, ratio: string): number {
+  const d = Math.abs(deg || 0);
+  if (!d) return 1;
+  const a = (d * Math.PI) / 180;
+  const [rw, rh] = ratio.split("/").map(Number);
+  const r = rw && rh ? rw / rh : 1;
+  const k = Math.max(r, 1 / r);
+  return Math.cos(a) + k * Math.sin(a);
+}

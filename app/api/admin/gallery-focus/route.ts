@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/isAdmin";
    자동 계산보다 수동 값이 우선한다. */
 
 const MANUAL = "imgfocus_manual";
+const ROT = "imgfocus_rot"; // { "<postId>/<파일명>": 각도(도) } — 수평 보정
 const AUTO = "imgfocus_all";
 
 async function guard() {
@@ -30,7 +31,11 @@ export async function GET() {
   const { supabase } = await guard();
   if (!supabase) return NextResponse.json({ error: "권한이 없습니다." }, { status: 401 });
 
-  const [auto, manual] = await Promise.all([readRow(supabase, AUTO), readRow(supabase, MANUAL)]);
+  const [auto, manual, rot] = await Promise.all([
+    readRow(supabase, AUTO),
+    readRow(supabase, MANUAL),
+    readRow(supabase, ROT),
+  ]);
 
   // 갤러리에 실제로 걸려 있는 사진 목록 (포스트 제목과 함께)
   const { data: posts } = await supabase.from("gallery_posts").select("id, title, cover_image, created_at");
@@ -52,6 +57,7 @@ export async function GET() {
     postCreated: string;
     auto?: unknown;
     manual?: string;
+    rot?: number;
   }[] = [];
 
   const push = (url: string | null, postId: string) => {
@@ -67,6 +73,7 @@ export async function GET() {
       postCreated: createdOf.get(postId) || "",
       auto: auto[key],
       manual: manual[key],
+      rot: typeof rot[key] === "number" ? rot[key] : undefined,
     });
   };
 
@@ -100,9 +107,30 @@ export async function PATCH(req: NextRequest) {
   const key = String(body.key || "").trim();
   if (!key) return NextResponse.json({ error: "key가 필요합니다." }, { status: 400 });
 
+  // 수평 보정(각도) — 위치와 별개로 저장한다
+  if (body.rot !== undefined) {
+    const rotMap = await readRow(supabase, ROT);
+    const deg = Number(body.rot);
+    if (!isFinite(deg) || Math.abs(deg) > 15) {
+      return NextResponse.json({ error: "각도는 -15 ~ 15 사이여야 합니다." }, { status: 400 });
+    }
+    if (deg === 0) delete rotMap[key];
+    else rotMap[key] = Math.round(deg * 10) / 10;
+    const { error: rerr } = await supabase
+      .from("site_settings")
+      .upsert({ id: ROT, value: JSON.stringify(rotMap) }, { onConflict: "id" });
+    if (rerr) return NextResponse.json({ error: rerr.message }, { status: 500 });
+    if (body.pos === undefined && !body.reset) {
+      return NextResponse.json({ ok: true, key, rot: rotMap[key] ?? 0 });
+    }
+  }
+
   const manual = await readRow(supabase, MANUAL);
   if (body.reset) {
     delete manual[key];
+    const rotMap = await readRow(supabase, ROT);
+    delete rotMap[key];
+    await supabase.from("site_settings").upsert({ id: ROT, value: JSON.stringify(rotMap) }, { onConflict: "id" });
   } else {
     const pos = String(body.pos || "").trim();
     if (!/^\d{1,3}(\.\d+)?%\s+\d{1,3}(\.\d+)?%$/.test(pos)) {
@@ -116,5 +144,5 @@ export async function PATCH(req: NextRequest) {
     .upsert({ id: MANUAL, value: JSON.stringify(manual) }, { onConflict: "id" });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ ok: true, key, pos: manual[key] ?? null });
+  return NextResponse.json({ ok: true, key, pos: manual[key] ?? null, rot: body.rot !== undefined ? Number(body.rot) : undefined });
 }
