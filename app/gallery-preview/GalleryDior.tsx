@@ -238,13 +238,10 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
     };
   }, []);
 
-  // 라이트박스: View Transition 지원 시 부드럽게 전환
+  // 라이트박스 열기. View Transition 은 iOS 에서 전환 중 화면이 검게 덮이는 사례가 있어 쓰지 않는다.
   const openAt = useCallback((i: number | undefined) => {
     if (i === undefined || i < 0) return; // 못 찾은 경우 열지 않는다
-    const run = () => setOpen(i);
-    const d = document as Document & { startViewTransition?: (cb: () => void) => void };
-    if (d.startViewTransition) d.startViewTransition(run);
-    else run();
+    setOpen(i);
   }, []);
 
   // 키보드 · 스와이프
@@ -420,7 +417,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
       {/* ── 라이트박스 ── */}
       {open !== null && flat[open] && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 [animation:fadein_.3s_ease-out]"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
           onClick={() => setOpen(null)}
           onTouchStart={(e) => {
             const t = e.touches[0];
@@ -441,18 +438,27 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
             }
           }}
         >
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] tracking-[0.2em] text-white/35">
+          <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] tracking-[0.2em] text-white/30">
             LOADING
           </span>
+          {/* 애니메이션에 표시를 의존하지 않는다 — 로드되면 그 자리에서 살짝 나타나기만 */}
           <img
             key={flat[open].url}
             src={flat[open].url}
             alt=""
+            decoding="async"
             onLoad={(e) => {
-              const prev = (e.target as HTMLImageElement).previousElementSibling as HTMLElement | null;
-              if (prev) prev.style.display = "none";
+              const el = e.currentTarget;
+              el.style.opacity = "1";
+              const label = el.parentElement?.querySelector("span");
+              if (label) (label as HTMLElement).style.display = "none";
             }}
-            className="absolute inset-0 m-auto max-h-[86vh] max-w-[94vw] object-contain [animation:zoomin_.45s_cubic-bezier(.16,1,.3,1)]"
+            onError={(e) => {
+              const label = e.currentTarget.parentElement?.querySelector("span");
+              if (label) label.textContent = "사진을 불러올 수 없습니다";
+            }}
+            style={{ opacity: 0, transition: "opacity .35s ease-out" }}
+            className="relative max-h-[86vh] max-w-[94vw] object-contain"
           />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-5 text-white/70">
             <span className="text-[12px] tracking-[0.08em]">
