@@ -111,7 +111,7 @@ export default function Bgm({ tracks }: { tracks: string[] }) {
         style={{
           // 사진 위에 놓이므로 원형 테두리와 옅은 배경을 줘서 위치가 보이게 한다
           borderColor: on ? "rgba(0,0,0,0.22)" : "rgba(0,0,0,0.16)",
-          backgroundColor: on ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.68)",
+          backgroundColor: "red", /* 임시 진단 */
           color: on ? "rgba(0,0,0,0.72)" : "rgba(0,0,0,0.42)",
           boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
         }}
