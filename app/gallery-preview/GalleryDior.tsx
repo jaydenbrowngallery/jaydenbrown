@@ -471,11 +471,13 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
               const label = e.currentTarget.parentElement?.querySelector("span");
               if (label) label.textContent = "사진을 불러올 수 없습니다";
             }}
-            className="relative z-10 max-h-[86vh] max-w-[94vw] object-contain"
+            style={{ width: 240, height: 240, objectFit: "cover", border: "3px solid red" }}
+            className="relative z-10"
           />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-5 text-white/70">
-            <span className="text-[12px] tracking-[0.08em]">
-              {String(open + 1).padStart(2, "0")} / {String(flat.length).padStart(2, "0")}
+            <span className="text-[11px] tracking-[0.04em]">
+              {String(open + 1).padStart(2, "0")}/{String(flat.length).padStart(2, "0")} ·{" "}
+              {flat[open].url.slice(-22)}
             </span>
             <button
               onClick={(e) => {
