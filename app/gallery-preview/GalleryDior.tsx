@@ -5,6 +5,15 @@ import type { Story } from "./page";
 import { focalPosition, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
 
+/* 계절은 화면에 영문으로 표기한다 (저장값은 한글) */
+const SEASON_EN: Record<string, string> = {
+  봄: "Spring",
+  여름: "Summer",
+  가을: "Autumn",
+  겨울: "Winter",
+};
+const seasonLabel = (s: string) => SEASON_EN[s] || s;
+
 /* ────────────────────────────────────────────────────────────────
    갤러리 리디자인 — 에디토리얼 톤 + 스크롤 연출
    모바일 우선. 애니메이션은 transform/opacity 만 사용하고,
@@ -324,7 +333,9 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
                 <h2 className="text-[26px] font-light leading-[1.25] tracking-[-0.02em] text-black/80 md:text-[30px]">
                   {s.title}
                 </h2>
-                <p className="mt-3 text-[11.5px] tracking-[0.14em] text-black/35">{s.season}</p>
+                <p className="mt-3 text-[11px] uppercase tracking-[0.3em] text-black/35">
+                  {seasonLabel(s.season)}
+                </p>
                 {s.note && (
                   <p className="mt-6 whitespace-pre-line text-[13px] leading-[1.95] text-black/50">
                     {s.note}
