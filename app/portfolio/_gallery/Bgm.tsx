@@ -16,6 +16,21 @@ export default function Bgm({ tracks }: { tracks: string[] }) {
   const [ask, setAsk] = useState(false);
   const [on, setOn] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [dbg, setDbg] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const b = btnRef.current;
+      if (!b) return setDbg("btn=null");
+      const r = b.getBoundingClientRect();
+      const cs = getComputedStyle(b);
+      setDbg(
+        `${Math.round(r.width)}x${Math.round(r.height)}@${Math.round(r.left)},${Math.round(r.top)} ` +
+          `${cs.position}/${cs.display}/${cs.visibility}/${cs.opacity}/z${cs.zIndex} vw${window.innerWidth}`
+      );
+    }, 1500);
+    return () => clearTimeout(t);
+  }, []);
   const order = useRef<string[]>([]);
   const idx = useRef(0);
 
@@ -106,6 +121,7 @@ export default function Bgm({ tracks }: { tracks: string[] }) {
       {/* 오른쪽 위 음표 — 아주 옅게 */}
       <button
         onClick={() => (on ? stop() : start())}
+        ref={btnRef}
         aria-label={on ? "배경음악 끄기" : "배경음악 켜기"}
         className="fixed right-4 top-[86px] z-40 grid h-11 w-11 place-items-center rounded-full border transition md:right-7 md:top-[96px]"
         style={{
@@ -125,10 +141,10 @@ export default function Bgm({ tracks }: { tracks: string[] }) {
       </button>
 
       {/* 들어올 때 작은 알림 */}
-      {ask && (
+      {(ask || dbg) && (
         <div className="fixed inset-x-0 bottom-6 z-40 flex justify-center px-5 [animation:bgmup_.5s_cubic-bezier(.16,1,.3,1)]">
           <div className="flex items-center gap-3 rounded-full border border-black/8 bg-white/92 py-2.5 pl-5 pr-2.5 shadow-[0_6px_28px_rgba(0,0,0,0.10)] backdrop-blur">
-            <span className="text-[12.5px] text-black/60">배경음악과 함께 보시겠어요?</span>
+            <span className="text-[11px] text-black/60">{dbg || "배경음악과 함께 보시겠어요?"}</span>
             <button
               onClick={() => {
                 setAsk(false);
