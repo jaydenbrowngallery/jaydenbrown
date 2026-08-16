@@ -2,7 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type Item = { key: string; url: string; post: string; manual?: string; auto?: unknown };
+type Item = {
+  key: string;
+  url: string;
+  post: string;
+  postId: string;
+  postCreated: string;
+  manual?: string;
+  auto?: unknown;
+};
 
 const RATIOS = ["3/4", "1/1", "4/5", "16/9"] as const;
 
@@ -138,6 +146,7 @@ export default function FocusEditor() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [onlyAuto, setOnlyAuto] = useState(false);
+  const [closed, setClosed] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setError("");
@@ -146,6 +155,9 @@ export default function FocusEditor() {
       const json = await readJson(res);
       if (!res.ok) throw new Error(json.error || "불러오지 못했습니다.");
       setItems(json.items);
+      // 사진이 많아 첫 스토리만 펼쳐 둔다
+      const ids: string[] = Array.from(new Set((json.items as Item[]).map((i) => i.postId)));
+      setClosed(new Set(ids.slice(1)));
     } catch (e) {
       setError(e instanceof Error ? e.message : "오류");
     } finally {
@@ -162,6 +174,20 @@ export default function FocusEditor() {
 
   const shown = onlyAuto ? items.filter((i) => !i.manual) : items;
   const manualCount = items.filter((i) => i.manual).length;
+
+  // 스토리 단위로 묶는다 (API 가 이미 스토리 순서로 내려준다)
+  const groups: { postId: string; title: string; created: string; items: Item[] }[] = [];
+  for (const it of shown) {
+    const last = groups[groups.length - 1];
+    if (last && last.postId === it.postId) last.items.push(it);
+    else
+      groups.push({
+        postId: it.postId,
+        title: it.post,
+        created: (it.postCreated || "").slice(0, 10),
+        items: [it],
+      });
+  }
 
   return (
     <div>
@@ -201,10 +227,47 @@ export default function FocusEditor() {
         </div>
       )}
 
-      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-        {shown.map((it) => (
-          <Editor key={it.key} item={it} ratio={ratio} onSaved={onSaved} />
-        ))}
+      <div className="mt-5 space-y-4">
+        {groups.map((g, gi) => {
+          const open = !closed.has(g.postId);
+          const done = g.items.filter((i) => i.manual).length;
+          return (
+            <section key={g.postId} className="rounded-2xl border border-black/10 bg-white/60 p-3">
+              <button
+                onClick={() =>
+                  setClosed((prev) => {
+                    const n = new Set(prev);
+                    if (n.has(g.postId)) n.delete(g.postId);
+                    else n.add(g.postId);
+                    return n;
+                  })
+                }
+                className="flex w-full items-center gap-3 px-1 py-1.5 text-left"
+              >
+                <span className="text-[11px] font-semibold tracking-[0.08em] text-black/25">
+                  {String(gi + 1).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[14px] font-medium text-black/75">
+                    {g.title || "(제목 없음)"}
+                  </span>
+                  <span className="mt-0.5 block text-[11.5px] text-black/35">
+                    {g.created} · 사진 {g.items.length}장 · 직접 지정 {done}장
+                  </span>
+                </span>
+                <span className="shrink-0 text-[12px] text-black/35">{open ? "접기" : "펼치기"}</span>
+              </button>
+
+              {open && (
+                <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+                  {g.items.map((it) => (
+                    <Editor key={it.key} item={it} ratio={ratio} onSaved={onSaved} />
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
       </div>
 
       {!loading && !shown.length && !error && (

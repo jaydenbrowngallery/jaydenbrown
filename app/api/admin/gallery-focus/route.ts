@@ -37,8 +37,10 @@ export async function GET() {
   const { data: imgs } = await supabase.from("gallery_images").select("post_id, image_url, sort_order");
 
   const titleOf = new Map<string, string>();
-  for (const p of (posts || []) as { id: string; title: string | null }[]) {
+  const createdOf = new Map<string, string>();
+  for (const p of (posts || []) as { id: string; title: string | null; created_at: string }[]) {
     titleOf.set(p.id, (p.title || "").trim());
+    createdOf.set(p.id, p.created_at || "");
   }
 
   const seen = new Set<string>();
@@ -46,6 +48,8 @@ export async function GET() {
     key: string;
     url: string;
     post: string;
+    postId: string;
+    postCreated: string;
     auto?: unknown;
     manual?: string;
   }[] = [];
@@ -59,13 +63,28 @@ export async function GET() {
       key,
       url,
       post: titleOf.get(postId) || "",
+      postId,
+      postCreated: createdOf.get(postId) || "",
       auto: auto[key],
       manual: manual[key],
     });
   };
 
-  for (const p of (posts || []) as { id: string; cover_image: string | null }[]) push(p.cover_image, p.id);
-  for (const r of (imgs || []) as { post_id: string; image_url: string | null }[]) push(r.image_url, r.post_id);
+  const ordered = ((posts || []) as { id: string; cover_image: string | null; created_at: string }[])
+    .slice()
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  const imgsByPost = new Map<string, { image_url: string | null; sort_order: number | null }[]>();
+  for (const r of (imgs || []) as { post_id: string; image_url: string | null; sort_order: number | null }[]) {
+    const arr = imgsByPost.get(r.post_id) || [];
+    arr.push(r);
+    imgsByPost.set(r.post_id, arr);
+  }
+  for (const p of ordered) {
+    push(p.cover_image, p.id);
+    for (const r of (imgsByPost.get(p.id) || []).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))) {
+      push(r.image_url, p.id);
+    }
+  }
 
   return NextResponse.json({
     items,
