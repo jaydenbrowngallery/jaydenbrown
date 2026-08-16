@@ -268,6 +268,14 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
 
   const touch = useRef<{ x: number; y: number } | null>(null);
 
+  // 점검용: ?open=3 처럼 붙이면 해당 사진의 라이트박스를 바로 열어 확인할 수 있다
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("open");
+    if (q === null) return;
+    const n = Number(q);
+    if (Number.isInteger(n) && n >= 0 && n < flat.length) setOpen(n);
+  }, [flat.length]);
+
   if (!flat.length) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#f7f5f2] px-6 text-center">
