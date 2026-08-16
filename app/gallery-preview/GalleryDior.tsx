@@ -6,12 +6,6 @@ import type { Story } from "./page";
 import { focalPosition, rotationScale, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
 
-/** 라이트박스의 LOADING 표시 숨기기 */
-function hideLoading(img: HTMLImageElement) {
-  const label = img.parentElement?.querySelector("span");
-  if (label) (label as HTMLElement).style.display = "none";
-}
-
 /* 계절은 화면에 영문으로 표기한다 (저장값은 한글) */
 const SEASON_EN: Record<string, string> = {
   봄: "Spring",
@@ -270,6 +264,26 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // 크로스 디졸브를 위해 현재(cur)와 직전(out) 인덱스를 함께 들고 있는다
+  const [cur, setCur] = useState<number | null>(null);
+  const [out, setOut] = useState<number | null>(null);
+  useEffect(() => {
+    if (open === null) {
+      setCur(null);
+      setOut(null);
+      return;
+    }
+    setCur((prev) => {
+      if (prev !== null && prev !== open) setOut(prev);
+      return open;
+    });
+  }, [open]);
+  useEffect(() => {
+    if (out === null) return;
+    const t = setTimeout(() => setOut(null), 1300);
+    return () => clearTimeout(t);
+  }, [out]);
+
   // 라이트박스가 열려 있으면 3초마다 다음 사진으로 (인덱스가 바뀌어도 간격은 그대로)
   const isOpen = open !== null;
   useEffect(() => {
@@ -441,46 +455,41 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
       </section>
 
       {/* ── 라이트박스 ──
-          main 에 걸린 pageFadeIn 애니메이션이 filter 를 남기기 때문에 main 안에서는
-          position:fixed 가 뷰포트 대신 main 기준으로 잡힌다. 그래서 body 로 포털한다. */}
-      {open !== null && flat[open] && mounted && createPortal(
+          main 에 걸린 pageFadeIn 이 filter 를 남겨 position:fixed 기준이 main 이 되므로 body 로 포털한다.
+          전환은 크로스 디졸브 + 미세 줌 — 정지 사진에서 가장 자연스럽고 고급스러운 방식. */}
+      {isOpen && cur !== null && flat[cur] && mounted && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 [animation:fadein_.25s_ease-out]"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-black [animation:fadein_.3s_ease-out]"
           onClick={() => setOpen(null)}
           onTouchStart={() => setOpen(null)}
         >
-          <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] tracking-[0.2em] text-white/30">
-            LOADING
-          </span>
-          {/* 이미지는 항상 보이는 상태로 둔다.
-              캐시된 사진은 onLoad 가 핸들러 부착 전에 끝나버려, 투명하게 시작하면
-              영영 나타나지 않고 검은 화면이 된다(ref 에서 complete 도 함께 확인). */}
-          <img
-            key={flat[open].url}
-            ref={(el) => {
-              if (el?.complete) hideLoading(el);
-            }}
-            src={flat[open].url}
-            alt=""
-            decoding="async"
-            onLoad={(e) => hideLoading(e.currentTarget)}
-            onError={(e) => {
-              const label = e.currentTarget.parentElement?.querySelector("span");
-              if (label) label.textContent = "사진을 불러올 수 없습니다";
-            }}
-            className="relative z-10 max-h-[86vh] max-w-[94vw] object-contain"
-          />
+          {/* 빠져나가는 사진 */}
+          {out !== null && flat[out] && (
+            <div key={`o${out}`} className="absolute inset-0 flex items-center justify-center">
+              <img
+                src={flat[out].url}
+                alt=""
+                className="max-h-[86vh] max-w-[94vw] object-contain [animation:xfadeout_1.2s_cubic-bezier(.33,1,.68,1)_forwards]"
+              />
+            </div>
+          )}
+
+          {/* 들어오는 사진 — 기본 상태를 보이는 값으로 두어 애니메이션이 없어도 표시된다 */}
+          <div key={`c${cur}`} className="absolute inset-0 flex items-center justify-center">
+            <img
+              src={flat[cur].url}
+              alt=""
+              decoding="async"
+              style={{ opacity: 1 }}
+              className="max-h-[86vh] max-w-[94vw] object-contain [animation:xfadein_1.2s_cubic-bezier(.33,1,.68,1)_forwards]"
+            />
+          </div>
+
           {/* 상단 — 제목만 가운데 */}
           <p className="absolute inset-x-0 top-0 pt-7 text-center text-[11px] uppercase tracking-[0.42em] text-white/70">
             Jayden Brown Gallery
           </p>
-          {/* 다음 사진까지 남은 시간 — 인덱스가 바뀔 때마다 처음부터 다시 흐른다 */}
-          {flat.length > 1 && (
-            <span
-              key={`p${open}`}
-              className="absolute left-0 top-0 h-[2px] bg-white/25 [animation:slideprog_3s_linear_forwards]"
-            />
-          )}
+
           {/* 하단 — 닫기 표시만 */}
           <button
             onClick={(e) => {
@@ -504,7 +513,14 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           100% { transform: scaleY(0); transform-origin: bottom; }
         }
         @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes slideprog { from { width: 0 } to { width: 100% } }
+        @keyframes xfadein {
+          from { opacity: 0; transform: scale(1.045) }
+          to   { opacity: 1; transform: scale(1) }
+        }
+        @keyframes xfadeout {
+          from { opacity: 1; transform: scale(1) }
+          to   { opacity: 0; transform: scale(1.02) }
+        }
         @keyframes zoomin {
           from { opacity: 0; transform: scale(.94) }
           to { opacity: 1; transform: scale(1) }
