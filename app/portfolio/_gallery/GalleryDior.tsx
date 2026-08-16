@@ -6,6 +6,13 @@ import type { Story } from "./data";
 import { focalPosition, rotationScale, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
 import Bgm from "./Bgm";
+import StoryVideo from "./StoryVideo";
+
+/* 스토리 맨 위에 사진처럼 넣는 짧은 영상 — 키는 스토리 순번(1부터).
+   파일은 public/video 에 두고, 여기에 한 줄 추가하면 해당 스토리에 붙는다. */
+const STORY_VIDEOS: Record<number, { src: string; poster?: string; ratio?: string; label?: string }> = {
+  5: { src: "/video/rainy.mp4", poster: "/video/rainy.jpg", ratio: "16/9", label: "비오는 날" },
+};
 
 /* 계절은 화면에 영문으로 표기한다 (저장값은 한글) */
 const SEASON_EN: Record<string, string> = {
@@ -93,29 +100,38 @@ function RevealImage({
   rot?: number; // 수평 보정 각도
 }) {
   const ref = useRef<HTMLButtonElement>(null);
-  const [on, setOn] = useState(priority);
+  // 화면에 들어왔는지 + 사진을 다 받았는지 둘 다 만족할 때 드러낸다.
+  // (스크롤을 빨리 내릴 때 덜 받은 사진이 잘려 보이던 문제)
+  const [inView, setInView] = useState(priority);
+  const [loaded, setLoaded] = useState(false);
+  const on = inView && loaded;
   // 가로로 넓은 슬롯(3/2·16/9·4/3 등)은 오른쪽에서 왼쪽으로 훑으며 드러낸다
   const [rw, rh] = ratio.split("/").map(Number);
   const wide = rw && rh ? rw / rh >= 1.2 : false;
+
   useEffect(() => {
     const el = ref.current;
-    if (!el || priority) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setOn(true);
-      return;
-    }
+    if (!el || inView) return;
     const io = new IntersectionObserver(
       ([e]) => {
         if (e.isIntersecting) {
-          setOn(true);
+          setInView(true);
           io.disconnect();
         }
       },
-      { threshold: 0.15 }
+      // 화면에 닿기 조금 전부터 받기 시작한다
+      { threshold: 0.01, rootMargin: "300px 0px" }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [priority]);
+  }, [inView]);
+
+  // 아주 느린 연결에서 영영 드러나지 않는 일을 막는 대비책
+  useEffect(() => {
+    if (!inView || loaded) return;
+    const t = setTimeout(() => setLoaded(true), 6000);
+    return () => clearTimeout(t);
+  }, [inView, loaded]);
 
   return (
     <button
@@ -126,10 +142,15 @@ function RevealImage({
       style={{ aspectRatio: ratio }}
     >
       <img
+        ref={(el) => {
+          if (el?.complete) setLoaded(true);
+        }}
         src={src}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
         sizes={sizes}
         className="h-full w-full object-cover"
         style={{
@@ -428,7 +449,7 @@ export default function GalleryDior({
       )}
 
       {/* ── 스토리별 에디토리얼 ── */}
-      {stories.map((s) => (
+      {stories.map((s, si) => (
         <section key={s.id} className="border-t border-black/[0.07] py-20 md:py-32">
           <div className="md:flex md:gap-12 md:px-12">
             {/* 캡션 — 데스크톱에서는 붙어서 따라온다 */}
@@ -450,6 +471,11 @@ export default function GalleryDior({
 
             {/* 이미지 — 크기·방향을 섞은 행 단위 모자이크 (한 행 안에서는 같은 비율) */}
             <div className="mt-8 md:mt-0 md:w-[74%]">
+              {STORY_VIDEOS[si + 1] && (
+                <div className="mb-3 md:mb-5">
+                  <StoryVideo {...STORY_VIDEOS[si + 1]} />
+                </div>
+              )}
               {buildRows(s.images).map((row, ri) => (
                 <div
                   key={ri}
