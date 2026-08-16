@@ -239,9 +239,17 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
     };
   }, []);
 
+  // 닫은 직후 유령 클릭으로 다시 열리는 것을 막기 위한 시각 기록
+  const closedAt = useRef(0);
+  const closeBox = useCallback(() => {
+    closedAt.current = Date.now();
+    setOpen(null);
+  }, []);
+
   // 라이트박스 열기. View Transition 은 iOS 에서 전환 중 화면이 검게 덮이는 사례가 있어 쓰지 않는다.
   const openAt = useCallback((i: number | undefined) => {
     if (i === undefined || i < 0) return; // 못 찾은 경우 열지 않는다
+    if (Date.now() - closedAt.current < 500) return; // 방금 닫았으면 무시
     setOpen(i);
   }, []);
 
@@ -250,7 +258,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
     if (open === null) return;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(null);
+      if (e.key === "Escape") closeBox();
       if (e.key === "ArrowRight") setOpen((v) => (v === null ? v : (v + 1) % flat.length));
       if (e.key === "ArrowLeft") setOpen((v) => (v === null ? v : (v - 1 + flat.length) % flat.length));
     };
@@ -460,8 +468,11 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
       {isOpen && cur !== null && flat[cur] && mounted && createPortal(
         <div
           className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-black [animation:fadein_.3s_ease-out]"
-          onClick={() => setOpen(null)}
-          onTouchStart={() => setOpen(null)}
+          onClick={() => closeBox()}
+          onTouchEnd={(e) => {
+            e.preventDefault(); // 뒤에 있는 썸네일로 클릭이 새어나가 다시 열리는 것을 막는다
+            closeBox();
+          }}
         >
           {/* 빠져나가는 사진 */}
           {out !== null && flat[out] && (
@@ -494,12 +505,17 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setOpen(null);
+              closeBox();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              closeBox();
             }}
             aria-label="닫기"
-            className="absolute bottom-7 left-1/2 -translate-x-1/2 text-[22px] font-light leading-none text-white/60 transition hover:text-white"
+            className="absolute bottom-7 left-1/2 -translate-x-1/2 text-[11px] uppercase tracking-[0.32em] text-white/60 transition hover:text-white"
           >
-            ×
+            Close
           </button>
         </div>,
         document.body
