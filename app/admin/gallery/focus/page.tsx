@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/isAdmin";
 import FocusEditor from "./FocusEditor";
+import StoryMeta from "./StoryMeta";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "사진 구도 조정", robots: { index: false, follow: false } };
@@ -38,9 +39,19 @@ export default async function GalleryFocusPage() {
           </Link>
         </div>
 
-        <div className="mt-10">
-          <FocusEditor />
-        </div>
+        <section className="mt-12">
+          <h2 className="text-[1.05rem] font-medium text-black/75">스토리 설정 — 계절 · 멘트</h2>
+          <div className="mt-4">
+            <StoryMeta />
+          </div>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="text-[1.05rem] font-medium text-black/75">사진별 구도</h2>
+          <div className="mt-4">
+            <FocusEditor />
+          </div>
+        </section>
       </div>
     </main>
   );

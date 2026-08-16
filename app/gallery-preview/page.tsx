@@ -13,7 +13,8 @@ export type Shot = { url: string; focus?: Focus; pos?: string; iw?: number; ih?:
 export type Story = {
   id: string;
   title: string;
-  date: string;
+  season: string;
+  note?: string;
   cover: Shot;
   images: Shot[];
 };
@@ -41,6 +42,28 @@ async function getFocusMap(): Promise<Record<string, Focus>> {
 }
 
 const focusKey = (url: string) => url.replace(/^\/api\/gallery-file\//, "");
+
+/* 스토리별 계절·멘트 (site_settings/gallerymeta_all). 없으면 등록 월로 계절 추정. */
+async function getStoryMeta(): Promise<Record<string, { season?: string; note?: string }>> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("id", "gallerymeta_all");
+    const raw = ((data || []) as { value: string | null }[])[0]?.value;
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function seasonOf(iso: string): string {
+  const m = Number((iso || "").slice(5, 7));
+  if (m >= 3 && m <= 5) return "봄";
+  if (m >= 6 && m <= 8) return "여름";
+  if (m >= 9 && m <= 11) return "가을";
+  return "겨울";
+}
 
 /* 모든 갤러리 사진의 픽셀 크기 (site_settings/imgdims_all) — 썸네일 리듬 계산에 쓴다. */
 async function getDimsMap(): Promise<Record<string, { iw: number; ih: number }>> {
@@ -72,7 +95,12 @@ async function getManualMap(): Promise<Record<string, string>> {
 
 async function getStories(): Promise<Story[]> {
   try {
-    const [fmap, mmap, dmap] = await Promise.all([getFocusMap(), getManualMap(), getDimsMap()]);
+    const [fmap, mmap, dmap, smap] = await Promise.all([
+      getFocusMap(),
+      getManualMap(),
+      getDimsMap(),
+      getStoryMeta(),
+    ]);
     const { data: posts } = await supabaseAdmin
       .from("gallery_posts")
       .select("id, title, slug, cover_image, created_at");
@@ -104,10 +132,12 @@ async function getStories(): Promise<Story[]> {
     };
     return rows.map(({ p, images }, i) => {
       const shots = images.map(toShot);
+      const meta = smap[p.id] || {};
       return {
         id: p.id,
         title: cleanTitle(p.title, i),
-        date: (p.created_at || "").slice(0, 10).replace(/-/g, "."),
+        season: meta.season || seasonOf(p.created_at),
+        note: meta.note,
         cover: shots[0],
         images: shots,
       };

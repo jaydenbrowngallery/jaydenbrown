@@ -166,10 +166,18 @@ function SplitTitle({ text, className = "", delay = 0 }: { text: string; classNa
 
 export default function GalleryDior({ stories }: { stories: Story[] }) {
   const flat = useMemo(
-    () => stories.flatMap((s) => s.images.map((sh) => ({ ...sh, title: s.title, date: s.date }))),
+    () => stories.flatMap((s) => s.images.map((sh) => ({ ...sh, title: s.title, season: s.season }))),
     [stories]
   );
   const hero = flat[0];
+  // url → 인덱스. findIndex 가 -1 을 돌려주면 라이트박스가 빈 검은 화면이 된다.
+  const indexOf = useMemo(() => {
+    const m = new Map<string, number>();
+    flat.forEach((f, i) => {
+      if (!m.has(f.url)) m.set(f.url, i);
+    });
+    return m;
+  }, [flat]);
   const [open, setOpen] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -202,7 +210,8 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
   }, []);
 
   // 라이트박스: View Transition 지원 시 부드럽게 전환
-  const openAt = useCallback((i: number) => {
+  const openAt = useCallback((i: number | undefined) => {
+    if (i === undefined || i < 0) return; // 못 찾은 경우 열지 않는다
     const run = () => setOpen(i);
     const d = document as Document & { startViewTransition?: (cb: () => void) => void };
     if (d.startViewTransition) d.startViewTransition(run);
@@ -323,11 +332,11 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
                 alt={s.title}
                 ratio="3/4"
                 sizes="(max-width:768px) 74vw, 30vw"
-                onClick={() => openAt(flat.findIndex((f) => f.url === s.cover.url))}
+                onClick={() => openAt(indexOf.get(s.cover.url))}
               />
               <div className="mt-3 flex items-baseline justify-between">
                 <p className="text-[12.5px] tracking-[0.02em] text-black/60">{s.title}</p>
-                <p className="text-[11px] text-black/30">{s.date}</p>
+                <p className="text-[11px] text-black/30">{s.season}</p>
               </div>
             </div>
           ))}
@@ -347,10 +356,10 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
                 <h2 className="mt-3 text-[26px] font-light leading-[1.25] tracking-[-0.02em] text-black/80 md:text-[30px]">
                   {s.title}
                 </h2>
-                <p className="mt-3 text-[11.5px] tracking-[0.06em] text-black/35">{s.date}</p>
-                <p className="mt-6 text-[12.5px] leading-[1.9] text-black/45">
-                  사진 {s.images.length}장
-                </p>
+                <p className="mt-3 text-[11.5px] tracking-[0.14em] text-black/35">{s.season}</p>
+                {s.note && (
+                  <p className="mt-6 text-[13px] leading-[1.95] text-black/50">{s.note}</p>
+                )}
               </Reveal>
             </div>
 
@@ -375,7 +384,7 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
                           ? "(max-width:768px) 50vw, 37vw"
                           : "(max-width:768px) 100vw, 74vw"
                       }
-                      onClick={() => openAt(flat.findIndex((f) => f.url === sh.url))}
+                      onClick={() => openAt(indexOf.get(sh.url))}
                     />
                   ))}
                 </div>
@@ -404,7 +413,7 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
       </section>
 
       {/* ── 라이트박스 ── */}
-      {open !== null && (
+      {open !== null && flat[open] && (
         <div
           className="fixed inset-0 z-50 bg-black/95 [animation:fadein_.3s_ease-out]"
           onClick={() => setOpen(null)}
@@ -427,10 +436,17 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
             }
           }}
         >
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] tracking-[0.2em] text-white/35">
+            LOADING
+          </span>
           <img
             key={flat[open].url}
             src={flat[open].url}
             alt=""
+            onLoad={(e) => {
+              const prev = (e.target as HTMLImageElement).previousElementSibling as HTMLElement | null;
+              if (prev) prev.style.display = "none";
+            }}
             className="absolute inset-0 m-auto max-h-[86vh] max-w-[94vw] object-contain [animation:zoomin_.45s_cubic-bezier(.16,1,.3,1)]"
           />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-5 text-white/70">
