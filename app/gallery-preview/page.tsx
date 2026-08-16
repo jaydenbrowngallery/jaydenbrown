@@ -9,7 +9,7 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export type Shot = { url: string; focus?: Focus };
+export type Shot = { url: string; focus?: Focus; pos?: string };
 export type Story = {
   id: string;
   title: string;
@@ -42,9 +42,23 @@ async function getFocusMap(): Promise<Record<string, Focus>> {
 
 const focusKey = (url: string) => url.replace(/^\/api\/gallery-file\//, "");
 
+/* 관리자가 직접 잡은 구도 (site_settings/imgfocus_manual) — 자동 계산보다 우선한다. */
+async function getManualMap(): Promise<Record<string, string>> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("id", "imgfocus_manual");
+    const raw = ((data || []) as { value: string | null }[])[0]?.value;
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
 async function getStories(): Promise<Story[]> {
   try {
-    const fmap = await getFocusMap();
+    const [fmap, mmap] = await Promise.all([getFocusMap(), getManualMap()]);
     const { data: posts } = await supabaseAdmin
       .from("gallery_posts")
       .select("id, title, slug, cover_image, created_at");
@@ -69,7 +83,11 @@ async function getStories(): Promise<Story[]> {
       .filter((x) => x.images.length > 0)
       .sort((a, b) => (a.p.created_at < b.p.created_at ? 1 : -1));
 
-    const toShot = (url: string): Shot => ({ url, focus: fmap[focusKey(url)] });
+    const toShot = (url: string): Shot => ({
+      url,
+      focus: fmap[focusKey(url)],
+      pos: mmap[focusKey(url)],
+    });
     return rows.map(({ p, images }, i) => {
       const shots = images.map(toShot);
       return {

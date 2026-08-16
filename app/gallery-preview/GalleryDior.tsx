@@ -67,6 +67,7 @@ function RevealImage({
   onClick,
   sizes = "100vw",
   focus,
+  pos,
 }: {
   src: string;
   alt: string;
@@ -75,6 +76,7 @@ function RevealImage({
   onClick?: () => void;
   sizes?: string;
   focus?: Focus;
+  pos?: string; // 관리자가 직접 잡은 구도 (있으면 자동 계산보다 우선)
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const [on, setOn] = useState(priority);
@@ -104,7 +106,7 @@ function RevealImage({
       onClick={onClick}
       aria-label={alt}
       className="group relative block w-full overflow-hidden bg-[#e8e4de]"
-      style={{ aspectRatio: ratio, contentVisibility: "auto" }}
+      style={{ aspectRatio: ratio }}
     >
       <img
         src={src}
@@ -115,7 +117,7 @@ function RevealImage({
         className="h-full w-full object-cover"
         style={{
           // 검출된 인물이 모두 들어오도록, 치우친 쪽으로 살짝 더 이동한 위치
-          objectPosition: focalPosition(focus, ratio),
+          objectPosition: pos || focalPosition(focus, ratio),
           transform: on ? "scale(1)" : "scale(1.08)",
           filter: on ? "none" : "blur(12px)",
           transition: "transform 1.6s cubic-bezier(.16,1,.3,1), filter 1.2s ease-out",
@@ -253,7 +255,7 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
           alt=""
           className="absolute inset-0 h-[115%] w-full object-cover"
           style={{
-            objectPosition: focalPosition(hero.focus, "9/19"),
+            objectPosition: hero.pos || focalPosition(hero.focus, "9/19"),
             transform: `translate3d(0,${heroShift}px,0) scale(1.02)`,
             willChange: "transform",
           }}
@@ -316,8 +318,9 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
               <RevealImage
                 src={s.cover.url}
                 focus={s.cover.focus}
+                pos={s.cover.pos}
                 alt={s.title}
-                ratio={bestRatio(s.cover.focus, "3/4")}
+                ratio="3/4"
                 sizes="(max-width:768px) 74vw, 30vw"
                 onClick={() => openAt(flat.findIndex((f) => f.url === s.cover.url))}
               />
@@ -355,24 +358,25 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
               <RevealImage
                 src={s.images[0].url}
                 focus={s.images[0].focus}
+                pos={s.images[0].pos}
                 alt={s.title}
                 ratio={bestRatio(s.images[0].focus, "4/5")}
                 sizes="(max-width:768px) 100vw, 74vw"
                 onClick={() => openAt(flat.findIndex((f) => f.url === s.images[0].url))}
               />
               {s.images.length > 1 && (
-                <div className="mt-3 columns-2 gap-3 md:mt-5 md:gap-5 [column-fill:balance]">
+                <div className="mt-3 grid grid-cols-2 gap-3 md:mt-5 md:gap-5">
                   {s.images.slice(1).map((sh, i) => (
-                    <div key={sh.url} className="mb-3 break-inside-avoid md:mb-5">
-                      <RevealImage
-                        src={sh.url}
-                        focus={sh.focus}
-                        alt={`${s.title} ${i + 2}`}
-                        ratio={bestRatio(sh.focus, i % 3 === 0 ? "3/4" : "1/1")}
-                        sizes="(max-width:768px) 50vw, 37vw"
-                        onClick={() => openAt(flat.findIndex((f) => f.url === sh.url))}
-                      />
-                    </div>
+                    <RevealImage
+                      key={sh.url}
+                      src={sh.url}
+                      focus={sh.focus}
+                      pos={sh.pos}
+                      alt={`${s.title} ${i + 2}`}
+                      ratio="3/4"
+                      sizes="(max-width:768px) 50vw, 37vw"
+                      onClick={() => openAt(flat.findIndex((f) => f.url === sh.url))}
+                    />
                   ))}
                 </div>
               )}
