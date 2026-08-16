@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Story } from "./page";
-import { focalPosition, bestRatio, type Focus } from "./focus";
+import { focalPosition, type Focus } from "./focus";
+import { buildRows } from "./mosaic";
 
 /* ────────────────────────────────────────────────────────────────
    갤러리 리디자인 — 에디토리얼 톤 + 스크롤 연출
@@ -353,33 +354,32 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
               </Reveal>
             </div>
 
-            {/* 이미지 — 첫 장은 전면, 이후 2열 */}
+            {/* 이미지 — 크기·방향을 섞은 행 단위 모자이크 (한 행 안에서는 같은 비율) */}
             <div className="mt-8 md:mt-0 md:w-[74%]">
-              <RevealImage
-                src={s.images[0].url}
-                focus={s.images[0].focus}
-                pos={s.images[0].pos}
-                alt={s.title}
-                ratio={bestRatio(s.images[0].focus, "4/5")}
-                sizes="(max-width:768px) 100vw, 74vw"
-                onClick={() => openAt(flat.findIndex((f) => f.url === s.images[0].url))}
-              />
-              {s.images.length > 1 && (
-                <div className="mt-3 grid grid-cols-2 gap-3 md:mt-5 md:gap-5">
-                  {s.images.slice(1).map((sh, i) => (
+              {buildRows(s.images).map((row, ri) => (
+                <div
+                  key={ri}
+                  className={`mb-3 md:mb-5 ${row.items.length === 2 ? "grid grid-cols-2 gap-3 md:gap-5" : ""}`}
+                >
+                  {row.items.map((sh) => (
                     <RevealImage
                       key={sh.url}
                       src={sh.url}
                       focus={sh.focus}
                       pos={sh.pos}
-                      alt={`${s.title} ${i + 2}`}
-                      ratio="3/4"
-                      sizes="(max-width:768px) 50vw, 37vw"
+                      alt={s.title}
+                      ratio={row.ratio}
+                      priority={ri === 0}
+                      sizes={
+                        row.items.length === 2
+                          ? "(max-width:768px) 50vw, 37vw"
+                          : "(max-width:768px) 100vw, 74vw"
+                      }
                       onClick={() => openAt(flat.findIndex((f) => f.url === sh.url))}
                     />
                   ))}
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </section>
