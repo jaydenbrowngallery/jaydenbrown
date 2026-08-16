@@ -470,30 +470,28 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
             }}
             className="relative z-10 max-h-[86vh] max-w-[94vw] object-contain"
           />
-          <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-5 text-white/70">
-            <span className="text-[12px] tracking-[0.08em]">
-              {String(open + 1).padStart(2, "0")} / {String(flat.length).padStart(2, "0")}
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen(null);
-              }}
-              className="text-[12px] tracking-[0.1em]"
-            >
-              CLOSE
-            </button>
-          </div>
+          {/* 상단 — 제목만 가운데 */}
+          <p className="absolute inset-x-0 top-0 pt-7 text-center text-[11px] uppercase tracking-[0.42em] text-white/70">
+            Jayden Brown Gallery
+          </p>
           {/* 다음 사진까지 남은 시간 — 인덱스가 바뀔 때마다 처음부터 다시 흐른다 */}
           {flat.length > 1 && (
             <span
               key={`p${open}`}
-              className="absolute left-0 top-0 h-[2px] bg-white/50 [animation:slideprog_3s_linear_forwards]"
+              className="absolute left-0 top-0 h-[2px] bg-white/25 [animation:slideprog_3s_linear_forwards]"
             />
           )}
-          <p className="absolute inset-x-0 bottom-0 px-5 py-6 text-center text-[11.5px] text-white/45">
-            3초마다 다음 사진 · 화면을 누르면 닫힙니다
-          </p>
+          {/* 하단 — 닫기 표시만 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(null);
+            }}
+            aria-label="닫기"
+            className="absolute bottom-7 left-1/2 -translate-x-1/2 text-[22px] font-light leading-none text-white/60 transition hover:text-white"
+          >
+            ×
+          </button>
         </div>,
         document.body
       )}
