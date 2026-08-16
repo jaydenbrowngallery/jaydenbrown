@@ -267,6 +267,23 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
   }, [open, flat.length]);
 
   const touch = useRef<{ x: number; y: number } | null>(null);
+  const [dbg, setDbg] = useState("");
+  const boxRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    if (open === null) return;
+    const t = setTimeout(() => {
+      const o = boxRef.current?.getBoundingClientRect();
+      const i = imgRef.current?.getBoundingClientRect();
+      const cs = imgRef.current ? getComputedStyle(imgRef.current) : null;
+      setDbg(
+        `ov ${o ? `${Math.round(o.width)}x${Math.round(o.height)}@${Math.round(o.top)}` : "?"} | ` +
+          `img ${i ? `${Math.round(i.width)}x${Math.round(i.height)}@${Math.round(i.left)},${Math.round(i.top)}` : "?"} | ` +
+          `${cs ? `${cs.display}/${cs.visibility}/${cs.opacity}` : "?"} | nat ${imgRef.current?.naturalWidth ?? "?"}`
+      );
+    }, 900);
+    return () => clearTimeout(t);
+  }, [open]);
 
   // 점검용: ?open=3 처럼 붙이면 해당 사진의 라이트박스를 바로 열어 확인할 수 있다
   useEffect(() => {
@@ -431,6 +448,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
       {/* ── 라이트박스 ── */}
       {open !== null && flat[open] && (
         <div
+          ref={boxRef}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 [animation:fadein_.25s_ease-out]"
           onClick={() => setOpen(null)}
           onTouchStart={(e) => {
@@ -461,6 +479,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           <img
             key={flat[open].url}
             ref={(el) => {
+              imgRef.current = el;
               if (el?.complete) hideLoading(el);
             }}
             src={flat[open].url}
@@ -489,6 +508,9 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
               CLOSE
             </button>
           </div>
+          <p className="absolute inset-x-0 top-14 z-20 px-4 text-[11px] leading-[1.6] text-yellow-300">
+            {dbg}
+          </p>
           <p className="absolute inset-x-0 bottom-0 px-5 py-6 text-center text-[11.5px] text-white/45">
             좌우로 밀어 넘기기 · 아래로 밀어 닫기
           </p>
