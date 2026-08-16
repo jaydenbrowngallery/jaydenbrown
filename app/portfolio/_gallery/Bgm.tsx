@@ -107,10 +107,18 @@ export default function Bgm({ tracks }: { tracks: string[] }) {
       <button
         onClick={() => (on ? stop() : start())}
         aria-label={on ? "배경음악 끄기" : "배경음악 켜기"}
-        className="fixed right-4 top-[86px] z-40 grid h-9 w-9 place-items-center rounded-full transition md:right-7 md:top-[96px]"
-        style={{ opacity: on ? 0.55 : 0.22 }}
+        className="fixed right-4 top-[86px] z-40 grid h-11 w-11 place-items-center rounded-full border transition md:right-7 md:top-[96px]"
+        style={{
+          // 사진 위에 놓이므로 원형 테두리와 옅은 배경을 줘서 위치가 보이게 한다
+          borderColor: on ? "rgba(0,0,0,0.22)" : "rgba(0,0,0,0.16)",
+          backgroundColor: on ? "rgba(255,255,255,0.82)" : "rgba(255,255,255,0.55)",
+          color: on ? "rgba(0,0,0,0.72)" : "rgba(0,0,0,0.42)",
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+        }}
       >
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.4">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M9 18V6l10-2v12" strokeLinecap="round" strokeLinejoin="round" />
           <circle cx="6.5" cy="18" r="2.5" />
           <circle cx="16.5" cy="16" r="2.5" />

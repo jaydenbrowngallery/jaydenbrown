@@ -290,11 +290,40 @@ export default function GalleryDior({
       setOut(null);
       return;
     }
-    setCur((prev) => {
-      if (prev !== null && prev !== open) setOut(prev);
-      return open;
-    });
-  }, [open]);
+    // 다 내려받기 전에 붙이면 아래쪽이 회색으로 비어 보인다 → 디코딩까지 끝난 뒤 교체하고,
+    // 그동안은 이전 사진을 계속 보여준다(첫 장은 썸네일이 이미 캐시돼 즉시 표시됨).
+    const target = open;
+    const url = flat[target]?.url;
+    if (!url) return;
+    let cancelled = false;
+    const show = () => {
+      if (cancelled) return;
+      setCur((prev) => {
+        if (prev !== null && prev !== target) setOut(prev);
+        return target;
+      });
+    };
+    const img = new window.Image();
+    img.src = url;
+    if (img.complete) show();
+    else if (typeof img.decode === "function") img.decode().then(show).catch(show);
+    else {
+      img.onload = show;
+      img.onerror = show;
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [open, flat]);
+
+  // 다음 사진을 미리 받아 둔다 — 전환이 끊기지 않게
+  useEffect(() => {
+    if (open === null || flat.length < 2) return;
+    const nxt = flat[(open + 1) % flat.length];
+    if (!nxt) return;
+    const pre = new window.Image();
+    pre.src = nxt.url;
+  }, [open, flat]);
   useEffect(() => {
     if (out === null) return;
     const t = setTimeout(() => setOut(null), 1300);
