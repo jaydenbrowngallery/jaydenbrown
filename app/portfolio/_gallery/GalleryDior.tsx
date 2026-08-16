@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { Story } from "./page";
+import type { Story } from "./data";
 import { focalPosition, rotationScale, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
 import Bgm from "./Bgm";

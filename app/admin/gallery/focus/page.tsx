@@ -26,10 +26,16 @@ export default async function GalleryFocusPage() {
         </p>
         <div className="mt-5 flex gap-2">
           <Link
-            href="/gallery-preview"
+            href="/portfolio-manage"
             className="rounded-full border border-black/12 bg-white px-4 py-2 text-[13px] text-black/60 transition hover:border-black/30"
           >
-            갤러리 미리보기
+            갤러리 관리 · 삭제
+          </Link>
+          <Link
+            href="/portfolio"
+            className="rounded-full border border-black/12 bg-white px-4 py-2 text-[13px] text-black/60 transition hover:border-black/30"
+          >
+            갤러리 보기
           </Link>
           <Link
             href="/admin/system"

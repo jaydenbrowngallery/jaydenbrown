@@ -1,4 +1,4 @@
-import type { Shot } from "./page";
+import type { Shot } from "./data";
 
 /* 썸네일 리듬 만들기.
 
