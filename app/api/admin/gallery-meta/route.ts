@@ -6,6 +6,9 @@ import { isAdmin } from "@/lib/isAdmin";
    테이블 변경 없이 site_settings/gallerymeta_all 에 { "<postId>": {season, note} } 로 둔다. */
 
 const KEY = "gallerymeta_all";
+const INTRO_KEY = "gallery_intro";
+export const DEFAULT_INTRO =
+  "예뻐 보이려 애쓰지 않아도 됩니다.\n그저 그 순간을 편안하게 느껴주세요.\n행복은 곁에 있다는 것만으로 이미 시작되니까요.";
 export const SEASONS = ["봄", "여름", "가을", "겨울"] as const;
 
 /** 등록일로 계절을 추정 — 설정하지 않은 스토리의 기본값 */
@@ -33,11 +36,18 @@ async function readMeta(supabase: any): Promise<Record<string, { season?: string
   }
 }
 
+async function readIntro(supabase: any): Promise<string> {
+  const { data } = await supabase.from("site_settings").select("value").eq("id", INTRO_KEY);
+  const raw = ((data || []) as { value: string | null }[])[0]?.value;
+  return raw ?? DEFAULT_INTRO;
+}
+
 export async function GET() {
   const { supabase } = await guard();
   if (!supabase) return NextResponse.json({ error: "권한이 없습니다." }, { status: 401 });
 
   const meta = await readMeta(supabase);
+  const intro = await readIntro(supabase);
   const { data: posts } = await supabase
     .from("gallery_posts")
     .select("id, title, cover_image, created_at");
@@ -62,7 +72,7 @@ export async function GET() {
       note: meta[p.id]?.note || "",
     }));
 
-  return NextResponse.json({ items, seasons: SEASONS });
+  return NextResponse.json({ items, seasons: SEASONS, intro });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -70,6 +80,17 @@ export async function PATCH(req: NextRequest) {
   if (!supabase) return NextResponse.json({ error: "권한이 없습니다." }, { status: 401 });
 
   const body = await req.json();
+
+  // 상단 글귀 저장 — 줄바꿈을 그대로 보존한다(앞뒤 공백만 제거)
+  if (body.intro !== undefined) {
+    const text = String(body.intro).replace(/\r\n/g, "\n").replace(/^\s+|\s+$/g, "").slice(0, 600);
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ id: INTRO_KEY, value: text }, { onConflict: "id" });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true, intro: text });
+  }
+
   const id = String(body.id || "").trim();
   if (!id) return NextResponse.json({ error: "id가 필요합니다." }, { status: 400 });
 
@@ -84,7 +105,7 @@ export async function PATCH(req: NextRequest) {
     cur.season = s || undefined;
   }
   if (body.note !== undefined) {
-    cur.note = String(body.note).trim().slice(0, 120) || undefined;
+    cur.note = String(body.note).replace(/\r\n/g, "\n").replace(/^\s+|\s+$/g, "").slice(0, 300) || undefined;
   }
 
   if (!cur.season && !cur.note) delete meta[id];

@@ -164,7 +164,7 @@ function SplitTitle({ text, className = "", delay = 0 }: { text: string; classNa
   );
 }
 
-export default function GalleryDior({ stories }: { stories: Story[] }) {
+export default function GalleryDior({ stories, intro }: { stories: Story[]; intro: string }) {
   const flat = useMemo(
     () => stories.flatMap((s) => s.images.map((sh) => ({ ...sh, title: s.title, season: s.season }))),
     [stories]
@@ -297,17 +297,18 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
       {/* ── 인트로 ── */}
       <section className="px-6 py-24 md:px-12 md:py-36">
         <div className="mx-auto max-w-2xl">
-          {[
-            "예뻐 보이려 애쓰지 않아도 됩니다.",
-            "그저 그 순간을 편안하게 느껴주세요.",
-            "행복은 곁에 있다는 것만으로 이미 시작되니까요.",
-          ].map((line, i) => (
-            <Reveal key={i} delay={i * 140} y={22}>
-              <p className="text-[17px] font-light leading-[1.9] tracking-[-0.01em] text-black/70 md:text-[22px] md:leading-[1.85]">
-                {line}
-              </p>
-            </Reveal>
-          ))}
+          {/* 관리자가 입력한 줄바꿈을 그대로 살린다. 빈 줄은 문단 간격으로 처리 */}
+          {intro.split("\n").map((line, i) =>
+            line.trim() === "" ? (
+              <div key={i} className="h-5 md:h-7" />
+            ) : (
+              <Reveal key={i} delay={Math.min(i, 6) * 130} y={22}>
+                <p className="text-[17px] font-light leading-[1.9] tracking-[-0.01em] text-black/70 md:text-[22px] md:leading-[1.85]">
+                  {line}
+                </p>
+              </Reveal>
+            )
+          )}
         </div>
       </section>
 
@@ -326,7 +327,9 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
                 </h2>
                 <p className="mt-3 text-[11.5px] tracking-[0.14em] text-black/35">{s.season}</p>
                 {s.note && (
-                  <p className="mt-6 text-[13px] leading-[1.95] text-black/50">{s.note}</p>
+                  <p className="mt-6 whitespace-pre-line text-[13px] leading-[1.95] text-black/50">
+                    {s.note}
+                  </p>
                 )}
               </Reveal>
             </div>

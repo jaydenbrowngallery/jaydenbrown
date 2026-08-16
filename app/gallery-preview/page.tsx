@@ -43,6 +43,23 @@ async function getFocusMap(): Promise<Record<string, Focus>> {
 
 const focusKey = (url: string) => url.replace(/^\/api\/gallery-file\//, "");
 
+const DEFAULT_INTRO =
+  "예뻐 보이려 애쓰지 않아도 됩니다.\n그저 그 순간을 편안하게 느껴주세요.\n행복은 곁에 있다는 것만으로 이미 시작되니까요.";
+
+/* 상단 글귀 (site_settings/gallery_intro) — 줄바꿈을 그대로 화면에 반영한다. */
+async function getIntro(): Promise<string> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("id", "gallery_intro");
+    const raw = ((data || []) as { value: string | null }[])[0]?.value;
+    return raw && raw.trim() ? raw : DEFAULT_INTRO;
+  } catch {
+    return DEFAULT_INTRO;
+  }
+}
+
 /* 스토리별 계절·멘트 (site_settings/gallerymeta_all). 없으면 등록 월로 계절 추정. */
 async function getStoryMeta(): Promise<Record<string, { season?: string; note?: string }>> {
   try {
@@ -148,6 +165,6 @@ async function getStories(): Promise<Story[]> {
 }
 
 export default async function GalleryPreviewPage() {
-  const stories = await getStories();
-  return <GalleryDior stories={stories} />;
+  const [stories, intro] = await Promise.all([getStories(), getIntro()]);
+  return <GalleryDior stories={stories} intro={intro} />;
 }
