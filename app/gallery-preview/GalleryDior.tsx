@@ -311,38 +311,6 @@ export default function GalleryDior({ stories }: { stories: Story[] }) {
         </div>
       </section>
 
-      {/* ── 가로 스크롤 스트립 ── */}
-      <section className="pb-24 md:pb-32">
-        <Reveal>
-          <div className="mb-5 flex items-baseline justify-between px-6 md:px-12">
-            <p className="text-[10.5px] uppercase tracking-[0.36em] text-black/35">Selected</p>
-            <p className="text-[11px] text-black/30">밀어서 보기 →</p>
-          </div>
-        </Reveal>
-        <div
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 md:gap-5 md:px-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{ overscrollBehaviorX: "contain", scrollBehavior: "smooth" }}
-        >
-          {stories.map((s, i) => (
-            <div key={s.id} className="w-[74vw] shrink-0 snap-center md:w-[30vw]">
-              <RevealImage
-                src={s.cover.url}
-                focus={s.cover.focus}
-                pos={s.cover.pos}
-                alt={s.title}
-                ratio="3/4"
-                sizes="(max-width:768px) 74vw, 30vw"
-                onClick={() => openAt(indexOf.get(s.cover.url))}
-              />
-              <div className="mt-3 flex items-baseline justify-between">
-                <p className="text-[12.5px] tracking-[0.02em] text-black/60">{s.title}</p>
-                <p className="text-[11px] text-black/30">{s.season}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── 스토리별 에디토리얼 ── */}
       {stories.map((s, si) => (
         <section key={s.id} className="border-t border-black/[0.07] py-20 md:py-32">
