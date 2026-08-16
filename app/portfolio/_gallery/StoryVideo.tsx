@@ -15,11 +15,14 @@ export default function StoryVideo({
   poster,
   ratio = "16/9",
   label,
+  align = "center",
 }: {
   src: string;
   poster?: string;
   ratio?: string;
   label?: string;
+  /** 화면비를 좁게 줄 때 어느 쪽을 남길지 — 오른쪽을 잘라내려면 "left center" */
+  align?: string;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -63,6 +66,7 @@ export default function StoryVideo({
           aria-hidden
           className="absolute inset-0 h-full w-full object-cover"
           style={{
+            objectPosition: align,
             transform: `translate3d(${on ? "0" : "5%"},0,0) scale(${on ? 1 : 1.04})`,
             filter: on ? "none" : "blur(12px)",
             transition:
@@ -87,6 +91,7 @@ export default function StoryVideo({
         onLoadedData={() => setReady(true)}
         className="absolute inset-0 h-full w-full object-cover"
         style={{
+          objectPosition: align,
           // 포스터와 자리를 정확히 맞춘 뒤 부드럽게 덮는다
           opacity: ready ? 1 : 0,
           transform: `translate3d(${on ? "0" : "5%"},0,0) scale(${on ? 1 : 1.04})`,

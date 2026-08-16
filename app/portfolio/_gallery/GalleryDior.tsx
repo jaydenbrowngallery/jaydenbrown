@@ -10,9 +10,13 @@ import StoryVideo from "./StoryVideo";
 
 /* 스토리 맨 위에 사진처럼 넣는 짧은 영상 — 키는 스토리 순번(1부터).
    파일은 public/video 에 두고, 여기에 한 줄 추가하면 해당 스토리에 붙는다. */
-const STORY_VIDEOS: Record<number, { src: string; poster?: string; ratio?: string; label?: string }> = {
-  5: { src: "/video/rainy.mp4", poster: "/video/rainy.jpg", ratio: "16/9", label: "비오는 날" },
+const STORY_VIDEOS: Record<number, { src: string; poster?: string; ratio?: string; label?: string; align?: string }> = {
+  // 16:9 원본의 가로 절반만 쓴다 → 8/9. 나머지 절반에는 같은 스토리의 세로 사진이 들어간다.
+  5: { src: "/video/rainy.mp4", poster: "/video/rainy.jpg", ratio: "8/9", align: "left center", label: "비오는 날" },
 };
+
+/* 영상 옆에 세울 세로 사진 — 폭이 같으므로 영상과 같은 화면비여야 높이가 맞는다 */
+const SIDE_RATIO = "8/9";
 
 /* 계절은 화면에 영문으로 표기한다 (저장값은 한글) */
 const SEASON_EN: Record<string, string> = {
@@ -471,12 +475,41 @@ export default function GalleryDior({
 
             {/* 이미지 — 크기·방향을 섞은 행 단위 모자이크 (한 행 안에서는 같은 비율) */}
             <div className="mt-8 md:mt-0 md:w-[74%]">
-              {STORY_VIDEOS[si + 1] && (
-                <div className="mb-3 md:mb-5">
-                  <StoryVideo {...STORY_VIDEOS[si + 1]} />
-                </div>
-              )}
-              {buildRows(s.images).map((row, ri) => (
+              {(() => {
+                const vid = STORY_VIDEOS[si + 1];
+                if (!vid) return null;
+                // 영상 옆에 세울 세로 사진 — 없으면 첫 사진으로 대신한다
+                const side =
+                  s.images.find((sh) => sh.iw && sh.ih && sh.ih > sh.iw) || s.images[0];
+                return (
+                  <div className="mb-3 grid grid-cols-2 gap-3 md:mb-5 md:gap-5">
+                    <StoryVideo {...vid} />
+                    {side && (
+                      <RevealImage
+                        src={side.url}
+                        focus={side.focus}
+                        pos={side.pos}
+                        rot={side.rot}
+                        alt={s.title}
+                        ratio={SIDE_RATIO}
+                        priority
+                        sizes="(max-width:768px) 50vw, 37vw"
+                        onClick={() => openAt(indexOf.get(side.url))}
+                      />
+                    )}
+                  </div>
+                );
+              })()}
+              {buildRows(
+                // 옆에 세운 사진은 아래 모자이크에서 빼서 중복을 피한다
+                STORY_VIDEOS[si + 1]
+                  ? s.images.filter(
+                      (sh) =>
+                        sh.url !==
+                        (s.images.find((x) => x.iw && x.ih && x.ih > x.iw) || s.images[0])?.url
+                    )
+                  : s.images
+              ).map((row, ri) => (
                 <div
                   key={ri}
                   className={`mb-3 md:mb-5 ${row.items.length === 2 ? "grid grid-cols-2 gap-3 md:gap-5" : ""}`}
