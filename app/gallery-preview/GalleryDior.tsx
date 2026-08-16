@@ -267,9 +267,18 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
     };
   }, [open, flat.length]);
 
-  const touch = useRef<{ x: number; y: number } | null>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // 라이트박스가 열려 있으면 3초마다 다음 사진으로 (인덱스가 바뀌어도 간격은 그대로)
+  const isOpen = open !== null;
+  useEffect(() => {
+    if (!isOpen || flat.length < 2) return;
+    const id = setInterval(() => {
+      setOpen((v) => (v === null ? v : (v + 1) % flat.length));
+    }, 3000);
+    return () => clearInterval(id);
+  }, [isOpen, flat.length]);
 
   // 점검용: ?open=3 처럼 붙이면 해당 사진의 라이트박스를 바로 열어 확인할 수 있다
   useEffect(() => {
@@ -438,24 +447,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 [animation:fadein_.25s_ease-out]"
           onClick={() => setOpen(null)}
-          onTouchStart={(e) => {
-            const t = e.touches[0];
-            touch.current = { x: t.clientX, y: t.clientY };
-          }}
-          onTouchEnd={(e) => {
-            const s = touch.current;
-            if (!s) return;
-            const t = e.changedTouches[0];
-            const dx = t.clientX - s.x;
-            const dy = t.clientY - s.y;
-            touch.current = null;
-            if (Math.abs(dy) > 90 && Math.abs(dy) > Math.abs(dx)) return setOpen(null);
-            if (Math.abs(dx) > 55) {
-              setOpen((v) =>
-                v === null ? v : (v + (dx < 0 ? 1 : -1) + flat.length) % flat.length
-              );
-            }
-          }}
+          onTouchStart={() => setOpen(null)}
         >
           <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] tracking-[0.2em] text-white/30">
             LOADING
@@ -492,8 +484,15 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
               CLOSE
             </button>
           </div>
+          {/* 다음 사진까지 남은 시간 — 인덱스가 바뀔 때마다 처음부터 다시 흐른다 */}
+          {flat.length > 1 && (
+            <span
+              key={`p${open}`}
+              className="absolute left-0 top-0 h-[2px] bg-white/50 [animation:slideprog_3s_linear_forwards]"
+            />
+          )}
           <p className="absolute inset-x-0 bottom-0 px-5 py-6 text-center text-[11.5px] text-white/45">
-            좌우로 밀어 넘기기 · 아래로 밀어 닫기
+            3초마다 다음 사진 · 화면을 누르면 닫힙니다
           </p>
         </div>,
         document.body
@@ -507,6 +506,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           100% { transform: scaleY(0); transform-origin: bottom; }
         }
         @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes slideprog { from { width: 0 } to { width: 100% } }
         @keyframes zoomin {
           from { opacity: 0; transform: scale(.94) }
           to { opacity: 1; transform: scale(1) }
