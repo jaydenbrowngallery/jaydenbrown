@@ -315,16 +315,13 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
       )}
 
       {/* ── 스토리별 에디토리얼 ── */}
-      {stories.map((s, si) => (
+      {stories.map((s) => (
         <section key={s.id} className="border-t border-black/[0.07] py-20 md:py-32">
           <div className="md:flex md:gap-12 md:px-12">
             {/* 캡션 — 데스크톱에서는 붙어서 따라온다 */}
             <div className="px-6 md:sticky md:top-24 md:h-fit md:w-[26%] md:px-0">
               <Reveal>
-                <p className="text-[10.5px] uppercase tracking-[0.36em] text-black/30">
-                  {String(si + 1).padStart(2, "0")}
-                </p>
-                <h2 className="mt-3 text-[26px] font-light leading-[1.25] tracking-[-0.02em] text-black/80 md:text-[30px]">
+                <h2 className="text-[26px] font-light leading-[1.25] tracking-[-0.02em] text-black/80 md:text-[30px]">
                   {s.title}
                 </h2>
                 <p className="mt-3 text-[11.5px] tracking-[0.14em] text-black/35">{s.season}</p>
