@@ -5,6 +5,12 @@ import type { Story } from "./page";
 import { focalPosition, rotationScale, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
 
+/** 라이트박스의 LOADING 표시 숨기기 */
+function hideLoading(img: HTMLImageElement) {
+  const label = img.parentElement?.querySelector("span");
+  if (label) (label as HTMLElement).style.display = "none";
+}
+
 /* 계절은 화면에 영문으로 표기한다 (저장값은 한글) */
 const SEASON_EN: Record<string, string> = {
   봄: "Spring",
@@ -417,7 +423,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
       {/* ── 라이트박스 ── */}
       {open !== null && flat[open] && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 [animation:fadein_.25s_ease-out]"
           onClick={() => setOpen(null)}
           onTouchStart={(e) => {
             const t = e.touches[0];
@@ -441,24 +447,23 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] tracking-[0.2em] text-white/30">
             LOADING
           </span>
-          {/* 애니메이션에 표시를 의존하지 않는다 — 로드되면 그 자리에서 살짝 나타나기만 */}
+          {/* 이미지는 항상 보이는 상태로 둔다.
+              캐시된 사진은 onLoad 가 핸들러 부착 전에 끝나버려, 투명하게 시작하면
+              영영 나타나지 않고 검은 화면이 된다(ref 에서 complete 도 함께 확인). */}
           <img
             key={flat[open].url}
+            ref={(el) => {
+              if (el?.complete) hideLoading(el);
+            }}
             src={flat[open].url}
             alt=""
             decoding="async"
-            onLoad={(e) => {
-              const el = e.currentTarget;
-              el.style.opacity = "1";
-              const label = el.parentElement?.querySelector("span");
-              if (label) (label as HTMLElement).style.display = "none";
-            }}
+            onLoad={(e) => hideLoading(e.currentTarget)}
             onError={(e) => {
               const label = e.currentTarget.parentElement?.querySelector("span");
               if (label) label.textContent = "사진을 불러올 수 없습니다";
             }}
-            style={{ opacity: 0, transition: "opacity .35s ease-out" }}
-            className="relative max-h-[86vh] max-w-[94vw] object-contain"
+            className="relative z-10 max-h-[86vh] max-w-[94vw] object-contain"
           />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-5 text-white/70">
             <span className="text-[12px] tracking-[0.08em]">
