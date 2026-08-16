@@ -92,6 +92,9 @@ function RevealImage({
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const [on, setOn] = useState(priority);
+  // 가로로 넓은 슬롯(3/2·16/9·4/3 등)은 오른쪽에서 왼쪽으로 훑으며 드러낸다
+  const [rw, rh] = ratio.split("/").map(Number);
+  const wide = rw && rh ? rw / rh >= 1.2 : false;
   useEffect(() => {
     const el = ref.current;
     if (!el || priority) return;
@@ -131,9 +134,17 @@ function RevealImage({
           // 검출된 인물이 모두 들어오도록, 치우친 쪽으로 살짝 더 이동한 위치
           objectPosition: pos || focalPosition(focus, ratio),
           // 수평을 기울이면 빈 모서리가 생기므로 그만큼 확대해서 덮는다
-          transform: `rotate(${rot}deg) scale(${((on ? 1 : 1.08) * rotationScale(rot, ratio)).toFixed(3)})`,
+          transform: [
+            wide ? `translate3d(${on ? "0" : "5%"},0,0)` : "",
+            `rotate(${rot}deg)`,
+            `scale(${((on ? 1 : wide ? 1.04 : 1.08) * rotationScale(rot, ratio)).toFixed(3)})`,
+          ]
+            .filter(Boolean)
+            .join(" "),
           filter: on ? "none" : "blur(12px)",
-          transition: "transform 1.6s cubic-bezier(.16,1,.3,1), filter 1.2s ease-out",
+          transition: wide
+            ? "transform 1.5s cubic-bezier(.22,1,.28,1), filter 1.1s ease-out"
+            : "transform 1.6s cubic-bezier(.16,1,.3,1), filter 1.2s ease-out",
         }}
       />
       {/* 위에서 아래로 걷히는 커튼 */}
@@ -141,8 +152,14 @@ function RevealImage({
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[#f7f5f2]"
         style={{
-          transform: on ? "translate3d(0,-101%,0)" : "none",
-          transition: "transform 1.25s cubic-bezier(.76,0,.24,1)",
+          transform: on
+            ? wide
+              ? "translate3d(-101%,0,0)"
+              : "translate3d(0,-101%,0)"
+            : "none",
+          transition: wide
+            ? "transform 1.15s cubic-bezier(.7,0,.2,1)"
+            : "transform 1.25s cubic-bezier(.76,0,.24,1)",
         }}
       />
     </button>
