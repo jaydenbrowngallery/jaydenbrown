@@ -1,4 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import fs from "node:fs";
+import path from "node:path";
 import GalleryDior from "./GalleryDior";
 import type { Focus } from "./focus";
 
@@ -179,7 +181,21 @@ async function getStories(): Promise<Story[]> {
   }
 }
 
+/* public/bgm 안의 음원 목록 — 폴더에 파일을 넣으면 자동으로 재생 목록에 들어간다 */
+function getTracks(): string[] {
+  try {
+    const dir = path.join(process.cwd(), "public", "bgm");
+    return fs
+      .readdirSync(dir)
+      .filter((f) => /\.(m4a|mp3|aac|ogg)$/i.test(f))
+      .sort()
+      .map((f) => `/bgm/${encodeURIComponent(f)}`);
+  } catch {
+    return [];
+  }
+}
+
 export default async function GalleryPreviewPage() {
   const [stories, intro] = await Promise.all([getStories(), getIntro()]);
-  return <GalleryDior stories={stories} intro={intro} />;
+  return <GalleryDior stories={stories} intro={intro} tracks={getTracks()} />;
 }

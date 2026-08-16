@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import type { Story } from "./page";
 import { focalPosition, rotationScale, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
+import Bgm from "./Bgm";
 
 /* 계절은 화면에 영문으로 표기한다 (저장값은 한글) */
 const SEASON_EN: Record<string, string> = {
@@ -194,7 +195,15 @@ function SplitTitle({ text, className = "", delay = 0 }: { text: string; classNa
   );
 }
 
-export default function GalleryDior({ stories, intro }: { stories: Story[]; intro: string }) {
+export default function GalleryDior({
+  stories,
+  intro,
+  tracks = [],
+}: {
+  stories: Story[];
+  intro: string;
+  tracks?: string[];
+}) {
   const flat = useMemo(
     () => stories.flatMap((s) => s.images.map((sh) => ({ ...sh, title: s.title, season: s.season }))),
     [stories]
@@ -324,6 +333,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
 
   return (
     <main className="bg-[#f7f5f2] text-[#141414]">
+      <Bgm tracks={tracks} />
       {/* 스크롤 진행 바 */}
       <div className="pointer-events-none fixed left-0 top-0 z-40 h-[2px] w-full bg-black/[0.06]">
         <div
