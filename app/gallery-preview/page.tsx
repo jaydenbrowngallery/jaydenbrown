@@ -43,8 +43,8 @@ async function getFocusMap(): Promise<Record<string, Focus>> {
 
 const focusKey = (url: string) => url.replace(/^\/api\/gallery-file\//, "");
 
-const DEFAULT_INTRO =
-  "예뻐 보이려 애쓰지 않아도 됩니다.\n그저 그 순간을 편안하게 느껴주세요.\n행복은 곁에 있다는 것만으로 이미 시작되니까요.";
+/* 상단 글귀는 기본값 없이 비워 둔다. 관리자에서 넣으면 그때 표시된다. */
+const DEFAULT_INTRO = "";
 
 /* 상단 글귀 (site_settings/gallery_intro) — 줄바꿈을 그대로 화면에 반영한다. */
 async function getIntro(): Promise<string> {
@@ -54,7 +54,7 @@ async function getIntro(): Promise<string> {
       .select("value")
       .eq("id", "gallery_intro");
     const raw = ((data || []) as { value: string | null }[])[0]?.value;
-    return raw && raw.trim() ? raw : DEFAULT_INTRO;
+    return raw ?? DEFAULT_INTRO;
   } catch {
     return DEFAULT_INTRO;
   }

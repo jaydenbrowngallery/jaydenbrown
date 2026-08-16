@@ -294,7 +294,8 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
         </div>
       </section>
 
-      {/* ── 인트로 ── */}
+      {/* ── 인트로 — 글귀가 없으면 섹션을 아예 그리지 않는다 ── */}
+      {intro.trim() !== "" && (
       <section className="px-6 py-24 md:px-12 md:py-36">
         <div className="mx-auto max-w-2xl">
           {/* 관리자가 입력한 줄바꿈을 그대로 살린다. 빈 줄은 문단 간격으로 처리 */}
@@ -311,6 +312,7 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           )}
         </div>
       </section>
+      )}
 
       {/* ── 스토리별 에디토리얼 ── */}
       {stories.map((s, si) => (

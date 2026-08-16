@@ -7,8 +7,7 @@ import { isAdmin } from "@/lib/isAdmin";
 
 const KEY = "gallerymeta_all";
 const INTRO_KEY = "gallery_intro";
-export const DEFAULT_INTRO =
-  "예뻐 보이려 애쓰지 않아도 됩니다.\n그저 그 순간을 편안하게 느껴주세요.\n행복은 곁에 있다는 것만으로 이미 시작되니까요.";
+export const DEFAULT_INTRO = ""; // 기본 예시 문구 없음 — 비어 있으면 갤러리에 표시하지 않는다
 export const SEASONS = ["봄", "여름", "가을", "겨울"] as const;
 
 /** 등록일로 계절을 추정 — 설정하지 않은 스토리의 기본값 */
