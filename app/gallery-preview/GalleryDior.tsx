@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Story } from "./page";
 import { focalPosition, rotationScale, type Focus } from "./focus";
 import { buildRows } from "./mosaic";
@@ -267,23 +268,8 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
   }, [open, flat.length]);
 
   const touch = useRef<{ x: number; y: number } | null>(null);
-  const [dbg, setDbg] = useState("");
-  const boxRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
-  useEffect(() => {
-    if (open === null) return;
-    const t = setTimeout(() => {
-      const o = boxRef.current?.getBoundingClientRect();
-      const i = imgRef.current?.getBoundingClientRect();
-      const cs = imgRef.current ? getComputedStyle(imgRef.current) : null;
-      setDbg(
-        `ov ${o ? `${Math.round(o.width)}x${Math.round(o.height)}@${Math.round(o.top)}` : "?"} | ` +
-          `img ${i ? `${Math.round(i.width)}x${Math.round(i.height)}@${Math.round(i.left)},${Math.round(i.top)}` : "?"} | ` +
-          `${cs ? `${cs.display}/${cs.visibility}/${cs.opacity}` : "?"} | nat ${imgRef.current?.naturalWidth ?? "?"}`
-      );
-    }, 900);
-    return () => clearTimeout(t);
-  }, [open]);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // 점검용: ?open=3 처럼 붙이면 해당 사진의 라이트박스를 바로 열어 확인할 수 있다
   useEffect(() => {
@@ -445,10 +431,11 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
         </Reveal>
       </section>
 
-      {/* ── 라이트박스 ── */}
-      {open !== null && flat[open] && (
+      {/* ── 라이트박스 ──
+          main 에 걸린 pageFadeIn 애니메이션이 filter 를 남기기 때문에 main 안에서는
+          position:fixed 가 뷰포트 대신 main 기준으로 잡힌다. 그래서 body 로 포털한다. */}
+      {open !== null && flat[open] && mounted && createPortal(
         <div
-          ref={boxRef}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 [animation:fadein_.25s_ease-out]"
           onClick={() => setOpen(null)}
           onTouchStart={(e) => {
@@ -479,7 +466,6 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
           <img
             key={flat[open].url}
             ref={(el) => {
-              imgRef.current = el;
               if (el?.complete) hideLoading(el);
             }}
             src={flat[open].url}
@@ -490,13 +476,11 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
               const label = e.currentTarget.parentElement?.querySelector("span");
               if (label) label.textContent = "사진을 불러올 수 없습니다";
             }}
-            style={{ width: 240, height: 240, objectFit: "cover", border: "3px solid red" }}
-            className="relative z-10"
+            className="relative z-10 max-h-[86vh] max-w-[94vw] object-contain"
           />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-5 text-white/70">
-            <span className="text-[11px] tracking-[0.04em]">
-              {String(open + 1).padStart(2, "0")}/{String(flat.length).padStart(2, "0")} ·{" "}
-              {flat[open].url.slice(-22)}
+            <span className="text-[12px] tracking-[0.08em]">
+              {String(open + 1).padStart(2, "0")} / {String(flat.length).padStart(2, "0")}
             </span>
             <button
               onClick={(e) => {
@@ -508,13 +492,11 @@ export default function GalleryDior({ stories, intro }: { stories: Story[]; intr
               CLOSE
             </button>
           </div>
-          <p className="absolute inset-x-0 top-14 z-20 px-4 text-[11px] leading-[1.6] text-yellow-300">
-            {dbg}
-          </p>
           <p className="absolute inset-x-0 bottom-0 px-5 py-6 text-center text-[11.5px] text-white/45">
             좌우로 밀어 넘기기 · 아래로 밀어 닫기
           </p>
-        </div>
+        </div>,
+        document.body
       )}
 
       <style jsx global>{`
