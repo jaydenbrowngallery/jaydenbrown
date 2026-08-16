@@ -1,7 +1,13 @@
 import Link from "next/link";
-import { requireAdmin } from "@/lib/supabase/admin";
+import { requireAdmin, supabaseAdmin } from "@/lib/supabase/admin";
+import SchedulerPasscodeSetting from "./SchedulerPasscodeSetting";
 import CalendarNavForm from "./CalendarNavForm";
+import CopyFolderName from "./CopyFolderName";
 import BookingClientSection from "./BookingClientSection";
+import BookingListTable from "./BookingListTable";
+import SearchBarSimple from "./SearchBarSimple";
+import ScheduleSearchButton from "./ScheduleSearchButton";
+import DepositReminderButton from "./DepositReminderButton";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +24,11 @@ type BookingRequest = {
   location?: string | null;
   status?: string | null;
   depositor_name?: string | null;
+  email?: string | null;
+  google_event_id?: string | null;
+  guide_sent_at?: string | null;
+  fee_sms_sent_at?: string | null;
+  address_confirmed_at?: string | null;
 };
 
 type CalendarEvent = {
@@ -30,6 +41,9 @@ type CalendarEvent = {
   start_at?: string | null;
   end_at?: string | null;
   source?: string | null;
+  guide_sent_at?: string | null;
+  fee_sms_sent_at?: string | null;
+  address_confirmed_at?: string | null;
 };
 
 type BookingListItem = {
@@ -152,7 +166,7 @@ function getMonthCalendarData(
     const dateString = `${year}-${pad2(month)}-${pad2(day)}`;
 
     const items = (dateMap.get(dateString) ?? []).sort((a, b) => {
-      const order = { "1부": 1, "2부": 2, "3부": 3 } as Record<string, number>;
+      const order = { "1부": 1, "2부": 2, "2부식후": 3, "3부": 4 } as Record<string, number>;
       return (order[a.time || ""] ?? 99) - (order[b.time || ""] ?? 99);
     });
 
@@ -184,6 +198,7 @@ function getTimeSlotBadgeClass(slot?: string | null) {
       return "bg-blue-100 text-blue-700";
     case "2부":
       return "bg-amber-100 text-amber-700";
+    case "2부식후": return "2부식후";
     case "3부":
       return "bg-rose-100 text-rose-700";
     default:
@@ -197,6 +212,7 @@ function formatTimeSlot(slot?: string | null) {
       return "1부(12시)";
     case "2부":
       return "2부(14시30분)";
+    case "2부식후": return "2부식후";
     case "3부":
       return "3부(16시)";
     default:
@@ -318,6 +334,33 @@ function buildSelectedDateLink(args: {
   return `/admin/booking?${params.toString()}`;
 }
 
+// supabase .or() 필터에서 특수문자 escape
+function escapeForSupabaseOr(value: string) {
+  return value.replace(/[,()'"\\]/g, "");
+}
+
+
+/* 후반작업 폴더명 규칙 — "2026년 8월 15일 박시후 도동산방" (월·일에 0 붙이지 않음) */
+function folderName(dateString: string | undefined, name: string | null | undefined, location: string | null | undefined) {
+  if (!dateString) return "";
+  const [y, m, d] = dateString.split("-").map((v) => Number(v));
+  if (!y || !m || !d) return "";
+  const nm = (name || "").trim();
+  const loc = (location || "").trim();
+  return [`${y}년 ${m}월 ${d}일`, nm, loc && loc !== "-" ? loc : "도동산방"]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/* 캘린더 일정 제목에서 촬영자명만 뽑는다 — "[확정] 1200 김지한 도동산방" → "김지한" */
+function nameFromCalendarTitle(title: string | null | undefined) {
+  let t = (title || "").replace(/\[[^\]]*\]/g, " ").replace(/☀|여름/g, " ");
+  t = t.replace(/\b\d{3,4}\b/g, " ");
+  const STOP = new Set(["도동산방", "농도", "촬영", "식후", "스냅", "부"]);
+  const toks = (t.match(/[가-힣]+/g) || []).filter((x) => !STOP.has(x) && x.length >= 2);
+  return toks[0] || "";
+}
+
 export default async function AdminBookingPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) || {};
   const todayParts = getKSTTodayParts();
@@ -336,7 +379,9 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     Boolean(searchMonthInput) &&
     Boolean(searchDayInput);
 
-  // 캘린더 년월은 year/month 파라미터 기준 (이전달/다음달 동작)
+  // 검색 모드 여부 — keyword가 있으면 검색 결과 전용 화면
+  const isSearchMode = Boolean(keyword);
+
   const selectedYear = Number(resolvedSearchParams.year) || Number(todayParts.year);
   const selectedMonth = Number(resolvedSearchParams.month) || Number(todayParts.month);
 
@@ -346,26 +391,78 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
 
   const { supabase } = await requireAdmin();
 
+  // /today 스케줄러 이동 비밀번호 (미설정 시 기본 0814)
+  const { data: pcRow } = await supabaseAdmin
+    .from("site_settings")
+    .select("value")
+    .eq("id", "scheduler_passcode")
+    .maybeSingle();
+  const schedulerPasscode = ((pcRow?.value as string) || "").trim() || "0814";
+
   const monthStart = new Date(`${selectedYear}-${pad2(selectedMonth)}-01T00:00:00+09:00`);
   const monthEnd =
     selectedMonth === 12
       ? new Date(`${selectedYear + 1}-01-01T00:00:00+09:00`)
       : new Date(`${selectedYear}-${pad2(selectedMonth + 1)}-01T00:00:00+09:00`);
 
+  const safeKeyword = keyword ? escapeForSupabaseOr(keyword) : "";
+  const ilikeValue = safeKeyword ? `%${safeKeyword}%` : "";
+
+  // 목록/달력 렌더에 실제로 쓰는 컬럼만 선택한다.
+  // (select("*")는 message·address·product·raw_data 등 무거운 컬럼까지 최대 5000행 끌어와 느림)
+  const BOOKING_LIST_COLS =
+    "id, created_at, title, name, phone, date, time, location, status, depositor_name, email, google_event_id, guide_sent_at, fee_sms_sent_at, address_confirmed_at";
+  const CALENDAR_LIST_COLS =
+    "id, created_at, external_id, title, description, location, start_at, end_at, source, guide_sent_at, fee_sms_sent_at, address_confirmed_at";
+
+  // 모든 조회를 한 번의 Promise.all로 묶어 DB 왕복(직렬 대기)을 줄인다.
   const [
     { data: requests, error },
-    { data: calendarEvents, error: calendarError },
+    { data: calendarEvents },
+    { data: allCalendarEvents },
+    { data: cancelledBookings },
+    { data: cancelledCalEvents },
   ] = await Promise.all([
-    supabase.from("booking_requests").select("*").order("created_at", {
-      ascending: false,
-    }),
+    supabase
+      .from("booking_requests")
+      .select(BOOKING_LIST_COLS)
+      .is("cancelled_at", null)
+      .order("created_at", { ascending: false })
+      .limit(5000),
     supabase
       .from("calendar_events")
-      .select("*")
+      .select(CALENDAR_LIST_COLS)
+      .is("cancelled_at", null)
       .gte("start_at", monthStart.toISOString())
       .lt("start_at", monthEnd.toISOString())
-      .order("start_at", { ascending: true }),
+      .order("start_at", { ascending: true })
+      .limit(5000),
+    safeKeyword
+      ? supabase
+          .from("calendar_events")
+          .select(CALENDAR_LIST_COLS)
+          .is("cancelled_at", null)
+          .or(
+            `title.ilike.${ilikeValue},description.ilike.${ilikeValue},location.ilike.${ilikeValue}`
+          )
+          .order("start_at", { ascending: false })
+          .limit(5000)
+      : Promise.resolve({ data: null }),
+    // 취소건(소프트 취소된 부킹/캘린더) — 페이지 하단의 "취소건 확인" 섹션용
+    supabase
+      .from("booking_requests")
+      .select("id, name, title, phone, date, time, cancelled_at, status, google_event_id")
+      .not("cancelled_at", "is", null)
+      .order("cancelled_at", { ascending: false })
+      .limit(200),
+    supabase
+      .from("calendar_events")
+      .select("id, title, start_at, cancelled_at, external_id")
+      .not("cancelled_at", "is", null)
+      .order("cancelled_at", { ascending: false })
+      .limit(200),
   ]);
+
 
   if (error) {
     return (
@@ -378,50 +475,81 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     );
   }
 
-  if (calendarError) {
-    return (
-      <main className="mx-auto max-w-7xl px-4 py-10 md:px-8">
-        <h1 className="mb-6 text-2xl font-bold">예약 신청서 관리</h1>
-        <p className="text-red-500">
-          캘린더 일정을 불러오지 못했습니다: {calendarError.message}
-        </p>
-      </main>
-    );
-  }
+  // 취소건 통합 리스트 (booking + calendar). 같은 구글 이벤트로 양쪽에 중복된 건은 booking 쪽을 우선.
+  const cancelledBookingGoogleIds = new Set<string>(
+    ((cancelledBookings ?? []) as any[])
+      .map((b) => b.google_event_id)
+      .filter(Boolean) as string[]
+  );
+  const cancelledItems: Array<{
+    key: string;
+    source: "booking" | "calendar";
+    id: string;
+    name: string;
+    phone: string | null;
+    date: string | null;
+    cancelledAt: string;
+    detailHref: string;
+  }> = [
+    ...((cancelledBookings ?? []) as any[]).map((b) => ({
+      key: `b-${b.id}`,
+      source: "booking" as const,
+      id: b.id as string,
+      name: (b.name || b.title || "예약") as string,
+      phone: (b.phone as string) || null,
+      date: (b.date as string) || null,
+      cancelledAt: b.cancelled_at as string,
+      detailHref: `/admin/booking/${b.id}`,
+    })),
+    ...((cancelledCalEvents ?? []) as any[])
+      .filter((c) => !c.external_id || !cancelledBookingGoogleIds.has(String(c.external_id)))
+      .map((c) => ({
+        key: `c-${c.id}`,
+        source: "calendar" as const,
+        id: c.id as string,
+        name: String(c.title || "캘린더")
+          .replace(/^\[[^\]]*\]\s*/, "")
+          .replace(/^\d{3,4}\s+/, "")
+          .trim() || "캘린더",
+        phone: null,
+        date: getKSTDateStringFromISO(c.start_at),
+        cancelledAt: c.cancelled_at as string,
+        detailHref: `/admin/booking/calendar/${c.id}`,
+      })),
+  ].sort((a, b) => (a.cancelledAt < b.cancelledAt ? 1 : -1));
 
   const allRequests = (requests ?? []) as BookingRequest[];
   const importedCalendarEvents = (calendarEvents ?? []) as CalendarEvent[];
 
   const filteredRequests = allRequests.filter((item) => {
     const matchKeyword = keyword
-      ? (item.name || "").toLowerCase().includes(keyword.toLowerCase())
+      ? (item.name || "").toLowerCase().includes(keyword.toLowerCase()) || (item.phone || "").includes(keyword) || (item.email || "").toLowerCase().includes(keyword.toLowerCase()) || (item.depositor_name || "").toLowerCase().includes(keyword.toLowerCase())
       : true;
 
     const matchPhone = phone ? (item.phone || "").includes(phone) : true;
-    const matchDate = exactFilterDate ? item.date === exactFilterDate : true;
     const matchStatus = status ? (item.status || "pending") === status : true;
 
-    return matchKeyword && matchPhone && matchDate && matchStatus;
+    // 날짜(exactFilterDate)로는 여기서 전역 필터링하지 않는다.
+    // 월 달력 그리드/대기 리스트는 항상 해당 월 전체를 보여줘야 하고,
+    // 날짜 검색 결과는 아래 "date-result" 박스에서 별도로 exactFilterDate로 재필터링한다.
+    return matchKeyword && matchPhone && matchStatus;
   });
 
-  const depositPendingRequests = filteredRequests.filter(
-    (item) => item.status === "deposit_pending"
-  );
-  const pendingRequests = filteredRequests.filter(
-    (item) => (item.status || "pending") === "pending"
+  // booking_requests의 google_event_id 모음 — calendar_events 중복 표시 방지에 사용
+  const bookingGoogleEventIds = new Set<string>(
+    allRequests.map((r) => r.google_event_id).filter(Boolean) as string[]
   );
 
-  const calendar = getMonthCalendarData(
-    filteredRequests,
-    selectedYear,
-    selectedMonth
-  );
-  const externalEventsMap = getExternalEventsMap(importedCalendarEvents);
-
-  const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
-  const prev = getPrevMonth(selectedYear, selectedMonth);
-  const next = getNextMonth(selectedYear, selectedMonth);
-  const todayString = `${todayParts.year}-${todayParts.month}-${todayParts.day}`;
+  // 검색 모드든 일반 모드든, booking_requests와 같은 Google 이벤트는 중복 제거
+  const filteredCalendarEvents = keyword
+    ? ((allCalendarEvents ?? []) as CalendarEvent[]).filter(
+        (ev) =>
+          !ev.external_id || !bookingGoogleEventIds.has(String(ev.external_id))
+      )
+    : importedCalendarEvents.filter(
+        (ev) =>
+          !ev.external_id || !bookingGoogleEventIds.has(String(ev.external_id))
+      );
 
   const bookingListItems: BookingListItem[] = filteredRequests.map((item) => ({
     id: item.id,
@@ -438,7 +566,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     detailHref: `/admin/booking/${item.id}`,
   }));
 
-  const calendarListItems: BookingListItem[] = importedCalendarEvents.map(
+  const calendarListItems: BookingListItem[] = filteredCalendarEvents.map(
     (item) => {
       const dateString = getKSTDateStringFromISO(item.start_at);
       const timeString = getKSTTimeStringFromISO(item.start_at);
@@ -467,6 +595,86 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
     }
   );
 
+  // ───────────────────────────────────────────────────────────────
+  // 🔍 검색 모드: 캘린더와 다른 섹션 모두 숨기고 검색 결과 + 검색창만 표시
+  // ───────────────────────────────────────────────────────────────
+  if (isSearchMode) {
+    const totalCount = mergedListItems.length;
+
+    return (
+      <main className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
+        {/* 상단: 검색창 + 캘린더로 돌아가기 버튼 */}
+        <section className="mb-6">
+          <div className="rounded-[28px] border border-black/10 bg-white p-5 shadow-sm md:p-6">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-black/40">Search Results</p>
+                <h1 className="mt-1 text-xl font-semibold">
+                  &quot;{keyword}&quot; 검색 결과 ({totalCount}건)
+                </h1>
+              </div>
+              <Link
+                href="/admin/booking"
+                className="inline-flex h-11 items-center justify-center rounded-full border border-black/10 bg-white px-5 text-sm font-medium text-black transition hover:bg-black/5"
+              >
+                ← 부킹 메인으로
+              </Link>
+            </div>
+
+            <SearchBarSimple defaultKeyword={keyword} />
+          </div>
+        </section>
+
+        {/* 검색 결과 리스트 */}
+        <BookingListTable items={mergedListItems} />
+
+        {/* 하단: 검색창 한 번 더 + 부킹 메인 버튼 (스크롤 안 올리고 다시 검색) */}
+        <section className="mt-8">
+          <div className="rounded-[28px] border border-black/10 bg-white p-5 shadow-sm md:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-black/60">다시 검색하기</p>
+              <Link
+                href="/admin/booking"
+                className="inline-flex h-10 items-center justify-center rounded-full border border-black/10 bg-white px-4 text-xs font-medium text-black transition hover:bg-black/5"
+              >
+                ← 부킹 메인으로
+              </Link>
+            </div>
+            <SearchBarSimple defaultKeyword={keyword} />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  // ───────────────────────────────────────────────────────────────
+  // 📅 일반 모드: 기존 캘린더 + 리스트 화면
+  // ───────────────────────────────────────────────────────────────
+
+  const depositPendingRequests = filteredRequests.filter(
+    (item) => item.status === "deposit_pending"
+  );
+  const pendingRequests = filteredRequests.filter(
+    (item) => (item.status || "pending") === "pending"
+  );
+
+  const calendar = getMonthCalendarData(
+    filteredRequests,
+    selectedYear,
+    selectedMonth
+  );
+
+  // booking_requests와 같은 Google 이벤트인 calendar_events는 중복이므로 표시에서 제외
+  const dedupedCalendarEvents = importedCalendarEvents.filter(
+    (ev) => !ev.external_id || !bookingGoogleEventIds.has(String(ev.external_id))
+  );
+  const externalEventsMap = getExternalEventsMap(dedupedCalendarEvents);
+
+  const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
+  const prev = getPrevMonth(selectedYear, selectedMonth);
+  const next = getNextMonth(selectedYear, selectedMonth);
+  const todayString = `${todayParts.year}-${todayParts.month}-${todayParts.day}`;
+
   const selectedDateBookingItems = selectedDate
     ? filteredRequests.filter((item) => item.date === selectedDate)
     : [];
@@ -478,7 +686,25 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
 
-      <section className="mb-10">
+      <SchedulerPasscodeSetting initial={schedulerPasscode} />
+
+      <div className="mb-4 flex flex-wrap justify-end gap-2">
+        <Link
+          href="/admin/orders"
+          className="inline-flex h-10 items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 text-xs font-medium text-amber-800 transition hover:bg-amber-100"
+        >
+          📦 주문관리
+        </Link>
+        <Link
+          href="/admin/booking/orders-completed"
+          className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-300 bg-emerald-50 px-4 text-xs font-medium text-emerald-800 transition hover:bg-emerald-100"
+        >
+          📦 주문완료 내역
+        </Link>
+        <ScheduleSearchButton />
+      </div>
+
+      <section className="mb-10 grid gap-4 md:grid-cols-2">
         <div className="overflow-hidden rounded-[28px] border border-black/10 bg-white shadow-sm">
           <div className="divide-y divide-black/5">
             {pendingRequests.length ? (
@@ -486,7 +712,7 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 <Link
                   key={item.id}
                   href={`/admin/booking/${item.id}`}
-                  className="flex flex-col gap-2 px-5 py-4 transition hover:bg-black/[0.02] md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-2 px-5 py-4 transition hover:bg-black/[0.02]"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
@@ -500,13 +726,10 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                       {item.date ?? "-"} / {formatTimeSlot(item.time)}
                     </span>
                     <span className="font-medium">{item.name ?? "-"}</span>
-                    <span className="text-sm text-black/50">
-                      {item.phone ?? "-"}
-                    </span>
                   </div>
-
-                  <div className="text-sm text-black/55">
-                    {item.location ?? "-"}
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-black/55">
+                    <span>{item.phone ?? "-"}</span>
+                    <span>{item.location ?? "-"}</span>
                   </div>
                 </Link>
               ))
@@ -517,30 +740,37 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             )}
           </div>
         </div>
-      </section>
 
-      <section className="mb-10">
         <div className="overflow-hidden rounded-[28px] border border-black/10 bg-white shadow-sm">
           <div className="divide-y divide-black/5">
             {depositPendingRequests.length ? (
               depositPendingRequests.map((item) => (
-                <Link
+                <div
                   key={item.id}
-                  href={`/admin/booking/${item.id}`}
-                  className="flex flex-col gap-2 px-5 py-4 transition hover:bg-black/[0.02] md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-2 px-5 py-4 md:flex-row md:items-center md:justify-between"
                 >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-700">
-                      입금대기
-                    </span>
-                    <span className={`rounded-full px-3 py-1 text-xs ${getTimeSlotBadgeClass(item.time)}`}>
-                      {item.date ?? "-"} / {formatTimeSlot(item.time)}
-                    </span>
-                    <span className="font-medium">{item.name ?? "-"}</span>
-                    <span className="text-sm text-black/50">{item.phone ?? "-"}</span>
+                  <Link
+                    href={`/admin/booking/${item.id}`}
+                    className="flex min-w-0 flex-1 flex-col gap-2 transition hover:opacity-70"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-700">
+                        입금대기
+                      </span>
+                      <span className={`rounded-full px-3 py-1 text-xs ${getTimeSlotBadgeClass(item.time)}`}>
+                        {item.date ?? "-"} / {formatTimeSlot(item.time)}
+                      </span>
+                      <span className="font-medium">{item.name ?? "-"}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-black/55">
+                      <span>{item.phone ?? "-"}</span>
+                      <span>{item.location ?? "-"}</span>
+                    </div>
+                  </Link>
+                  <div className="flex shrink-0 justify-end self-end md:self-auto">
+                    <DepositReminderButton phone={item.phone} />
                   </div>
-                  <div className="text-sm text-black/55">{item.location ?? "-"}</div>
-                </Link>
+                </div>
               ))
             ) : (
               <div className="px-5 py-8 text-center text-sm text-black/45">
@@ -554,7 +784,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
       <section className="mb-10">
         <div className="mb-4 flex flex-col gap-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            {/* 이전달 / 년월 / 다음달 + 날짜 검색 + Today */}
             <CalendarNavForm
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
@@ -578,7 +807,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
             />
           </div>
 
-          {/* 날짜 검색 결과 리스트 - 캘린더 위에 표시 */}
           {hasExplicitDateFilter && exactFilterDate && (
             <div id="date-result" className="rounded-[24px] border border-black/8 bg-white p-4 shadow-sm">
               <div className="mb-3 flex items-center justify-between">
@@ -663,7 +891,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           )}
         </div>
 
-        {/* PC 선택 날짜 리스트 - 캘린더 위에 표시 */}
         {selectedDate && (
           <div id="date-result" className="mb-4 hidden rounded-[24px] border border-black/8 bg-white p-4 shadow-sm md:block">
             <div className="mb-3 flex items-center justify-between">
@@ -779,7 +1006,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                 >
                   {cell.day ? (
                     <>
-                      {/* 모바일 */}
                       <Link
                         href={buildSelectedDateLink({
                           targetDate: cell.dateString!,
@@ -835,7 +1061,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                         </div>
                       </Link>
 
-                      {/* PC */}
                       <div
                         className={`hidden min-h-[145px] p-2.5 md:block ${
                           isSelected ? "bg-black/[0.02]" : ""
@@ -870,11 +1095,18 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                         </div>
 
                         <div className="space-y-1.5">
-                          {externalItems.slice(0, 3).map((item) => (
+                          {externalItems.map((item) => (
+                            <div key={item.id} className="relative">
+                            <CopyFolderName
+                              text={folderName(
+                                cell.dateString,
+                                nameFromCalendarTitle(item.title),
+                                item.location
+                              )}
+                            />
                             <Link
-                              key={item.id}
                               href={`/admin/booking/calendar/${item.id}`}
-                              className="block rounded-xl border border-[#eadfce] bg-[#f6efe5] px-2 py-1.5 transition hover:bg-[#efe4d6]"
+                              className="block rounded-xl border border-[#eadfce] bg-[#f6efe5] px-2 py-1.5 pr-6 transition hover:bg-[#efe4d6]"
                             >
                               <div className="mb-1 flex items-center gap-1">
                                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#c7a77a]" />
@@ -883,19 +1115,32 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                                     {getKSTTimeStringFromISO(item.start_at)}
                                   </span>
                                 ) : null}
+                                {item.guide_sent_at && (
+                                  <span className="text-[10px] leading-none" title="안내문자 발송됨">💬</span>
+                                )}
+                                {item.fee_sms_sent_at && (
+                                  <span className="text-[10px] leading-none" title="촬영비 입금 문자 발송됨">💰</span>
+                                )}
+                                {item.address_confirmed_at && (
+                                  <span className="text-[10px] leading-none" title="고객 주소 확인됨">📍</span>
+                                )}
                               </div>
 
                               <div className="truncate text-[10px] font-medium text-black/75">
                                 {item.title ?? "제목 없음"}
                               </div>
                             </Link>
+                            </div>
                           ))}
 
-                          {cell.items.slice(0, 3).map((item) => (
+                          {cell.items.map((item) => (
+                            <div key={item.id} className="relative">
+                            <CopyFolderName
+                              text={folderName(cell.dateString, item.name, item.location)}
+                            />
                             <Link
-                              key={item.id}
                               href={`/admin/booking/${item.id}`}
-                              className="block rounded-xl border border-black/5 bg-[#f7f5f2] px-2 py-1.5 transition hover:bg-[#efebe5]"
+                              className="block rounded-xl border border-black/5 bg-[#f7f5f2] px-2 py-1.5 pr-6 transition hover:bg-[#efebe5]"
                             >
                               <div className="mb-1 flex flex-wrap items-center gap-1">
                                 <span
@@ -905,19 +1150,27 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
                                 >
                                   {formatTimeSlot(item.time)}
                                 </span>
+                                {typeof item.title === "string" && item.title.includes("☀여름") && (
+                                  <span className="text-[10px] leading-none" title="여름 이벤트">☀</span>
+                                )}
+                                {item.guide_sent_at && (
+                                  <span className="text-[10px] leading-none" title="안내문자 발송됨">💬</span>
+                                )}
+                                {item.fee_sms_sent_at && (
+                                  <span className="text-[10px] leading-none" title="촬영비 입금 문자 발송됨">💰</span>
+                                )}
+                                {item.address_confirmed_at && (
+                                  <span className="text-[10px] leading-none" title="고객 주소 확인됨">📍</span>
+                                )}
                               </div>
 
                               <div className="truncate text-[10px] font-medium text-black/75">
                                 {item.name ?? "-"}
                               </div>
                             </Link>
+                            </div>
                           ))}
 
-                          {externalItems.length + cell.items.length > 6 && (
-                            <div className="px-1 text-[10px] text-black/35">
-                              + {externalItems.length + cell.items.length - 6}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </>
@@ -930,7 +1183,6 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        {/* 모바일 선택 날짜 리스트 */}
         {selectedDate && (
         <div id="selected-date" className="mt-5 rounded-[24px] border border-black/10 bg-white p-4 shadow-sm md:hidden">
           <div className="mb-3 flex items-center justify-between">
@@ -1026,6 +1278,50 @@ export default async function AdminBookingPage({ searchParams }: PageProps) {
           신청서 작성
         </Link>
       </div>
+
+      {/* 취소건 확인 — 항상 표시(0건이어도 버튼 노출), 접기/펴기 */}
+      <section className="mt-10">
+        <details className="overflow-hidden rounded-2xl border border-black/10 bg-[#fafafa]">
+          <summary className="cursor-pointer list-none px-5 py-3 text-sm font-semibold text-black/65 hover:bg-black/5">
+            🚫 취소건 확인 ({cancelledItems.length}건)
+          </summary>
+          <div className="divide-y divide-black/5 border-t border-black/10">
+            {cancelledItems.length === 0 && (
+              <div className="px-5 py-6 text-center text-sm text-black/45">
+                취소된 예약이 없습니다.
+              </div>
+            )}
+            {cancelledItems.map((it) => {
+                const cancelledKST = new Intl.DateTimeFormat("ko-KR", {
+                  timeZone: "Asia/Seoul",
+                  year: "2-digit",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                }).format(new Date(it.cancelledAt));
+                return (
+                  <Link
+                    key={it.key}
+                    href={it.detailHref}
+                    className="flex flex-wrap items-center gap-3 px-5 py-3 text-sm text-black/65 transition hover:bg-black/5"
+                  >
+                    <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-[11px] font-medium text-red-700">
+                      취소
+                    </span>
+                    <span className="text-black/55">{it.date || "-"}</span>
+                    <span className="font-medium text-black/80 line-through decoration-black/30">
+                      {it.name}
+                    </span>
+                    {it.phone && <span className="text-black/55">{it.phone}</span>}
+                    <span className="ml-auto text-xs text-black/40">취소: {cancelledKST}</span>
+                  </Link>
+                );
+              })}
+          </div>
+        </details>
+      </section>
     </main>
   );
 }
