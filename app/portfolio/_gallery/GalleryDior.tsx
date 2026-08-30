@@ -12,7 +12,7 @@ import StoryVideo from "./StoryVideo";
    파일은 public/video 에 두고, 여기에 한 줄 추가하면 해당 스토리에 붙는다. */
 const STORY_VIDEOS: Record<number, { src: string; poster?: string; ratio?: string; label?: string; align?: string }> = {
   // 16:9 원본의 가로 절반만 쓴다 → 8/9. 나머지 절반에는 같은 스토리의 세로 사진이 들어간다.
-  5: { src: "/video/rainy.mp4", poster: "/video/rainy.jpg", ratio: "8/9", align: "left center", label: "비오는 날" },
+  5: { src: "/video/rainy-loop.mp4", poster: "/video/rainy-loop.jpg", ratio: "8/9", align: "left center", label: "비오는 날" },
 };
 
 /* 영상 옆에 세울 세로 사진 — 폭이 같으므로 영상과 같은 화면비여야 높이가 맞는다 */
